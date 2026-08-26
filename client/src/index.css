@@ -1,0 +1,647 @@
+@import "tailwindcss";
+
+/* =========================================================
+   HOMETRUE GLOBAL THEME
+   =========================================================
+   IMPORTANT:
+   Site-wide colors ko sirf yahin se change karna hai.
+   Components ke andar hex colors avoid karenge.
+   ========================================================= */
+
+:root {
+  /* =======================================================
+     BRAND COLORS
+     ======================================================= */
+--brand-primary: #082b49;
+--brand-primary-dark: #061d32;
+--brand-primary-light: #123d60;
+
+  --brand-secondary: #d9a441;
+  --brand-secondary-dark: #b88725;
+  --brand-secondary-light: #f4c76b;
+
+  --brand-accent: #f4c76b;
+
+
+  /* =======================================================
+     BACKGROUND COLORS
+     ======================================================= */
+
+  --background-primary: #ffffff;
+  --background-secondary: #f7f8fa;
+  --background-tertiary: #f1f4f7;
+
+  --background-dark: #061d32;
+  --background-dark-secondary: #082b49;
+
+
+  /* =======================================================
+     TEXT COLORS
+     ======================================================= */
+--text-primary: #102030;
+  --text-secondary: #667085;
+  --text-muted: #98a2b3;
+
+  --text-light: #ffffff;
+  --text-light-secondary: rgba(255, 255, 255, 0.75);
+
+
+  /* =======================================================
+     BORDER COLORS
+     ======================================================= */
+
+  --border-primary: #e5e7eb;
+  --border-secondary: #d0d5dd;
+  --border-dark: rgba(255, 255, 255, 0.12);
+
+
+  /* =======================================================
+     STATUS COLORS
+     ======================================================= */
+
+  --status-success: #238b45;
+  --status-warning: #d9a441;
+  --status-danger: #dc3545;
+  --status-info: #2563eb;
+
+
+  /* =======================================================
+     CARD / SURFACE COLORS
+     ======================================================= */
+
+  --surface-white: #ffffff;
+  --surface-light: #f8fafc;
+  --surface-dark: #061d32;
+
+
+  /* =======================================================
+     SHADOWS
+     ======================================================= */
+
+  --shadow-sm:
+    0 2px 8px rgba(16, 32, 48, 0.06);
+
+  --shadow-card:
+    0 4px 20px rgba(16, 32, 48, 0.08);
+
+  --shadow-card-hover:
+    0 8px 30px rgba(16, 32, 48, 0.12);
+
+  --shadow-lg:
+    0 15px 45px rgba(16, 32, 48, 0.15);
+
+  --shadow-xl:
+    0 20px 60px rgba(0, 0, 0, 0.20);
+
+
+  /* =======================================================
+     BORDER RADIUS
+     ======================================================= */
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+
+  /* =======================================================
+     LAYOUT
+     ======================================================= */
+
+  --container-width: 1440px;
+  --container-padding: 24px;
+
+
+  /* =======================================================
+     TRANSITIONS
+     ======================================================= */
+
+  --transition-fast: 150ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow: 300ms ease;
+}
+
+
+/* =========================================================
+   TAILWIND v4 THEME TOKENS
+   ========================================================= */
+
+@theme inline {
+
+  /* -------------------------------------------------------
+     BRAND
+     ------------------------------------------------------- */
+
+  --color-primary: var(--brand-primary);
+  --color-primary-dark: var(--brand-primary-dark);
+  --color-primary-light: var(--brand-primary-light);
+
+  --color-secondary: var(--brand-secondary);
+  --color-secondary-dark: var(--brand-secondary-dark);
+  --color-secondary-light: var(--brand-secondary-light);
+
+  --color-accent: var(--brand-accent);
+
+
+  /* -------------------------------------------------------
+     BACKGROUNDS
+     ------------------------------------------------------- */
+
+  --color-background: var(--background-primary);
+  --color-background-secondary: var(--background-secondary);
+  --color-background-tertiary: var(--background-tertiary);
+
+  --color-background-dark: var(--background-dark);
+  --color-background-dark-secondary: var(--background-dark-secondary);
+
+
+  /* -------------------------------------------------------
+     TEXT
+     ------------------------------------------------------- */
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  --color-text-light: var(--text-light);
+
+
+  /* -------------------------------------------------------
+     BORDERS
+     ------------------------------------------------------- */
+
+  --color-border-primary: var(--border-primary);
+  --color-border-secondary: var(--border-secondary);
+  --color-border-dark: var(--border-dark);
+
+
+  /* -------------------------------------------------------
+     STATUS
+     ------------------------------------------------------- */
+
+  --color-success: var(--status-success);
+  --color-warning: var(--status-warning);
+  --color-danger: var(--status-danger);
+  --color-info: var(--status-info);
+
+
+  /* -------------------------------------------------------
+     SURFACES
+     ------------------------------------------------------- */
+
+  --color-surface-white: var(--surface-white);
+  --color-surface-light: var(--surface-light);
+  --color-surface-dark: var(--surface-dark);
+
+
+  /* -------------------------------------------------------
+     RADIUS
+     ------------------------------------------------------- */
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
+  --radius-full: var(--radius-full);
+}
+
+
+/* =========================================================
+   GLOBAL RESET
+   ========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   HTML
+   ========================================================= */
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+
+/* =========================================================
+   BODY
+   ========================================================= */
+
+body {
+  margin: 0;
+  min-width: 320px;
+
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  font-size: 16px;
+  line-height: 1.5;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* =========================================================
+   HEADINGS
+   ========================================================= */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  color: inherit;
+  font-weight: inherit;
+}
+
+
+/* =========================================================
+   PARAGRAPH
+   ========================================================= */
+
+p {
+  margin: 0;
+}
+
+
+/* =========================================================
+   LINKS
+   ========================================================= */
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+
+/* =========================================================
+   BUTTON
+   ========================================================= */
+
+button {
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+  background: none;
+
+  color: inherit;
+  font: inherit;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   FORM ELEMENTS
+   ========================================================= */
+
+input,
+textarea,
+select {
+  margin: 0;
+  font: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+
+/* =========================================================
+   IMAGES
+   ========================================================= */
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+
+/* =========================================================
+   LISTS
+   ========================================================= */
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+
+/* =========================================================
+   ROOT
+   ========================================================= */
+
+#root {
+  min-height: 100vh;
+}
+
+
+/* =========================================================
+   GLOBAL CONTAINER
+   ========================================================= */
+
+.container-site {
+  width: 100%;
+  max-width: var(--container-width);
+
+  margin-inline: auto;
+
+  padding-inline: var(--container-padding);
+}
+
+
+/* =========================================================
+   RESPONSIVE CONTAINER
+   ========================================================= */
+
+@media (max-width: 1024px) {
+  .container-site {
+    padding-inline: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container-site {
+    padding-inline: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container-site {
+    padding-inline: 14px;
+  }
+}
+
+
+/* =========================================================
+   GLOBAL SCROLLBAR
+   ========================================================= */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--brand-primary);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-secondary);
+}
+
+
+/* =========================================================
+   TEXT SELECTION
+   ========================================================= */
+
+::selection {
+  background: var(--brand-secondary);
+  color: var(--brand-primary);
+}
+
+
+/* =========================================================
+   COMMON REUSABLE UTILITIES
+   ========================================================= */
+
+.site-card {
+  background: var(--surface-white);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+
+  transition:
+    box-shadow var(--transition-normal),
+    transform var(--transition-normal);
+}
+
+.site-card:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+
+.site-section {
+  width: 100%;
+  padding-block: 80px;
+}
+
+
+.site-section-sm {
+  width: 100%;
+  padding-block: 48px;
+}
+
+
+.site-section-lg {
+  width: 100%;
+  padding-block: 100px;
+}
+
+
+/* =========================================================
+   RESPONSIVE SECTION SPACING
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .site-section {
+    padding-block: 60px;
+  }
+
+  .site-section-sm {
+    padding-block: 36px;
+  }
+
+  .site-section-lg {
+    padding-block: 72px;
+  }
+}
+
+
+/* =========================================================
+   GLOBAL FOCUS
+   ========================================================= */
+
+:focus-visible {
+  outline: 2px solid var(--brand-secondary);
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   DISABLED ELEMENTS
+   ========================================================= */
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =========================================================
+   HOMETRUE RESPONSIVE SYSTEM
+   Mobile + Tablet
+   ========================================================= */
+
+/* =========================================================
+   MOBILE
+   320px - 767px
+   ========================================================= */
+
+@media (max-width: 767px) {
+
+  /* -----------------------------------------
+     GLOBAL CONTAINER
+  ----------------------------------------- */
+
+  .container-site {
+    width: 100%;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  /* -----------------------------------------
+     SECTION SPACING
+  ----------------------------------------- */
+
+  .site-section {
+    padding-top: 42px;
+    padding-bottom: 42px;
+  }
+
+  /* -----------------------------------------
+     HIDE DESKTOP ONLY ELEMENTS
+  ----------------------------------------- */
+
+  .desktop-only {
+    display: none !important;
+  }
+
+  /* -----------------------------------------
+     SECTION HEADERS
+  ----------------------------------------- */
+
+  .section-header {
+    margin-bottom: 18px;
+  }
+
+  .section-header-title {
+    font-size: 22px;
+    line-height: 1.2;
+  }
+
+  .section-header-description {
+    max-width: 100%;
+    font-size: 11px;
+    line-height: 1.6;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   320px - 479px
+   ========================================================= */
+
+@media (max-width: 479px) {
+
+  .container-site {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .site-section {
+    padding-top: 36px;
+    padding-bottom: 36px;
+  }
+
+}
+
+
+/* =========================================================
+   TABLET
+   768px - 1023px
+   ========================================================= */
+
+@media (min-width: 768px) and (max-width: 1023px) {
+
+  .container-site {
+    width: 100%;
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+
+  .site-section {
+    padding-top: 54px;
+    padding-bottom: 54px;
+  }
+
+}
