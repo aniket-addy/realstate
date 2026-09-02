@@ -310,6 +310,44 @@ button {
   cursor: pointer;
 }
 
+/* Profile page actions need explicit styles because this global button reset
+   is outside Tailwind's utility layer. */
+.profile-save-button,
+.profile-password-button {
+  border: 0;
+  border-radius: 12px;
+  background: #008f00;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.profile-save-button {
+  min-width: 190px;
+  height: 56px;
+  padding: 0 28px;
+}
+
+.profile-password-button {
+  width: 100%;
+  height: 56px;
+  padding: 0 24px;
+}
+
+.profile-save-button:hover,
+.profile-password-button:hover {
+  background: #006f00;
+}
+
+.profile-save-button:disabled,
+.profile-password-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 
 /* =========================================================
    FORM ELEMENTS

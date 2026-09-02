@@ -5,9 +5,14 @@ const cors = require("cors");
 
 const connectDB = require("./config/db");
 
-const propertyRoutes = require("./routes/propertyRoutes");
-
+const authRoutes = require("./routes/authRoutes");
+const profileRoutes =
+  require("./routes/profileRoutes");
 const app = express();
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.CLIENT_URL,
+].filter(Boolean);
 
 
 // ==========================================
@@ -23,7 +28,13 @@ connectDB();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Origin not allowed by CORS"));
+    },
     credentials: true,
   })
 );
@@ -57,18 +68,21 @@ app.get("/", (req, res) => {
 
 
 // ==========================================
-// PROPERTY API
+// AUTH API
 // ==========================================
 
 app.use(
-  "/api/properties",
-  propertyRoutes
+  "/api/auth",
+  authRoutes
 );
-
-
+app.use(
+  "/api/auth",
+  profileRoutes
+);
 // ==========================================
 // SERVER
 // ==========================================
+
 
 const PORT = process.env.PORT || 5000;
 
