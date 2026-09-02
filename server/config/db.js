@@ -1,12 +1,33 @@
 const mongoose = require("mongoose");
 
+/*
+|--------------------------------------------------------------------------
+| MONGODB CONNECTION
+|--------------------------------------------------------------------------
+*/
+
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
+    const mongoURI = process.env.MONGO_URI;
 
-    console.log(`MongoDB Atlas Connected: ${conn.connection.host}`);
+    if (!mongoURI) {
+      throw new Error(
+        "MONGO_URI is missing in .env file"
+      );
+    }
+
+    const connection =
+      await mongoose.connect(mongoURI);
+
+    console.log(
+      `MongoDB Connected: ${connection.connection.host}`
+    );
   } catch (error) {
-    console.error("MongoDB Connection Error:", error.message);
+    console.error(
+      "MongoDB Connection Error:",
+      error.message
+    );
+
     process.exit(1);
   }
 };

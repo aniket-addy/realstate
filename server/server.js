@@ -5,21 +5,40 @@ const cors = require("cors");
 
 const connectDB = require("./config/db");
 
-const propertyRoutes = require("./routes/propertyRoutes");
+// =========================================================
+// ROUTES
+// =========================================================
+
+const authorityProjectRoutes = require(
+  "./routes/authorityProjectRoutes"
+);
+
+const builderProjectRoutes = require(
+  "./routes/builderProjectRoutes"
+);
+
+const leadRoutes = require(
+  "./routes/leadRoutes"
+);
+
+
+// =========================================================
+// APP
+// =========================================================
 
 const app = express();
 
 
-// ==========================================
+// =========================================================
 // DATABASE
-// ==========================================
+// =========================================================
 
 connectDB();
 
 
-// ==========================================
-// MIDDLEWARE
-// ==========================================
+// =========================================================
+// CORS
+// =========================================================
 
 app.use(
   cors({
@@ -29,7 +48,10 @@ app.use(
 );
 
 
-// Base64 images ke liye limit
+// =========================================================
+// BODY PARSER
+// =========================================================
+
 app.use(
   express.json({
     limit: "50mb",
@@ -44,36 +66,122 @@ app.use(
 );
 
 
-// ==========================================
-// TEST
-// ==========================================
+// =========================================================
+// ROOT / HEALTH CHECK
+// =========================================================
 
 app.get("/", (req, res) => {
-  res.json({
+  res.status(200).json({
     success: true,
     message: "Real Estate API is running",
   });
 });
 
 
-// ==========================================
-// PROPERTY API
-// ==========================================
+// =========================================================
+// AUTHORITY PROJECT API
+// =========================================================
+//
+// GET    /api/authority-projects
+// GET    /api/authority-projects/:id
+// POST   /api/authority-projects
+// PUT    /api/authority-projects/:id
+// DELETE /api/authority-projects/:id
+//
+// =========================================================
 
 app.use(
-  "/api/properties",
-  propertyRoutes
+  "/api/authority-projects",
+  authorityProjectRoutes
 );
 
 
-// ==========================================
-// SERVER
-// ==========================================
+// =========================================================
+// BUILDER PROJECT API
+// =========================================================
+//
+// GET    /api/builder-projects
+// GET    /api/builder-projects/:id
+// POST   /api/builder-projects
+// PUT    /api/builder-projects/:id
+// DELETE /api/builder-projects/:id
+//
+// =========================================================
 
-const PORT = process.env.PORT || 5000;
+app.use(
+  "/api/builder-projects",
+  builderProjectRoutes
+);
 
-app.listen(PORT, () => {
-  console.log(
-    `Server running on http://localhost:${PORT}`
-  );
+
+// =========================================================
+// LEAD API
+// =========================================================
+//
+// GET    /api/leads
+// GET    /api/leads/:id
+// POST   /api/leads
+// PUT    /api/leads/:id
+// PATCH  /api/leads/:id/status
+// DELETE /api/leads/:id
+// GET    /api/leads/stats
+//
+// =========================================================
+
+app.use(
+  "/api/leads",
+  leadRoutes
+);
+
+
+// =========================================================
+// 404 HANDLER
+// =========================================================
+
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route not found: ${req.method} ${req.originalUrl}`,
+  });
 });
+
+
+// =========================================================
+// GLOBAL ERROR HANDLER
+// =========================================================
+
+app.use(
+  (err, req, res, next) => {
+    console.error(
+      "Server Error:",
+      err
+    );
+
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+
+      error:
+        process.env.NODE_ENV === "development"
+          ? err.message
+          : undefined,
+    });
+  }
+);
+
+
+// =========================================================
+// SERVER
+// =========================================================
+
+const PORT =
+  process.env.PORT || 5000;
+
+app.listen(
+  PORT,
+  () => {
+    console.log(
+      `Server running on http://localhost:${PORT}`
+    );
+  }
+);

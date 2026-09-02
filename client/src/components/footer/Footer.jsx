@@ -1,190 +1,111 @@
 import {
+  ArrowUp,
   Mail,
   MapPin,
   Phone,
 } from "lucide-react";
 
+import { Link } from "react-router-dom";
+
+const companyLinks = [
+  { label: "About Us", path: "/about" },
+  { label: "Our Services", path: "/services" },
+  { label: "Projects", path: "/projects" },
+  { label: "Properties", path: "/properties" },
+  { label: "Blogs", path: "/blogs" },
+  { label: "Contact Us", path: "/contact" },
+];
+
+const projectLinks = [
+  { label: "Authority Projects", path: "/projects/authority" },
+  { label: "Builder Projects", path: "/projects/builder" },
+  { label: "Residential Projects", path: "/projects/residential" },
+  { label: "Commercial Projects", path: "/projects/commercial" },
+];
+
+const propertyLinks = [
+  { label: "Residential", path: "/properties/residential" },
+  { label: "Commercial", path: "/properties/commercial" },
+  { label: "Plots", path: "/properties/plots" },
+  { label: "Villas", path: "/properties/villas" },
+];
+
 function Footer() {
-  const exploreLinks = [
-    "Buy Properties",
-    "Rent Properties",
-    "Commercial",
-    "New Projects",
-    "Locations",
-  ];
-
-  const companyLinks = [
-    "About Us",
-    "Our Agents",
-    "Careers",
-    "Contact Us",
-    "News & Media",
-  ];
-
-  const resourceLinks = [
-    "Blog",
-    "Market Insights",
-    "Buying Guide",
-    "Selling Guide",
-    "FAQs",
-  ];
-
-  const supportLinks = [
-    "Help Center",
-    "Privacy Policy",
-    "Terms & Conditions",
-    "Cookie Policy",
-    "Disclaimer",
-  ];
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
 
   return (
-    <footer className="bg-primary-dark text-white">
-      <div className="container-site">
+    <footer className="bg-slate-950 text-white">
 
-        {/* =====================================================
-            MAIN FOOTER
-        ===================================================== */}
-        <div className="grid grid-cols-1 gap-9 py-9 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1fr_1fr_1.4fr] lg:gap-8">
+      {/* =====================================================
+          MAIN FOOTER
+      ====================================================== */}
 
-          {/* ===================================================
+      <div className="mx-auto max-w-[1240px] px-4 py-14 sm:px-6 lg:px-8 lg:py-16">
+
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
+
+          {/* =================================================
               BRAND
-          =================================================== */}
-          <div className="min-w-0">
+          ================================================== */}
 
-            {/* Logo */}
-            <a
-              href="/"
-              className="inline-flex items-center gap-2.5"
+          <div>
+
+            <Link
+              to="/"
+              className="inline-flex items-center gap-3"
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[9px] border border-secondary">
-                <span className="text-[17px] font-bold text-secondary">
-                  H
-                </span>
+
+              {/* Logo */}
+              <div className="relative flex h-11 w-11 items-end justify-center overflow-hidden rounded-lg bg-white">
+
+                <div className="absolute bottom-0 left-[7px] h-7 w-[7px] rounded-t-sm bg-slate-900" />
+
+                <div className="absolute bottom-0 left-[17px] h-9 w-[7px] rounded-t-sm bg-slate-900" />
+
+                <div className="absolute bottom-0 right-[7px] h-6 w-[7px] rounded-t-sm bg-slate-900" />
+
+                <div className="absolute left-[15px] top-[4px] h-2 w-2 rotate-45 bg-[#d6a84f]" />
+
               </div>
 
               <div className="leading-none">
 
-                <div className="text-[16px] font-bold tracking-wide text-white">
-                  HOMETRUE
+                <div className="text-[19px] font-extrabold tracking-[0.08em]">
+                  INVESTORISE
                 </div>
 
-                <div className="mt-1 text-[7px] tracking-[0.08em] text-white/65">
-                  Find Your True Home
+                <div className="mt-1 text-[8px] font-medium tracking-[0.12em] text-slate-500">
+                  INVEST IN BETTER TOMORROW
                 </div>
 
               </div>
-            </a>
 
+            </Link>
 
             {/* Description */}
-            <p className="mt-4 max-w-[230px] text-[10px] leading-[1.6] text-white/65">
-              Discover verified properties, new projects and
-              perfect spaces that match your lifestyle.
+            <p className="mt-5 max-w-sm text-xs leading-6 text-slate-400">
+              A modern real estate advisory platform helping you discover
+              trusted projects, properties and investment opportunities.
             </p>
 
-
             {/* =================================================
-                SOCIAL ICONS
-            ================================================= */}
-            <div className="mt-5 flex items-center gap-4">
+                CONTACT DETAILS
+            ================================================== */}
 
-              {/* Facebook */}
-              <a
-                href="#"
-                aria-label="Facebook"
-                className="text-white/80 transition-colors duration-200 hover:text-secondary"
-              >
-                <FacebookIcon />
-              </a>
+            <div className="mt-6 space-y-3">
 
-              {/* Instagram */}
-              <a
-                href="#"
-                aria-label="Instagram"
-                className="text-white/80 transition-colors duration-200 hover:text-secondary"
-              >
-                <InstagramIcon />
-              </a>
-
-              {/* LinkedIn */}
-              <a
-                href="#"
-                aria-label="LinkedIn"
-                className="text-white/80 transition-colors duration-200 hover:text-secondary"
-              >
-                <LinkedinIcon />
-              </a>
-
-              {/* YouTube */}
-              <a
-                href="#"
-                aria-label="YouTube"
-                className="text-white/80 transition-colors duration-200 hover:text-secondary"
-              >
-                <YoutubeIcon />
-              </a>
-
-            </div>
-
-          </div>
-
-
-          {/* ===================================================
-              EXPLORE
-          =================================================== */}
-          <FooterColumn
-            title="Explore"
-            links={exploreLinks}
-          />
-
-
-          {/* ===================================================
-              COMPANY
-          =================================================== */}
-          <FooterColumn
-            title="Company"
-            links={companyLinks}
-          />
-
-
-          {/* ===================================================
-              RESOURCES
-          =================================================== */}
-          <FooterColumn
-            title="Resources"
-            links={resourceLinks}
-          />
-
-
-          {/* ===================================================
-              SUPPORT
-          =================================================== */}
-          <FooterColumn
-            title="Support"
-            links={supportLinks}
-          />
-
-
-          {/* ===================================================
-              CONTACT
-          =================================================== */}
-          <div className="min-w-0">
-
-            <h3 className="text-[12px] font-semibold text-white">
-              Contact Us
-            </h3>
-
-            <div className="mt-4 space-y-3">
-
-              {/* Phone */}
               <a
                 href="tel:+919876543210"
-                className="flex items-start gap-2.5 text-[10px] leading-5 text-white/70 transition-colors duration-200 hover:text-secondary"
+                className="flex items-center gap-2.5 text-xs text-slate-300 transition hover:text-white"
               >
                 <Phone
                   size={14}
-                  strokeWidth={1.8}
-                  className="mt-[3px] shrink-0"
+                  className="text-[#e0b65c]"
                 />
 
                 <span>
@@ -192,187 +113,250 @@ function Footer() {
                 </span>
               </a>
 
-
-              {/* Email */}
               <a
-                href="mailto:hello@hometrue.com"
-                className="flex items-start gap-2.5 break-all text-[10px] leading-5 text-white/70 transition-colors duration-200 hover:text-secondary"
+                href="mailto:hello@investorise.com"
+                className="flex items-center gap-2.5 text-xs text-slate-300 transition hover:text-white"
               >
                 <Mail
                   size={14}
-                  strokeWidth={1.8}
-                  className="mt-[3px] shrink-0"
+                  className="text-[#e0b65c]"
                 />
 
                 <span>
-                  hello@hometrue.com
+                  hello@investorise.com
                 </span>
               </a>
 
-
-              {/* Address */}
-              <div className="flex items-start gap-2.5 text-[10px] leading-5 text-white/70">
+              <div className="flex items-center gap-2.5 text-xs text-slate-300">
 
                 <MapPin
                   size={14}
-                  strokeWidth={1.8}
-                  className="mt-[3px] shrink-0"
+                  className="text-[#e0b65c]"
                 />
 
                 <span>
-                  123, Golf Course Road,
-                  <br />
-                  Gurugram, Haryana 122001
+                  Delhi NCR, India
                 </span>
 
               </div>
 
             </div>
 
+            {/* =================================================
+                SOCIAL LINKS
+            ================================================== */}
+
+            <div className="mt-6 flex gap-2">
+
+              {/* Facebook */}
+              <a
+                href="#"
+                aria-label="Facebook"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[13px] font-bold text-slate-400 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
+              >
+                f
+              </a>
+
+              {/* Instagram */}
+              <a
+                href="#"
+                aria-label="Instagram"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[12px] font-bold text-slate-400 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
+              >
+                IG
+              </a>
+
+              {/* LinkedIn */}
+              <a
+                href="#"
+                aria-label="LinkedIn"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[11px] font-bold text-slate-400 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
+              >
+                in
+              </a>
+
+              {/* YouTube */}
+              <a
+                href="#"
+                aria-label="YouTube"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[9px] font-bold text-slate-400 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
+              >
+                ▶
+              </a>
+
+            </div>
+
+          </div>
+
+          {/* =================================================
+              COMPANY
+          ================================================== */}
+
+          <div>
+
+            <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+              Company
+            </h3>
+
+            <ul className="mt-5 space-y-3">
+
+              {companyLinks.map((link) => (
+                <li key={link.label}>
+
+                  <Link
+                    to={link.path}
+                    className="text-xs text-slate-400 transition hover:text-[#e0b65c]"
+                  >
+                    {link.label}
+                  </Link>
+
+                </li>
+              ))}
+
+            </ul>
+
+          </div>
+
+          {/* =================================================
+              PROJECTS
+          ================================================== */}
+
+          <div>
+
+            <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+              Projects
+            </h3>
+
+            <ul className="mt-5 space-y-3">
+
+              {projectLinks.map((link) => (
+                <li key={link.label}>
+
+                  <Link
+                    to={link.path}
+                    className="text-xs text-slate-400 transition hover:text-[#e0b65c]"
+                  >
+                    {link.label}
+                  </Link>
+
+                </li>
+              ))}
+
+            </ul>
+
+          </div>
+
+          {/* =================================================
+              PROPERTIES
+          ================================================== */}
+
+          <div>
+
+            <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+              Properties
+            </h3>
+
+            <ul className="mt-5 space-y-3">
+
+              {propertyLinks.map((link) => (
+                <li key={link.label}>
+
+                  <Link
+                    to={link.path}
+                    className="text-xs text-slate-400 transition hover:text-[#e0b65c]"
+                  >
+                    {link.label}
+                  </Link>
+
+                </li>
+              ))}
+
+            </ul>
+
+          </div>
+
+        </div>
+
+        {/* =====================================================
+            CTA
+        ====================================================== */}
+
+        <div className="mt-12 flex flex-col gap-5 rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+
+          <div>
+
+            <p className="text-sm font-bold text-white">
+              Looking for your next property?
+            </p>
+
+            <p className="mt-1 text-[10px] text-slate-400">
+              Talk to our experts and discover opportunities matching your
+              requirements.
+            </p>
+
+          </div>
+
+          <Link
+            to="/contact"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#d6a84f] px-5 py-3 text-xs font-extrabold text-slate-950 transition hover:bg-[#e0b65c]"
+          >
+            Talk To An Expert
+
+            <ArrowUp
+              size={14}
+              className="rotate-45"
+            />
+          </Link>
+
+        </div>
+
+      </div>
+
+      {/* =====================================================
+          BOTTOM BAR
+      ====================================================== */}
+
+      <div className="border-t border-white/10">
+
+        <div className="mx-auto flex max-w-[1240px] flex-col gap-3 px-4 py-5 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+
+          <p className="text-[10px] text-slate-500">
+            © {new Date().getFullYear()} Investorise. All rights reserved.
+          </p>
+
+          <div className="flex flex-wrap gap-4">
+
+            <Link
+              to="/privacy-policy"
+              className="text-[10px] text-slate-500 transition hover:text-white"
+            >
+              Privacy Policy
+            </Link>
+
+            <Link
+              to="/terms"
+              className="text-[10px] text-slate-500 transition hover:text-white"
+            >
+              Terms & Conditions
+            </Link>
+
+            <button
+              type="button"
+              onClick={scrollToTop}
+              className="flex items-center gap-1 text-[10px] font-bold text-slate-400 transition hover:text-white"
+            >
+              Back to Top
+
+              <ArrowUp size={12} />
+            </button>
+
           </div>
 
         </div>
 
       </div>
+
     </footer>
-  );
-}
-
-
-/* =============================================================
-   FOOTER COLUMN
-============================================================= */
-
-function FooterColumn({
-  title,
-  links,
-}) {
-  return (
-    <div>
-
-      {/* Heading */}
-      <h3 className="text-[12px] font-semibold text-white">
-        {title}
-      </h3>
-
-
-      {/* Links */}
-      <ul className="mt-4 space-y-3">
-
-        {links.map((link) => (
-          <li key={link}>
-
-            <a
-              href="#"
-              className="text-[11px] leading-4 text-white/70 transition-colors duration-200 hover:text-secondary"
-            >
-              {link}
-            </a>
-
-          </li>
-        ))}
-
-      </ul>
-
-    </div>
-  );
-}
-
-
-/* =============================================================
-   FACEBOOK
-============================================================= */
-
-function FacebookIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path d="M14 8h3V4h-3c-3.31 0-5 1.69-5 5v3H6v4h3v8h4v-8h3l1-4h-4V9c0-.67.33-1 1-1Z" />
-    </svg>
-  );
-}
-
-
-/* =============================================================
-   INSTAGRAM
-============================================================= */
-
-function InstagramIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      aria-hidden="true"
-    >
-      <rect
-        x="3"
-        y="3"
-        width="18"
-        height="18"
-        rx="5"
-      />
-
-      <circle
-        cx="12"
-        cy="12"
-        r="4"
-      />
-
-      <circle
-        cx="17.5"
-        cy="6.5"
-        r="1"
-        fill="currentColor"
-        stroke="none"
-      />
-    </svg>
-  );
-}
-
-
-/* =============================================================
-   LINKEDIN
-============================================================= */
-
-function LinkedinIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path d="M5.2 3.5A2.2 2.2 0 1 1 5.2 7.9a2.2 2.2 0 0 1 0-4.4ZM3.3 9.4h3.8V21H3.3V9.4ZM9.5 9.4h3.6V11c.5-1 1.7-2 3.7-2 4 0 4.7 2.6 4.7 6V21h-3.8v-5.3c0-1.3 0-3-1.9-3-1.9 0-2.2 1.5-2.2 2.9V21H9.5V9.4Z" />
-    </svg>
-  );
-}
-
-
-/* =============================================================
-   YOUTUBE
-============================================================= */
-
-function YoutubeIcon() {
-  return (
-    <svg
-      width="15"
-      height="15"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z" />
-    </svg>
   );
 }
 

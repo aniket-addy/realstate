@@ -12,15 +12,23 @@ function useNewProjects() {
         setLoading(true);
         setError("");
 
-        const response = await API.get(
-          "/projects/new"
-        );
+        // Backend currently provides GET /api/properties
+        const response = await API.get("/properties");
 
-        const result = response.data?.data ?? response.data;
+        const result =
+          response.data?.data ?? response.data;
 
-        setProjects(
-          Array.isArray(result) ? result : []
-        );
+        const allProperties =
+          Array.isArray(result) ? result : [];
+
+        // Only new projects
+        const newProjects =
+          allProperties.filter(
+            (property) =>
+              property.category === "new-project"
+          );
+
+        setProjects(newProjects);
       } catch (err) {
         console.error(
           "New Projects API Error:",

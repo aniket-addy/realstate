@@ -1,596 +1,905 @@
 import { useState } from "react";
-import { Menu, PhoneCall, X } from "lucide-react";
+
+import {
+  Menu,
+  X,
+  ChevronDown,
+  Phone,
+  ArrowRight,
+} from "lucide-react";
+
 import { Link, useLocation } from "react-router-dom";
 
-function Navbar({ variant = "dark" }) {
+function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [projectsOpen, setProjectsOpen] = useState(false);
 
   const location = useLocation();
 
-  const navLinks = [
-    {
-      label: "Buy",
-      path: "#",
-    },
-    {
-      label: "Rent",
-      path: "#",
-    },
-    {
-      label: "Commercial",
-      path: "#",
-    },
-    {
-      label: "Projects",
-      path: "/projects",
-    },
-    {
-      label: "Locations",
-      path: "#",
-    },
-  ];
+  // =========================================================
+  // ACTIVE ROUTE
+  // =========================================================
 
-  const isLight = variant === "light";
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
+
+  // =========================================================
+  // PROJECT ROUTES ACTIVE
+  // =========================================================
+
+  const isProjectsActive =
+    location.pathname.startsWith("/authority-projects") ||
+    location.pathname.startsWith("/builder-projects");
+
+  // =========================================================
+  // CLOSE MOBILE MENU
+  // =========================================================
 
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
+    setProjectsOpen(false);
   };
 
+  // =========================================================
+  // CLOSE PROJECT DROPDOWN
+  // =========================================================
+
+  const closeProjectsDropdown = () => {
+    setProjectsOpen(false);
+  };
 
   return (
-    <>
+    <header
+      className="
+        sticky
+        top-0
+        z-50
+        w-full
+        border-b
+        border-slate-200/80
+        bg-white/95
+        backdrop-blur-xl
+      "
+    >
       {/* =====================================================
-          NAVBAR
-      ===================================================== */}
+          NAVBAR CONTAINER
+      ====================================================== */}
 
-      <header
-        className={`
-          absolute
-          left-0
-          top-0
-          z-[100]
-          w-full
-
-          ${
-isLight
-  ? "bg-white"
-  : "bg-primary"
-          }
-        `}
+      <div
+        className="
+          mx-auto
+          flex
+          h-[72px]
+          max-w-[1440px]
+          items-center
+          justify-between
+          px-4
+          sm:px-6
+          lg:px-10
+        "
       >
+        {/* =====================================================
+            LOGO
+        ====================================================== */}
 
-        <div className="container-site">
+        <Link
+          to="/"
+          onClick={closeMobileMenu}
+          className="
+            group
+            flex
+            shrink-0
+            items-center
+            gap-3
+          "
+        >
+          {/* Logo Mark */}
 
-          <nav
+          <div
             className="
+              relative
               flex
-              h-[64px]
-              items-center
-              justify-between
-              gap-4
-
-              sm:h-[70px]
-
-              lg:h-[78px]
+              h-11
+              w-11
+              items-end
+              justify-center
+              overflow-hidden
+              rounded-lg
+              bg-slate-900
             "
           >
+            <div
+              className="
+                absolute
+                bottom-0
+                left-[7px]
+                h-7
+                w-[7px]
+                rounded-t-sm
+                bg-white
+              "
+            />
+
+            <div
+              className="
+                absolute
+                bottom-0
+                left-[17px]
+                h-9
+                w-[7px]
+                rounded-t-sm
+                bg-white
+              "
+            />
+
+            <div
+              className="
+                absolute
+                bottom-0
+                right-[7px]
+                h-6
+                w-[7px]
+                rounded-t-sm
+                bg-white
+              "
+            />
+
+            <div
+              className="
+                absolute
+                left-[15px]
+                top-[4px]
+                h-2
+                w-2
+                rotate-45
+                bg-[#d6a84f]
+              "
+            />
+          </div>
+
+          {/* Brand Name */}
+
+          <div className="leading-none">
+            <div
+              className="
+                text-[19px]
+                font-extrabold
+                tracking-[0.08em]
+                text-slate-900
+              "
+            >
+              INVESTORISE
+            </div>
+
+            <div
+              className="
+                mt-1
+                text-[8px]
+                font-medium
+                tracking-[0.12em]
+                text-slate-500
+              "
+            >
+              INVEST IN BETTER TOMORROW
+            </div>
+          </div>
+        </Link>
+
+        {/* =====================================================
+            DESKTOP NAVIGATION
+        ====================================================== */}
+
+        <nav
+          className="
+            hidden
+            items-center
+            gap-7
+            lg:flex
+          "
+        >
+          {/* =================================================
+              HOME
+          ================================================== */}
+
+          <Link
+            to="/"
+            className={`
+              relative
+              py-7
+              text-[13px]
+              font-semibold
+              transition
+              ${
+                isActive("/")
+                  ? "text-slate-900"
+                  : "text-slate-600 hover:text-slate-900"
+              }
+            `}
+          >
+            Home
+
+            {isActive("/") && (
+              <span
+                className="
+                  absolute
+                  bottom-0
+                  left-1/2
+                  h-[2px]
+                  w-5
+                  -translate-x-1/2
+                  rounded-full
+                  bg-[#d6a84f]
+                "
+              />
+            )}
+          </Link>
+
+          {/* =================================================
+              PROJECTS DROPDOWN
+              
+              Authority Projects
+              Builder Projects
+          ================================================== */}
+
+          <div
+            className="relative"
+            onMouseEnter={() => setProjectsOpen(true)}
+            onMouseLeave={() => setProjectsOpen(false)}
+          >
+            <button
+              type="button"
+              onClick={() => {
+                setProjectsOpen((prev) => !prev);
+              }}
+              className={`
+                relative
+                flex
+                items-center
+                gap-1
+                py-7
+                text-[13px]
+                font-semibold
+                transition
+                ${
+                  isProjectsActive
+                    ? "text-slate-900"
+                    : "text-slate-600 hover:text-slate-900"
+                }
+              `}
+            >
+              Projects
+
+              <ChevronDown
+                size={14}
+                className={`
+                  transition-transform
+                  duration-200
+                  ${projectsOpen ? "rotate-180" : ""}
+                `}
+              />
+
+              {isProjectsActive && (
+                <span
+                  className="
+                    absolute
+                    bottom-0
+                    left-1/2
+                    h-[2px]
+                    w-5
+                    -translate-x-1/2
+                    rounded-full
+                    bg-[#d6a84f]
+                  "
+                />
+              )}
+            </button>
 
             {/* =================================================
-                LOGO
-            ================================================= */}
+                PROJECT DROPDOWN
+            ================================================== */}
+
+            {projectsOpen && (
+              <div
+                className="
+                  absolute
+                  left-1/2
+                  top-[58px]
+                  w-[270px]
+                  -translate-x-1/2
+                  rounded-xl
+                  border
+                  border-slate-200
+                  bg-white
+                  p-2
+                  shadow-xl
+                  shadow-slate-900/10
+                "
+              >
+                {/* =================================================
+                    AUTHORITY PROJECTS
+                ================================================== */}
+
+                <Link
+                  to="/authority-projects"
+                  onClick={closeProjectsDropdown}
+                  className="
+                    group
+                    flex
+                    items-center
+                    justify-between
+                    rounded-lg
+                    px-4
+                    py-3
+                    transition
+                    hover:bg-slate-50
+                  "
+                >
+                  <div>
+                    <p
+                      className="
+                        text-sm
+                        font-semibold
+                        text-slate-800
+                      "
+                    >
+                      Authority Projects
+                    </p>
+
+                    <p
+                      className="
+                        mt-0.5
+                        text-[11px]
+                        text-slate-500
+                      "
+                    >
+                      YEIDA, Dholera & more
+                    </p>
+                  </div>
+
+                  <ArrowRight
+                    size={15}
+                    className="
+                      text-slate-400
+                      transition
+                      group-hover:translate-x-1
+                      group-hover:text-[#b88b32]
+                    "
+                  />
+                </Link>
+
+                {/* =================================================
+                    BUILDER PROJECTS
+                ================================================== */}
+
+                <Link
+                  to="/builder-projects"
+                  onClick={closeProjectsDropdown}
+                  className="
+                    group
+                    flex
+                    items-center
+                    justify-between
+                    rounded-lg
+                    px-4
+                    py-3
+                    transition
+                    hover:bg-slate-50
+                  "
+                >
+                  <div>
+                    <p
+                      className="
+                        text-sm
+                        font-semibold
+                        text-slate-800
+                      "
+                    >
+                      Builder Projects
+                    </p>
+
+                    <p
+                      className="
+                        mt-0.5
+                        text-[11px]
+                        text-slate-500
+                      "
+                    >
+                      Residential, Commercial & more
+                    </p>
+                  </div>
+
+                  <ArrowRight
+                    size={15}
+                    className="
+                      text-slate-400
+                      transition
+                      group-hover:translate-x-1
+                      group-hover:text-[#b88b32]
+                    "
+                  />
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* =================================================
+              SERVICES
+          ================================================== */}
+
+          <Link
+            to="/services"
+            className={`
+              relative
+              py-7
+              text-[13px]
+              font-semibold
+              transition
+              ${
+                isActive("/services")
+                  ? "text-slate-900"
+                  : "text-slate-600 hover:text-slate-900"
+              }
+            `}
+          >
+            Services
+
+            {isActive("/services") && (
+              <span
+                className="
+                  absolute
+                  bottom-0
+                  left-1/2
+                  h-[2px]
+                  w-5
+                  -translate-x-1/2
+                  rounded-full
+                  bg-[#d6a84f]
+                "
+              />
+            )}
+          </Link>
+
+          {/* =================================================
+              ABOUT US
+          ================================================== */}
+
+          <Link
+            to="/about"
+            className={`
+              relative
+              py-7
+              text-[13px]
+              font-semibold
+              transition
+              ${
+                isActive("/about")
+                  ? "text-slate-900"
+                  : "text-slate-600 hover:text-slate-900"
+              }
+            `}
+          >
+            About Us
+
+            {isActive("/about") && (
+              <span
+                className="
+                  absolute
+                  bottom-0
+                  left-1/2
+                  h-[2px]
+                  w-5
+                  -translate-x-1/2
+                  rounded-full
+                  bg-[#d6a84f]
+                "
+              />
+            )}
+          </Link>
+
+          {/* =================================================
+              BLOGS
+          ================================================== */}
+
+          <Link
+            to="/blogs"
+            className={`
+              relative
+              py-7
+              text-[13px]
+              font-semibold
+              transition
+              ${
+                isActive("/blogs")
+                  ? "text-slate-900"
+                  : "text-slate-600 hover:text-slate-900"
+              }
+            `}
+          >
+            Blogs
+
+            {isActive("/blogs") && (
+              <span
+                className="
+                  absolute
+                  bottom-0
+                  left-1/2
+                  h-[2px]
+                  w-5
+                  -translate-x-1/2
+                  rounded-full
+                  bg-[#d6a84f]
+                "
+              />
+            )}
+          </Link>
+
+          {/* =================================================
+              CONTACT
+          ================================================== */}
+
+          <Link
+            to="/contact"
+            className={`
+              relative
+              py-7
+              text-[13px]
+              font-semibold
+              transition
+              ${
+                isActive("/contact")
+                  ? "text-slate-900"
+                  : "text-slate-600 hover:text-slate-900"
+              }
+            `}
+          >
+            Contact
+
+            {isActive("/contact") && (
+              <span
+                className="
+                  absolute
+                  bottom-0
+                  left-1/2
+                  h-[2px]
+                  w-5
+                  -translate-x-1/2
+                  rounded-full
+                  bg-[#d6a84f]
+                "
+              />
+            )}
+          </Link>
+        </nav>
+
+        {/* =====================================================
+            DESKTOP CALL CTA
+        ====================================================== */}
+
+        <div className="hidden lg:block">
+          <a
+            href="tel:+919876543210"
+            className="
+              group
+              flex
+              items-center
+              gap-2.5
+              rounded-lg
+              bg-slate-900
+              px-4
+              py-2.5
+              text-white
+              shadow-lg
+              shadow-slate-900/10
+              transition
+              hover:bg-slate-800
+            "
+          >
+            <Phone
+              size={14}
+              className="fill-current"
+            />
+
+            <span
+              className="
+                text-[12px]
+                font-bold
+                tracking-wide
+              "
+            >
+              +91 98765 43210
+            </span>
+          </a>
+        </div>
+
+        {/* =====================================================
+            MOBILE MENU BUTTON
+        ====================================================== */}
+
+        <button
+          type="button"
+          aria-label={
+            mobileMenuOpen
+              ? "Close menu"
+              : "Open menu"
+          }
+          onClick={() => {
+            setMobileMenuOpen((prev) => !prev);
+          }}
+          className="
+            flex
+            h-10
+            w-10
+            items-center
+            justify-center
+            rounded-lg
+            border
+            border-slate-200
+            text-slate-800
+            transition
+            hover:bg-slate-50
+            lg:hidden
+          "
+        >
+          {mobileMenuOpen ? (
+            <X size={21} />
+          ) : (
+            <Menu size={21} />
+          )}
+        </button>
+      </div>
+
+      {/* =======================================================
+          MOBILE NAVIGATION
+      ======================================================== */}
+
+      {mobileMenuOpen && (
+        <div
+          className="
+            border-t
+            border-slate-200
+            bg-white
+            lg:hidden
+          "
+        >
+          <div
+            className="
+              mx-auto
+              max-w-[1440px]
+              px-4
+              py-4
+              sm:px-6
+            "
+          >
+            {/* =================================================
+                HOME
+            ================================================== */}
 
             <Link
               to="/"
               onClick={closeMobileMenu}
               className="
-                flex
-                shrink-0
-                items-center
-                gap-2
+                block
+                rounded-lg
+                px-3
+                py-3
+                text-sm
+                font-semibold
+                text-slate-800
+                hover:bg-slate-50
               "
             >
-
-              {/* Logo Box */}
-
-              <div
-                className={`
-                  flex
-                  h-9
-                  w-9
-                  items-center
-                  justify-center
-                  rounded-[9px]
-                  border
-
-                  sm:h-10
-                  sm:w-10
-
-                  ${
-                    isLight
-                      ? "border-primary"
-                      : "border-secondary"
-                  }
-                `}
-              >
-
-                <span
-                  className="
-                    text-[16px]
-                    font-bold
-                    !text-secondary
-
-                    sm:text-lg
-                  "
-                >
-                  H
-                </span>
-
-              </div>
-
-
-              {/* Logo Name */}
-
-              <div className="leading-none">
-
-                <div
-                  className={`
-                    text-[13px]
-                    font-bold
-                    tracking-wide
-
-                    sm:text-[16px]
-
-                    ${
-                      isLight
-                        ? "!text-primary"
-                        : "!text-white"
-                    }
-                  `}
-                >
-                  HOMETRUE
-                </div>
-
-
-                <div
-                  className={`
-                    mt-1
-                    text-[6px]
-                    tracking-[0.10em]
-
-                    sm:text-[7px]
-
-                    ${
-                      isLight
-                        ? "!text-text-secondary"
-                        : "!text-white/75"
-                    }
-                  `}
-                >
-                  Find Your True Home
-                </div>
-
-              </div>
-
+              Home
             </Link>
 
-
             {/* =================================================
-                DESKTOP NAVIGATION
+                MOBILE PROJECTS
+            ================================================== */}
 
-                lg and above
-            ================================================= */}
-
-            <div
-              className="
-                hidden
-                items-center
-                gap-7
-
-                lg:flex
-                lg:gap-8
-              "
-            >
-
-              {navLinks.map((item) => {
-
-                const isActive =
-                  item.path !== "#" &&
-                  location.pathname === item.path;
-
-                return (
-                  <Link
-                    key={item.label}
-                    to={item.path}
-                    className={`
-                      relative
-                      py-2
-                      text-[13px]
-                      font-medium
-                      transition-colors
-                      duration-200
-
-                      ${
-                        isActive
-                          ? "!text-secondary"
-                          : isLight
-                            ? "!text-primary hover:!text-secondary"
-                            : "!text-white hover:!text-secondary"
-                      }
-                    `}
-                  >
-
-                    {item.label}
-
-
-                    {/* Active Line */}
-
-                    {isActive && (
-                      <span
-                        className="
-                          absolute
-                          bottom-0
-                          left-0
-                          h-[2px]
-                          w-full
-                          rounded-full
-                          bg-secondary
-                        "
-                      />
-                    )}
-
-                  </Link>
-                );
-
-              })}
-
-            </div>
-
-
-            {/* =================================================
-                DESKTOP CONTACT
-
-                Only desktop
-            ================================================= */}
-
-            <a
-              href="tel:+919999999999"
-              aria-label="Call Hometrue"
-              className={`
-                hidden
-                shrink-0
-                items-center
-                gap-2
-                rounded-full
-                border
-                px-3
-                py-2
-                transition-all
-                duration-200
-
-                sm:px-4
-                sm:py-2.5
-
-                lg:flex
-
-                ${
-                  isLight
-                    ? `
-                      border-primary/20
-                      bg-white
-                      !text-primary
-                      hover:border-primary
-                      hover:bg-background-secondary
-                    `
-                    : `
-                      border-white/40
-                      bg-primary/50
-                      !text-white
-                      backdrop-blur-sm
-                      hover:border-secondary
-                    `
-                }
-              `}
-            >
-
-              {/* Phone Circle */}
-
-              <span
-                className={`
-                  flex
-                  h-8
-                  w-8
-                  shrink-0
-                  items-center
-                  justify-center
-                  rounded-full
-
-                  ${
-                    isLight
-                      ? "bg-primary !text-white"
-                      : "bg-secondary !text-white"
-                  }
-                `}
-              >
-
-                <PhoneCall
-                  size={16}
-                  strokeWidth={2}
-                  className="!text-white"
-                />
-
-              </span>
-
-
-              {/* Contact Text */}
-
-              <span
-                className={`
-                  text-[12px]
-                  font-semibold
-
-                  ${
-                    isLight
-                      ? "!text-primary"
-                      : "!text-white"
-                  }
-                `}
-              >
-                Contact
-              </span>
-
-            </a>
-
-
-            {/* =================================================
-                MOBILE / TABLET RIGHT SIDE
-            ================================================= */}
-
-            <div
-              className="
-                flex
-                items-center
-                gap-2
-
-                lg:hidden
-              "
-            >
-
-              {/* =================================================
-                  MOBILE PHONE BUTTON
-              ================================================= */}
-
-              <a
-                href="tel:+919999999999"
-                aria-label="Call Hometrue"
-                className={`
-                  flex
-                  h-9
-                  w-9
-                  shrink-0
-                  items-center
-                  justify-center
-                  rounded-full
-                  border
-                  transition-all
-                  duration-200
-
-                  ${
-                    isLight
-                      ? `
-                        border-primary
-                        bg-primary
-                        !text-white
-                        hover:bg-primary/90
-                      `
-                      : `
-                        border-white/50
-                        bg-primary/70
-                        !text-white
-                        hover:bg-primary
-                      `
-                  }
-                `}
-              >
-
-                <PhoneCall
-                  size={16}
-                  strokeWidth={2}
-                  className="!text-white"
-                />
-
-              </a>
-
-
-              {/* =================================================
-                  HAMBURGER
-              ================================================= */}
-
+            <div className="border-b border-slate-100">
               <button
                 type="button"
-                aria-label={
-                  mobileMenuOpen
-                    ? "Close navigation menu"
-                    : "Open navigation menu"
-                }
-                aria-expanded={mobileMenuOpen}
-                onClick={() =>
-                  setMobileMenuOpen(
-                    (previous) => !previous
-                  )
-                }
-                className={`
+                onClick={() => {
+                  setProjectsOpen((prev) => !prev);
+                }}
+                className="
                   flex
-                  h-9
-                  w-9
-                  shrink-0
+                  w-full
                   items-center
-                  justify-center
-                  rounded-full
-                  border
-                  transition-all
-                  duration-200
-
-                  ${
-                    isLight
-                      ? `
-                        border-primary/20
-                        bg-white
-                        !text-primary
-                        hover:bg-background-secondary
-                      `
-                      : `
-                        border-white/50
-                        bg-primary/60
-                        !text-white
-                        hover:bg-primary
-                      `
-                  }
-                `}
+                  justify-between
+                  rounded-lg
+                  px-3
+                  py-3
+                  text-sm
+                  font-semibold
+                  text-slate-800
+                  hover:bg-slate-50
+                "
               >
+                <span>Projects</span>
 
-                {mobileMenuOpen ? (
-                  <X
-                    size={19}
-                    strokeWidth={2}
-                    className={
-                      isLight
-                        ? "!text-primary"
-                        : "!text-white"
+                <ChevronDown
+                  size={16}
+                  className={`
+                    transition-transform
+                    ${
+                      projectsOpen
+                        ? "rotate-180"
+                        : ""
                     }
-                  />
-                ) : (
-                  <Menu
-                    size={19}
-                    strokeWidth={2}
-                    className={
-                      isLight
-                        ? "!text-primary"
-                        : "!text-white"
-                    }
-                  />
-                )}
-
+                  `}
+                />
               </button>
 
+              {projectsOpen && (
+                <div
+                  className="
+                    mb-2
+                    ml-3
+                    border-l
+                    border-slate-200
+                    pl-3
+                  "
+                >
+                  {/* Authority Projects */}
+
+                  <Link
+                    to="/authority-projects"
+                    onClick={closeMobileMenu}
+                    className="
+                      block
+                      rounded-lg
+                      px-3
+                      py-2.5
+                      text-sm
+                      text-slate-600
+                      transition
+                      hover:bg-slate-50
+                      hover:text-slate-900
+                    "
+                  >
+                    Authority Projects
+                  </Link>
+
+                  {/* Builder Projects */}
+
+                  <Link
+                    to="/builder-projects"
+                    onClick={closeMobileMenu}
+                    className="
+                      block
+                      rounded-lg
+                      px-3
+                      py-2.5
+                      text-sm
+                      text-slate-600
+                      transition
+                      hover:bg-slate-50
+                      hover:text-slate-900
+                    "
+                  >
+                    Builder Projects
+                  </Link>
+                </div>
+              )}
             </div>
 
-          </nav>
+            {/* =================================================
+                SERVICES
+            ================================================== */}
 
-        </div>
-
-
-        {/* =====================================================
-            NAVBAR BORDER
-        ===================================================== */}
-
-        <div
-          className={`
-            h-px
-            w-full
-
-            ${
-              isLight
-                ? "bg-primary/10"
-                : "bg-white/15"
-            }
-          `}
-        />
-
-
-        {/* =====================================================
-            MOBILE / TABLET MENU
-        ===================================================== */}
-
-        {mobileMenuOpen && (
-
-          <div
-            className={`
-              border-t
-              shadow-lg
-
-              ${
-                isLight
-                  ? `
-                    border-primary/10
-                    bg-white
-                  `
-                  : `
-                    border-white/10
-                    bg-primary
-                  `
-              }
-            `}
-          >
-
-            <div
+            <Link
+              to="/services"
+              onClick={closeMobileMenu}
               className="
-                container-site
-                px-4
-                pb-3
-                pt-2
+                block
+                rounded-lg
+                px-3
+                py-3
+                text-sm
+                font-semibold
+                text-slate-800
+                hover:bg-slate-50
               "
             >
+              Services
+            </Link>
 
-              <div className="flex flex-col">
+            {/* =================================================
+                ABOUT US
+            ================================================== */}
 
-                {navLinks.map((item) => {
+            <Link
+              to="/about"
+              onClick={closeMobileMenu}
+              className="
+                block
+                rounded-lg
+                px-3
+                py-3
+                text-sm
+                font-semibold
+                text-slate-800
+                hover:bg-slate-50
+              "
+            >
+              About Us
+            </Link>
 
-                  const isActive =
-                    item.path !== "#" &&
-                    location.pathname === item.path;
+            {/* =================================================
+                BLOGS
+            ================================================== */}
 
-                  return (
-                    <Link
-                      key={item.label}
-                      to={item.path}
-                      onClick={closeMobileMenu}
-                      className={`
-                        flex
-                        min-h-[46px]
-                        items-center
-                        border-b
-                        text-[13px]
-                        font-medium
-                        transition-colors
-                        duration-200
+            <Link
+              to="/blogs"
+              onClick={closeMobileMenu}
+              className="
+                block
+                rounded-lg
+                px-3
+                py-3
+                text-sm
+                font-semibold
+                text-slate-800
+                hover:bg-slate-50
+              "
+            >
+              Blogs
+            </Link>
 
-                        ${
-                          isLight
-                            ? `
-                              border-primary/10
-                              !text-primary
-                              hover:!text-secondary
-                            `
-                            : `
-                              border-white/10
-                              !text-white
-                              hover:!text-secondary
-                            `
-                        }
+            {/* =================================================
+                CONTACT
+            ================================================== */}
 
-                        ${
-                          isActive
-                            ? "!text-secondary"
-                            : ""
-                        }
-                      `}
-                    >
-                      {item.label}
-                    </Link>
-                  );
+            <Link
+              to="/contact"
+              onClick={closeMobileMenu}
+              className="
+                block
+                rounded-lg
+                px-3
+                py-3
+                text-sm
+                font-semibold
+                text-slate-800
+                hover:bg-slate-50
+              "
+            >
+              Contact
+            </Link>
 
-                })}
+            {/* =================================================
+                MOBILE CALL CTA
+            ================================================== */}
 
-              </div>
+            <a
+              href="tel:+919876543210"
+              className="
+                mt-3
+                flex
+                items-center
+                justify-center
+                gap-2
+                rounded-lg
+                bg-slate-900
+                px-4
+                py-3
+                text-sm
+                font-bold
+                text-white
+              "
+            >
+              <Phone
+                size={16}
+                className="fill-current"
+              />
 
-            </div>
-
+              Call +91 98765 43210
+            </a>
           </div>
-
-        )}
-
-      </header>
-    </>
+        </div>
+      )}
+    </header>
   );
 }
 

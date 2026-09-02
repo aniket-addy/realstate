@@ -13,13 +13,32 @@ function useFeaturedProperties() {
         setError("");
 
         const response = await API.get(
-          "/properties/featured"
+          "/properties"
         );
 
-        const result = response.data?.data ?? response.data;
+        const result =
+          response.data?.data ??
+          response.data;
+
+        const allProperties =
+          Array.isArray(result)
+            ? result
+            : [];
+
+        const featuredProperties =
+          allProperties.filter(
+            (property) =>
+              property.category ===
+              "featured"
+          );
+
+        console.log(
+          "FEATURED PROJECTS:",
+          featuredProperties
+        );
 
         setProperties(
-          Array.isArray(result) ? result : []
+          featuredProperties
         );
       } catch (err) {
         console.error(

@@ -1,162 +1,246 @@
 import {
-  Building2,
   Heart,
   MapPin,
-  ShieldCheck,
-  ArrowRight,
+  ArrowUpRight,
+  Maximize2,
 } from "lucide-react";
+
 import { useNavigate } from "react-router-dom";
 
 function ProjectCard({ project }) {
   const navigate = useNavigate();
 
-  // Backend se jo ID aaye usko use karenge
-  const projectId = project._id || project.id;
+  const projectId = project?._id || project?.id;
 
   const handleProjectClick = () => {
     if (!projectId) {
-      console.error("Project ID is missing:", project);
+      console.error("Project ID missing:", project);
       return;
     }
 
     navigate(`/projects/${projectId}`);
   };
 
+  /* =========================================================
+     IMAGE
+  ========================================================= */
+
+  const image =
+    project?.propertyImage ||
+    project?.image ||
+    project?.images?.[0] ||
+    project?.gallery?.[0] ||
+    "";
+
+  /* =========================================================
+     DATA
+  ========================================================= */
+
+  const title =
+    project?.title ||
+    project?.name ||
+    "Untitled Project";
+
+  const location =
+    project?.location ||
+    project?.city ||
+    "Location not available";
+
+  const price =
+    project?.price !== undefined &&
+    project?.price !== null &&
+    project?.price !== ""
+      ? project.price
+      : null;
+
+  const priceType =
+    project?.priceType ||
+    project?.priceUnit ||
+    "";
+
+  const projectType =
+    project?.projectType ||
+    project?.propertyType ||
+    project?.category ||
+    "Project";
+
+  const area =
+    project?.area ||
+    project?.plotSize ||
+    project?.size ||
+    null;
+
   return (
     <article
       onClick={handleProjectClick}
       className="
         group
+        relative
         flex
         h-full
         cursor-pointer
         flex-col
         overflow-hidden
-        rounded-2xl
+        rounded-[22px]
+
         border
-        border-border-primary
+        border-[#e2e8f0]
+
         bg-white
-        shadow-sm
+
+        shadow-[0_8px_30px_rgba(15,23,42,0.06)]
+
         transition-all
         duration-300
+        ease-out
 
         hover:-translate-y-1
-        hover:shadow-lg
+        hover:border-[#d6a84f]
+        hover:shadow-[0_20px_50px_rgba(214,168,79,0.20)]
       "
     >
 
       {/* =====================================================
-          PROJECT IMAGE
+          IMAGE
       ===================================================== */}
 
       <div
         className="
           relative
-          h-[190px]
-          shrink-0
+          h-[255px]
           overflow-hidden
 
-          sm:h-[200px]
+          sm:h-[270px]
 
-          lg:h-[210px]
+          lg:h-[260px]
         "
       >
 
-        {/* Project Image */}
+        {image ? (
+          <img
+            src={image}
+            alt={title}
+            className="
+              h-full
+              w-full
+              object-cover
 
-        <img
-          src={project.image}
-          alt={project.title || "New Project"}
-          loading="lazy"
-          className="
-            h-full
-            w-full
-            object-cover
-            transition-transform
-            duration-500
-            group-hover:scale-105
-          "
-        />
+              transition-transform
+              duration-700
+              ease-out
 
+              group-hover:scale-[1.06]
+            "
+          />
+        ) : (
+          <div
+            className="
+              flex
+              h-full
+              w-full
+              items-center
+              justify-center
 
-        {/* Image Overlay */}
+              bg-[#f8fafc]
+
+              text-sm
+              text-[#64748b]
+            "
+          >
+            No Image Available
+          </div>
+        )}
+
+        {/* =================================================
+            IMAGE OVERLAY
+        ================================================= */}
 
         <div
           className="
             absolute
             inset-0
+
             bg-gradient-to-t
-            from-black/45
-            via-transparent
+            from-black/65
+            via-black/5
             to-transparent
+
+            transition-opacity
+            duration-300
           "
         />
 
-
         {/* =================================================
-            STATUS BADGE
+            PROJECT TYPE
         ================================================= */}
 
-        {project.status && (
-          <span
-            className="
-              absolute
-              left-3
-              top-3
-              rounded-md
-              bg-primary
-              px-2.5
-              py-1.5
-              text-[9px]
-              font-semibold
-              leading-none
-              text-white
-              shadow-sm
+        <div
+          className="
+            absolute
+            left-4
+            top-4
 
-              sm:text-[10px]
-            "
-          >
-            {project.status}
-          </span>
-        )}
+            rounded-full
 
+            bg-white
+
+            px-3.5
+            py-2
+
+            text-[10px]
+            font-bold
+            uppercase
+            tracking-[0.1em]
+
+            text-[#102b52]
+
+            shadow-lg
+
+            transition-all
+            duration-300
+
+            group-hover:bg-[#d6a84f]
+            group-hover:text-white
+          "
+        >
+          {projectType}
+        </div>
 
         {/* =================================================
-            WISHLIST BUTTON
+            HEART
         ================================================= */}
 
         <button
           type="button"
+          aria-label="Add project to wishlist"
           onClick={(event) => {
-            // Card ka click trigger nahi hoga
             event.stopPropagation();
           }}
-          aria-label={`Add ${
-            project.title || "project"
-          } to wishlist`}
           className="
             absolute
-            right-3
-            top-3
+            right-4
+            top-4
+
             flex
-            h-9
-            w-9
+            h-11
+            w-11
             items-center
             justify-center
+
             rounded-full
-            border
-            border-white/70
-            bg-black/20
-            text-white
-            backdrop-blur-sm
+
+            bg-white
+
+            text-[#102b52]
+
+            shadow-lg
+
             transition-all
             duration-200
 
-            hover:scale-110
-            hover:bg-white
-            hover:text-primary
-
-            active:scale-95
+            hover:scale-105
+            hover:bg-[#d6a84f]
+            hover:text-white
           "
         >
           <Heart
@@ -165,11 +249,40 @@ function ProjectCard({ project }) {
           />
         </button>
 
+        {/* =================================================
+            LOCATION ON IMAGE
+        ================================================= */}
+
+        <div
+          className="
+            absolute
+            bottom-4
+            left-4
+            right-4
+
+            flex
+            items-center
+            gap-2
+
+            text-sm
+            font-medium
+            text-white
+          "
+        >
+          <MapPin
+            size={16}
+            className="shrink-0"
+          />
+
+          <span className="truncate">
+            {location}
+          </span>
+        </div>
+
       </div>
 
-
       {/* =====================================================
-          PROJECT CONTENT
+          CONTENT
       ===================================================== */}
 
       <div
@@ -177,145 +290,259 @@ function ProjectCard({ project }) {
           flex
           flex-1
           flex-col
-          p-4
 
-          sm:p-4
+          bg-white
+
+          p-5
+
+          sm:p-6
+
+          transition-colors
+          duration-300
         "
       >
 
         {/* =================================================
-            PROJECT TITLE
+            TITLE
         ================================================= */}
 
         <h3
           className="
             line-clamp-1
-            text-[15px]
-            font-bold
-            leading-5
-            text-primary
 
-            sm:text-[16px]
+            text-[20px]
+            font-extrabold
+            tracking-[-0.025em]
+
+            text-[#102b52]
+
+            transition-colors
+            duration-300
+
+            group-hover:text-[#102b52]
           "
-          title={project.title}
         >
-          {project.title || "Untitled Project"}
+          {title}
         </h3>
-
 
         {/* =================================================
             LOCATION
         ================================================= */}
 
-        {project.location && (
+        <div
+          className="
+            mt-2
+
+            flex
+            items-center
+            gap-1.5
+
+            text-sm
+            text-[#64748b]
+          "
+        >
+          <MapPin
+            size={15}
+            className="
+              text-[#d6a84f]
+
+              transition-transform
+              duration-300
+
+              group-hover:scale-110
+            "
+          />
+
+          <span className="truncate">
+            {location}
+          </span>
+        </div>
+
+        {/* =================================================
+            META
+        ================================================= */}
+
+        {(area ||
+          project?.bhkType ||
+          project?.configuration) && (
           <div
             className="
-              mt-2
-              flex
-              min-w-0
-              items-center
-              gap-1.5
-              text-[10px]
-              text-text-secondary
+              mt-5
 
-              sm:text-[11px]
+              flex
+              flex-wrap
+              gap-2
             "
           >
 
-            <MapPin
-              size={13}
-              strokeWidth={1.8}
-              className="shrink-0 text-primary"
-            />
+            {area && (
+              <div
+                className="
+                  flex
+                  items-center
+                  gap-1.5
 
-            <span className="truncate">
-              {project.location}
-            </span>
+                  rounded-lg
+
+                  bg-[#f8fafc]
+
+                  px-3
+                  py-2
+
+                  text-xs
+                  font-medium
+                  text-[#475569]
+
+                  transition-all
+                  duration-300
+
+                  group-hover:bg-[#fff9ed]
+                  group-hover:text-[#8c691f]
+                "
+              >
+                <Maximize2 size={13} />
+
+                {area}
+              </div>
+            )}
+
+            {(project?.bhkType ||
+              project?.configuration) && (
+              <div
+                className="
+                  rounded-lg
+
+                  bg-[#f8fafc]
+
+                  px-3
+                  py-2
+
+                  text-xs
+                  font-medium
+                  text-[#475569]
+
+                  transition-all
+                  duration-300
+
+                  group-hover:bg-[#fff9ed]
+                  group-hover:text-[#8c691f]
+                "
+              >
+                {project?.bhkType ||
+                  project?.configuration}
+              </div>
+            )}
 
           </div>
         )}
 
-
         {/* =================================================
-            PROJECT TYPE
-        ================================================= */}
-
-        {project.type && (
-          <p
-            className="
-              mt-2
-              line-clamp-1
-              text-[10px]
-              leading-4
-              text-text-secondary
-
-              sm:text-[11px]
-            "
-          >
-            {project.type}
-          </p>
-        )}
-
-
-        {/* =================================================
-            DEVELOPER
-        ================================================= */}
-
-        {project.developer && (
-          <p
-            className="
-              mt-1
-              line-clamp-1
-              text-[10px]
-              leading-4
-              text-text-secondary
-
-              sm:text-[11px]
-            "
-          >
-            {project.developer}
-          </p>
-        )}
-
-
-        {/* =================================================
-            PRICE + VIEW DETAILS
+            DIVIDER
         ================================================= */}
 
         <div
           className="
-            mt-4
+            my-5
+
+            h-px
+
+            bg-[#e8edf3]
+
+            transition-colors
+            duration-300
+
+            group-hover:bg-[#ead6a8]
+          "
+        />
+
+        {/* =================================================
+            BOTTOM
+        ================================================= */}
+
+        <div
+          className="
+            mt-auto
+
             flex
             items-end
             justify-between
-            gap-3
+
+            gap-4
           "
         >
 
-          {/* Price */}
+          {/* =================================================
+              PRICE
+          ================================================= */}
 
-          <div className="min-w-0">
+          <div>
 
-            {project.price && (
-              <span
+            <p
+              className="
+                text-[9px]
+                font-bold
+                uppercase
+                tracking-[0.13em]
+
+                text-[#94a3b8]
+              "
+            >
+              Starting From
+            </p>
+
+            {price !== null ? (
+              <p
                 className="
-                  block
-                  truncate
-                  text-[13px]
-                  font-bold
-                  text-primary
+                  mt-1
 
-                  sm:text-[14px]
+                  text-[20px]
+                  font-extrabold
+
+                  text-[#102b52]
+
+                  transition-colors
+                  duration-300
+
+                  group-hover:text-[#b4872f]
                 "
               >
-                From {project.price}
-              </span>
+                ₹{price}
+
+                {priceType && (
+                  <span
+                    className="
+                      ml-1
+
+                      text-xs
+                      font-medium
+
+                      text-[#64748b]
+                    "
+                  >
+                    {priceType}
+                  </span>
+                )}
+              </p>
+            ) : (
+              <p
+                className="
+                  mt-1
+
+                  text-sm
+                  font-semibold
+
+                  text-[#102b52]
+                "
+              >
+                Price on Request
+              </p>
             )}
 
           </div>
 
-
-          {/* View Details */}
+          {/* =================================================
+              VIEW DETAILS
+          ================================================= */}
 
           <button
             type="button"
@@ -324,137 +551,49 @@ function ProjectCard({ project }) {
               handleProjectClick();
             }}
             className="
+              group/button
+
               flex
               shrink-0
               items-center
-              gap-1
-              rounded-md
-              border
-              border-border-primary
-              px-2.5
-              py-1.5
-              text-[9px]
-              font-semibold
-              text-primary
-              transition-all
-              duration-200
+              gap-2
 
-              hover:border-primary
-              hover:bg-primary
+              rounded-full
+
+              border
+              border-[#d9e0e8]
+
+              px-4
+              py-2.5
+
+              text-sm
+              font-semibold
+
+              text-[#102b52]
+
+              transition-all
+              duration-300
+
+              hover:border-[#d6a84f]
+              hover:bg-[#d6a84f]
               hover:text-white
 
-              sm:px-3
-              sm:text-[10px]
+              hover:shadow-[0_8px_20px_rgba(214,168,79,0.25)]
             "
           >
             View Details
 
-            <ArrowRight
-              size={11}
-              strokeWidth={2}
+            <ArrowUpRight
+              size={16}
+              className="
+                transition-transform
+                duration-200
+
+                group-hover/button:translate-x-0.5
+                group-hover/button:-translate-y-0.5
+              "
             />
           </button>
-
-        </div>
-
-      </div>
-
-
-      {/* =====================================================
-          BOTTOM FEATURES
-      ===================================================== */}
-
-      <div
-        className="
-          grid
-          min-h-[48px]
-          grid-cols-2
-          gap-2
-          border-t
-          border-border-primary
-          bg-background-secondary
-          px-3
-          py-2.5
-
-          sm:px-4
-        "
-      >
-
-        {/* =================================================
-            AMENITIES
-        ================================================= */}
-
-        <div
-          className="
-            flex
-            min-w-0
-            items-center
-            gap-1.5
-          "
-        >
-
-          <Building2
-            size={14}
-            strokeWidth={1.8}
-            className="
-              shrink-0
-              text-primary
-            "
-          />
-
-          <span
-            className="
-              line-clamp-1
-              text-[9px]
-              font-medium
-              leading-4
-              text-text-secondary
-
-              sm:text-[10px]
-            "
-          >
-            {project.amenities || "Modern Amenities"}
-          </span>
-
-        </div>
-
-
-        {/* =================================================
-            RERA / APPROVAL
-        ================================================= */}
-
-        <div
-          className="
-            flex
-            min-w-0
-            items-center
-            justify-end
-            gap-1.5
-          "
-        >
-
-          <ShieldCheck
-            size={14}
-            strokeWidth={1.8}
-            className="
-              shrink-0
-              text-primary
-            "
-          />
-
-          <span
-            className="
-              line-clamp-1
-              text-[9px]
-              font-medium
-              leading-4
-              text-text-secondary
-
-              sm:text-[10px]
-            "
-          >
-            {project.approval || "RERA Approved"}
-          </span>
 
         </div>
 
