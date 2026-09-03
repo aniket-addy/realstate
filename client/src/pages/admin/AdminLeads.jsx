@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useState } from "react";
 
 import {
@@ -154,7 +155,7 @@ const formatDate = (date) => {
 
 /*
 |--------------------------------------------------------------------------
-| ADMIN LEADS
+| ADMIN ENQUIRIES
 |--------------------------------------------------------------------------
 */
 
@@ -190,13 +191,11 @@ function AdminLeads() {
 
   /*
   |--------------------------------------------------------------------------
-  | FETCH LEADS
+  | FETCH ENQUIRIES
   |--------------------------------------------------------------------------
   */
 
-  const fetchLeads = async ({
-    showRefresh = false,
-  } = {}) => {
+  const fetchLeads = async ({ showRefresh = false } = {}) => {
     try {
       if (showRefresh) {
         setRefreshing(true);
@@ -237,12 +236,12 @@ function AdminLeads() {
           : []
       );
     } catch (err) {
-      console.error("Fetch leads error:", err);
+      console.error("Fetch enquiries error:", err);
 
       setError(
         err?.response?.data?.message ||
           err?.message ||
-          "Unable to load leads."
+          "Unable to load enquiries."
       );
     } finally {
       setLoading(false);
@@ -298,7 +297,10 @@ function AdminLeads() {
         });
       }
     } catch (err) {
-      console.error("Fetch lead stats error:", err);
+      console.error(
+        "Fetch enquiry stats error:",
+        err
+      );
     }
   };
 
@@ -325,7 +327,6 @@ function AdminLeads() {
     const timer = setTimeout(() => {
       setPage(1);
       fetchLeads();
-
     }, 400);
 
     return () => {
@@ -401,14 +402,14 @@ function AdminLeads() {
       await fetchStats();
     } catch (err) {
       console.error(
-        "Update lead status error:",
+        "Update enquiry status error:",
         err
       );
 
       setError(
         err?.response?.data?.message ||
           err?.message ||
-          "Unable to update lead status."
+          "Unable to update enquiry status."
       );
     } finally {
       setUpdatingId(null);
@@ -417,7 +418,7 @@ function AdminLeads() {
 
   /*
   |--------------------------------------------------------------------------
-  | DELETE LEAD
+  | DELETE ENQUIRY
   |--------------------------------------------------------------------------
   */
 
@@ -427,15 +428,10 @@ function AdminLeads() {
     }
 
     try {
-      setDeletingId(
-        deleteTarget._id
-      );
-
+      setDeletingId(deleteTarget._id);
       setError("");
 
-      await deleteLead(
-        deleteTarget._id
-      );
+      await deleteLead(deleteTarget._id);
 
       setLeads((current) =>
         current.filter(
@@ -457,14 +453,14 @@ function AdminLeads() {
       await fetchStats();
     } catch (err) {
       console.error(
-        "Delete lead error:",
+        "Delete enquiry error:",
         err
       );
 
       setError(
         err?.response?.data?.message ||
           err?.message ||
-          "Unable to delete lead."
+          "Unable to delete enquiry."
       );
     } finally {
       setDeletingId(null);
@@ -567,17 +563,10 @@ function AdminLeads() {
   */
 
   return (
-    /*
-     * IMPORTANT:
-     * Do NOT use min-h-screen + sticky header here.
-     * AdminLayout already controls the main page height/scroll.
-     */
     <div className="w-full min-w-0 bg-[#f6f7f9]">
 
       {/* =====================================================
           PAGE HEADER
-          IMPORTANT FIX:
-          NO sticky / fixed positioning
       ====================================================== */}
 
       <header className="relative z-10 border-b border-slate-200 bg-white">
@@ -615,7 +604,7 @@ function AdminLeads() {
               </p>
 
               <h1 className="truncate text-lg font-extrabold tracking-tight text-slate-950 sm:text-xl">
-                Leads
+                Enquiries
               </h1>
 
             </div>
@@ -672,9 +661,7 @@ function AdminLeads() {
 
       <main className="w-full px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
 
-        {/* =================================================
-            ERROR
-        ================================================== */}
+        {/* ERROR */}
 
         {error && (
           <div className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
@@ -709,7 +696,7 @@ function AdminLeads() {
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
 
           <StatCard
-            label="Total Leads"
+            label="Total Enquiries"
             value={stats.total}
             icon={UserRound}
           />
@@ -748,8 +735,6 @@ function AdminLeads() {
         <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
 
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-
-            {/* SEARCH */}
 
             <div className="relative min-w-0 flex-1">
 
@@ -803,8 +788,6 @@ function AdminLeads() {
             </div>
 
 
-            {/* STATUS */}
-
             <div className="relative w-full lg:w-[170px]">
 
               <select
@@ -853,8 +836,6 @@ function AdminLeads() {
 
             </div>
 
-
-            {/* SOURCE */}
 
             <div className="relative w-full lg:w-[170px]">
 
@@ -905,16 +886,12 @@ function AdminLeads() {
             </div>
 
 
-            {/* RESET */}
-
             {(search ||
               status ||
               source) && (
               <button
                 type="button"
-                onClick={
-                  resetFilters
-                }
+                onClick={resetFilters}
                 className="
                   inline-flex
                   h-11
@@ -944,19 +921,17 @@ function AdminLeads() {
 
 
         {/* =================================================
-            LEADS TABLE
+            ENQUIRIES TABLE
         ================================================== */}
 
         <section className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-
-          {/* TABLE HEADER */}
 
           <div className="flex flex-col gap-2 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
 
             <div>
 
               <h2 className="text-sm font-extrabold text-slate-900">
-                All Leads
+                All Enquiries
               </h2>
 
               <p className="mt-1 text-[10px] text-slate-400">
@@ -972,8 +947,6 @@ function AdminLeads() {
           </div>
 
 
-          {/* LOADING / CONTENT */}
-
           {loading ? (
             <LoadingState />
           ) : visibleLeads.length === 0 ? (
@@ -983,14 +956,10 @@ function AdminLeads() {
                   status ||
                   source
               )}
-              onReset={
-                resetFilters
-              }
+              onReset={resetFilters}
             />
           ) : (
             <>
-              {/* DESKTOP TABLE */}
-
               <div className="hidden overflow-x-auto md:block">
 
                 <table className="w-full min-w-[900px]">
@@ -999,7 +968,7 @@ function AdminLeads() {
                     <tr className="border-b border-slate-100 bg-slate-50/70">
 
                       <th className="px-5 py-3 text-left text-[9px] font-extrabold uppercase tracking-wider text-slate-400">
-                        Lead
+                        Enquiry
                       </th>
 
                       <th className="px-4 py-3 text-left text-[9px] font-extrabold uppercase tracking-wider text-slate-400">
@@ -1062,8 +1031,6 @@ function AdminLeads() {
               </div>
 
 
-              {/* MOBILE CARDS */}
-
               <div className="divide-y divide-slate-100 md:hidden">
 
                 {visibleLeads.map(
@@ -1098,8 +1065,6 @@ function AdminLeads() {
             </>
           )}
 
-
-          {/* PAGINATION */}
 
           {!loading &&
             visibleLeads.length > 0 && (
@@ -1139,9 +1104,7 @@ function AdminLeads() {
                       disabled:opacity-40
                     "
                   >
-                    <ChevronLeft
-                      size={14}
-                    />
+                    <ChevronLeft size={14} />
                   </button>
 
                   <button
@@ -1172,9 +1135,7 @@ function AdminLeads() {
                       disabled:opacity-40
                     "
                   >
-                    <ChevronRight
-                      size={14}
-                    />
+                    <ChevronRight size={14} />
                   </button>
 
                 </div>
@@ -1188,18 +1149,14 @@ function AdminLeads() {
 
 
       {/* =====================================================
-          LEAD DETAILS MODAL
+          ENQUIRY DETAILS MODAL
       ====================================================== */}
 
       {selectedLead && (
         <LeadDetailsModal
           lead={selectedLead}
-          updatingId={
-            updatingId
-          }
-          onStatusChange={
-            handleStatusChange
-          }
+          updatingId={updatingId}
+          onStatusChange={handleStatusChange}
           onClose={() =>
             setSelectedLead(null)
           }
@@ -1220,9 +1177,7 @@ function AdminLeads() {
           onCancel={() =>
             setDeleteTarget(null)
           }
-          onConfirm={
-            handleDelete
-          }
+          onConfirm={handleDelete}
         />
       )}
 
@@ -1272,7 +1227,7 @@ function StatCard({
 
 /*
 |--------------------------------------------------------------------------
-| LEAD ROW
+| ENQUIRY ROW
 |--------------------------------------------------------------------------
 */
 
@@ -1286,7 +1241,7 @@ function LeadRow({
   const name =
     lead?.name ||
     lead?.fullName ||
-    "Unnamed Lead";
+    "Unnamed Enquiry";
 
   const email =
     lead?.email || "—";
@@ -1301,8 +1256,6 @@ function LeadRow({
 
   return (
     <tr className="border-b border-slate-100 last:border-0 transition hover:bg-slate-50/60">
-
-      {/* LEAD */}
 
       <td className="px-5 py-4">
 
@@ -1339,8 +1292,6 @@ function LeadRow({
       </td>
 
 
-      {/* CONTACT */}
-
       <td className="px-4 py-4">
 
         <div className="space-y-1">
@@ -1368,8 +1319,6 @@ function LeadRow({
       </td>
 
 
-      {/* SOURCE */}
-
       <td className="px-4 py-4">
 
         <span className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-[10px] font-bold text-slate-600">
@@ -1380,8 +1329,6 @@ function LeadRow({
 
       </td>
 
-
-      {/* STATUS */}
 
       <td className="px-4 py-4">
 
@@ -1421,12 +1368,8 @@ function LeadRow({
               )
               .map((item) => (
                 <option
-                  key={
-                    item.value
-                  }
-                  value={
-                    item.value
-                  }
+                  key={item.value}
+                  value={item.value}
                 >
                   {item.label}
                 </option>
@@ -1443,8 +1386,6 @@ function LeadRow({
       </td>
 
 
-      {/* DATE */}
-
       <td className="px-4 py-4 text-[10px] font-semibold text-slate-400">
         {formatDate(
           lead?.createdAt ||
@@ -1454,8 +1395,6 @@ function LeadRow({
       </td>
 
 
-      {/* ACTIONS */}
-
       <td className="px-5 py-4">
 
         <div className="flex items-center justify-end gap-1">
@@ -1463,7 +1402,7 @@ function LeadRow({
           <button
             type="button"
             onClick={onView}
-            title="View lead"
+            title="View enquiry"
             className="
               flex
               h-8
@@ -1483,7 +1422,7 @@ function LeadRow({
           <button
             type="button"
             onClick={onDelete}
-            title="Delete lead"
+            title="Delete enquiry"
             className="
               flex
               h-8
@@ -1511,7 +1450,7 @@ function LeadRow({
 
 /*
 |--------------------------------------------------------------------------
-| MOBILE LEAD CARD
+| MOBILE ENQUIRY CARD
 |--------------------------------------------------------------------------
 */
 
@@ -1525,7 +1464,7 @@ function LeadMobileCard({
   const name =
     lead?.name ||
     lead?.fullName ||
-    "Unnamed Lead";
+    "Unnamed Enquiry";
 
   const email =
     lead?.email || "—";
@@ -1641,12 +1580,8 @@ function LeadMobileCard({
                   )
                   .map((item) => (
                     <option
-                      key={
-                        item.value
-                      }
-                      value={
-                        item.value
-                      }
+                      key={item.value}
+                      value={item.value}
                     >
                       {item.label}
                     </option>
@@ -1666,6 +1601,7 @@ function LeadMobileCard({
               <button
                 type="button"
                 onClick={onView}
+                title="View enquiry"
                 className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100"
               >
                 <Eye size={14} />
@@ -1674,6 +1610,7 @@ function LeadMobileCard({
               <button
                 type="button"
                 onClick={onDelete}
+                title="Delete enquiry"
                 className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-500"
               >
                 <Trash2 size={14} />
@@ -1694,7 +1631,7 @@ function LeadMobileCard({
 
 /*
 |--------------------------------------------------------------------------
-| LEAD DETAILS MODAL
+| ENQUIRY DETAILS MODAL
 |--------------------------------------------------------------------------
 */
 
@@ -1707,7 +1644,7 @@ function LeadDetailsModal({
   const name =
     lead?.name ||
     lead?.fullName ||
-    "Unnamed Lead";
+    "Unnamed Enquiry";
 
   const email =
     lead?.email || "—";
@@ -1725,14 +1662,12 @@ function LeadDetailsModal({
 
       <div className="max-h-[90vh] w-full max-w-xl overflow-hidden rounded-2xl bg-white shadow-2xl">
 
-        {/* HEADER */}
-
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
 
           <div>
 
             <p className="text-[9px] font-extrabold uppercase tracking-wider text-[#b88b32]">
-              Lead Details
+              Enquiry Details
             </p>
 
             <h2 className="mt-1 text-base font-extrabold text-slate-900">
@@ -1751,8 +1686,6 @@ function LeadDetailsModal({
 
         </div>
 
-
-        {/* BODY */}
 
         <div className="max-h-[calc(90vh-80px)] overflow-y-auto p-5">
 
@@ -1808,8 +1741,6 @@ function LeadDetailsModal({
             />
 
 
-            {/* STATUS */}
-
             <div>
 
               <p className="mb-1 text-[9px] font-extrabold uppercase tracking-wider text-slate-400">
@@ -1819,9 +1750,7 @@ function LeadDetailsModal({
               <div className="relative">
 
                 <select
-                  value={
-                    currentStatus
-                  }
+                  value={currentStatus}
                   disabled={
                     updatingId ===
                     lead?._id
@@ -1855,12 +1784,8 @@ function LeadDetailsModal({
                     )
                     .map((item) => (
                       <option
-                        key={
-                          item.value
-                        }
-                        value={
-                          item.value
-                        }
+                        key={item.value}
+                        value={item.value}
                       >
                         {item.label}
                       </option>
@@ -1878,8 +1803,6 @@ function LeadDetailsModal({
 
           </div>
 
-
-          {/* MESSAGE */}
 
           {lead?.message && (
             <div className="mt-5">
@@ -1900,8 +1823,6 @@ function LeadDetailsModal({
           )}
 
 
-          {/* EXTRA DATA */}
-
           {(lead?.budget ||
             lead?.location ||
             lead?.propertyType) && (
@@ -1910,18 +1831,14 @@ function LeadDetailsModal({
               {lead?.budget && (
                 <DetailItem
                   label="Budget"
-                  value={
-                    lead.budget
-                  }
+                  value={lead.budget}
                 />
               )}
 
               {lead?.location && (
                 <DetailItem
                   label="Location"
-                  value={
-                    lead.location
-                  }
+                  value={lead.location}
                 />
               )}
 
@@ -1974,7 +1891,7 @@ function DetailItem({
 
 /*
 |--------------------------------------------------------------------------
-| DELETE MODAL
+| DELETE ENQUIRY MODAL
 |--------------------------------------------------------------------------
 */
 
@@ -1987,7 +1904,7 @@ function DeleteModal({
   const name =
     lead?.name ||
     lead?.fullName ||
-    "this lead";
+    "this enquiry";
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/50 p-4">
@@ -1999,7 +1916,7 @@ function DeleteModal({
         </div>
 
         <h2 className="mt-4 text-base font-extrabold text-slate-900">
-          Delete Lead?
+          Delete Enquiry?
         </h2>
 
         <p className="mt-2 text-xs leading-5 text-slate-500">
@@ -2088,7 +2005,7 @@ function LoadingState() {
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-[#b88b32]" />
 
         <p className="mt-3 text-xs font-semibold text-slate-400">
-          Loading leads...
+          Loading enquiries...
         </p>
 
       </div>
@@ -2116,13 +2033,13 @@ function EmptyState({
       </div>
 
       <h3 className="mt-4 text-sm font-extrabold text-slate-800">
-        No leads found
+        No enquiries found
       </h3>
 
       <p className="mt-1 max-w-sm text-[11px] leading-5 text-slate-400">
         {hasFilters
-          ? "No leads match your current filters."
-          : "There are no leads available yet."}
+          ? "No enquiries match your current filters."
+          : "There are no enquiries available yet."}
       </p>
 
       {hasFilters && (
@@ -2151,3 +2068,4 @@ function EmptyState({
 }
 
 export default AdminLeads;
+

@@ -51,7 +51,7 @@ function AdminSidebar({ open, onClose }) {
     // LEADS
     // ==========================
     {
-      label: "Leads",
+      label: "Enquiries",
       path: "/admin/leads",
       icon: MessageSquare,
     },

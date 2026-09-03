@@ -578,7 +578,7 @@ function ProjectDetails() {
 
                   {/* VIEW IMAGE */}
 
-                  {currentImage && (
+                  {/* {currentImage && (
                     <button
                       type="button"
                       onClick={() =>
@@ -603,7 +603,7 @@ function ProjectDetails() {
                     >
                       View Gallery
                     </button>
-                  )}
+                  )} */}
                 </div>
 
                 {/* THUMBNAILS */}

@@ -1,95 +1,14 @@
 import {
   Bell,
   ChevronDown,
-  Menu,
   UserCircle,
+  Menu,
 } from "lucide-react";
 
-import {
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function AdminHeader({ onMenuClick }) {
-  const location = useLocation();
   const navigate = useNavigate();
-
-  /* =========================================================
-     PAGE TITLE
-  ========================================================= */
-
-  const getPageInfo = () => {
-    const path = location.pathname;
-
-    if (path === "/admin") {
-      return {
-        title: "Dashboard",
-        description: "Overview of your real estate business",
-      };
-    }
-
-    if (
-      path === "/admin/projects" ||
-      path.startsWith("/admin/projects/")
-    ) {
-      return {
-        title: "Projects",
-        description: "Manage your real estate projects",
-      };
-    }
-
-    if (
-      path === "/admin/properties" ||
-      path.startsWith("/admin/properties/")
-    ) {
-      return {
-        title: "Properties",
-        description: "Manage your property listings",
-      };
-    }
-
-    if (path === "/admin/leads") {
-      return {
-        title: "Leads",
-        description: "Manage customer enquiries and leads",
-      };
-    }
-
-    if (path.includes("/add-project")) {
-      return {
-        title: "Add Project",
-        description: "Create a new project",
-      };
-    }
-
-    if (path.includes("/edit-project")) {
-      return {
-        title: "Edit Project",
-        description: "Update project information",
-      };
-    }
-
-    if (path.includes("/add-property")) {
-      return {
-        title: "Add Property",
-        description: "Create a new property listing",
-      };
-    }
-
-    if (path.includes("/edit-property")) {
-      return {
-        title: "Edit Property",
-        description: "Update property information",
-      };
-    }
-
-    return {
-      title: "Admin Panel",
-      description: "Manage Investorise",
-    };
-  };
-
-  const pageInfo = getPageInfo();
 
   return (
     <header
@@ -148,7 +67,7 @@ function AdminHeader({ onMenuClick }) {
             <div className="flex items-center gap-2">
 
               <h1 className="truncate text-lg font-extrabold tracking-tight text-slate-900 sm:text-xl">
-                {pageInfo.title}
+                Admin Panel
               </h1>
 
               <span className="hidden rounded-full bg-[#faf5e9] px-2 py-1 text-[8px] font-bold uppercase tracking-wider text-[#b88b32] sm:inline-flex">
@@ -158,7 +77,7 @@ function AdminHeader({ onMenuClick }) {
             </div>
 
             <p className="mt-0.5 hidden truncate text-[11px] text-slate-400 sm:block">
-              {pageInfo.description}
+              Manage Investorise
             </p>
 
           </div>

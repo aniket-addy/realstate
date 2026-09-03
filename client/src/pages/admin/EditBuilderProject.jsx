@@ -10,10 +10,11 @@ import {
   FileText,
   Star,
   Sparkles,
+  Upload,
+  X,
 } from "lucide-react";
 
 import useBuilderProjects from "../../hooks/useBuilderProjects";
-
 
 function EditBuilderProject() {
   const navigate = useNavigate();
@@ -69,12 +70,19 @@ function EditBuilderProject() {
 
   const [saving, setSaving] = useState(false);
 
+  /* ============================================================
+     IMAGE STATES
+  ============================================================ */
 
-  /*
-  |--------------------------------------------------------------------------
-  | FETCH PROJECT
-  |--------------------------------------------------------------------------
-  */
+  const [mainImageFile, setMainImageFile] = useState(null);
+  const [mainImagePreview, setMainImagePreview] = useState("");
+
+  const [galleryImageFiles, setGalleryImageFiles] = useState([]);
+  const [galleryImagePreviews, setGalleryImagePreviews] = useState([]);
+
+  /* ============================================================
+     FETCH PROJECT
+  ============================================================ */
 
   useEffect(() => {
     if (!id) return;
@@ -82,12 +90,9 @@ function EditBuilderProject() {
     fetchProject(id);
   }, [id, fetchProject]);
 
-
-  /*
-  |--------------------------------------------------------------------------
-  | LOAD PROJECT INTO FORM
-  |--------------------------------------------------------------------------
-  */
+  /* ============================================================
+     LOAD PROJECT INTO FORM
+  ============================================================ */
 
   useEffect(() => {
     if (!project) return;
@@ -98,8 +103,7 @@ function EditBuilderProject() {
       description: project.description || "",
 
       projectCategory:
-        project.projectCategory ||
-        "residential",
+        project.projectCategory || "residential",
 
       authority: project.authority || "",
       reraNumber: project.reraNumber || "",
@@ -109,6 +113,7 @@ function EditBuilderProject() {
       state: project.state || "",
 
       price: project.price || "",
+
       priceFrom:
         project.priceFrom !== undefined &&
         project.priceFrom !== null
@@ -121,6 +126,7 @@ function EditBuilderProject() {
 
       featured: Boolean(project.featured),
       newProject: Boolean(project.newProject),
+
       published:
         project.published !== undefined
           ? Boolean(project.published)
@@ -152,14 +158,22 @@ function EditBuilderProject() {
         ? project.documents
         : [],
     });
+
+    /* Existing main image */
+    if (project.image) {
+      setMainImagePreview(project.image);
+    } else {
+      setMainImagePreview("");
+    }
+
+    /* Existing gallery images are kept in form.images */
+    setGalleryImageFiles([]);
+    setGalleryImagePreviews([]);
   }, [project]);
 
-
-  /*
-  |--------------------------------------------------------------------------
-  | INPUT CHANGE
-  |--------------------------------------------------------------------------
-  */
+  /* ============================================================
+     INPUT CHANGE
+  ============================================================ */
 
   const handleChange = (event) => {
     const {
@@ -171,7 +185,6 @@ function EditBuilderProject() {
 
     setForm((prev) => ({
       ...prev,
-
       [name]:
         type === "checkbox"
           ? checked
@@ -179,12 +192,176 @@ function EditBuilderProject() {
     }));
   };
 
+  /* ============================================================
+     MAIN IMAGE UPLOAD
+  ============================================================ */
 
-  /*
-  |--------------------------------------------------------------------------
-  | ADD FEATURE
-  |--------------------------------------------------------------------------
-  */
+  const handleMainImageChange = (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Please select a valid image file.");
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Main image must be less than 10MB.");
+      event.target.value = "";
+      return;
+    }
+
+    if (
+      mainImagePreview &&
+      mainImagePreview.startsWith("blob:")
+    ) {
+      URL.revokeObjectURL(mainImagePreview);
+    }
+
+    setMainImageFile(file);
+
+    const previewUrl = URL.createObjectURL(file);
+
+    setMainImagePreview(previewUrl);
+
+    event.target.value = "";
+  };
+
+  /* ============================================================
+     REMOVE MAIN IMAGE
+  ============================================================ */
+
+  const removeMainImage = () => {
+    if (
+      mainImagePreview &&
+      mainImagePreview.startsWith("blob:")
+    ) {
+      URL.revokeObjectURL(mainImagePreview);
+    }
+
+    setMainImageFile(null);
+
+    if (form.image) {
+      setMainImagePreview(form.image);
+    } else {
+      setMainImagePreview("");
+    }
+  };
+
+  /* ============================================================
+     GALLERY IMAGE UPLOAD
+  ============================================================ */
+
+  const handleGalleryImagesChange = (event) => {
+    const files = Array.from(
+      event.target.files || []
+    );
+
+    if (!files.length) return;
+
+    const invalidFile = files.find(
+      (file) =>
+        !file.type.startsWith("image/")
+    );
+
+    if (invalidFile) {
+      alert("Only image files are allowed.");
+      event.target.value = "";
+      return;
+    }
+
+    const largeFile = files.find(
+      (file) =>
+        file.size > 10 * 1024 * 1024
+    );
+
+    if (largeFile) {
+      alert(
+        "Each gallery image must be less than 10MB."
+      );
+      event.target.value = "";
+      return;
+    }
+
+    setGalleryImageFiles((prev) => [
+      ...prev,
+      ...files,
+    ]);
+
+    const previews = files.map((file) =>
+      URL.createObjectURL(file)
+    );
+
+    setGalleryImagePreviews((prev) => [
+      ...prev,
+      ...previews,
+    ]);
+
+    event.target.value = "";
+  };
+
+  /* ============================================================
+     REMOVE EXISTING GALLERY IMAGE
+  ============================================================ */
+
+  const removeExistingGalleryImage = (
+    index
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+
+      images: prev.images.filter(
+        (_, i) => i !== index
+      ),
+    }));
+  };
+
+  /* ============================================================
+     REMOVE NEW GALLERY IMAGE
+  ============================================================ */
+
+  const removeNewGalleryImage = (
+    index
+  ) => {
+    const previewToRemove =
+      galleryImagePreviews[index];
+
+    if (
+      previewToRemove &&
+      previewToRemove.startsWith("blob:")
+    ) {
+      URL.revokeObjectURL(previewToRemove);
+    }
+
+    setGalleryImageFiles((prev) =>
+      prev.filter((_, i) => i !== index)
+    );
+
+    setGalleryImagePreviews((prev) =>
+      prev.filter((_, i) => i !== index)
+    );
+  };
+
+  /* ============================================================
+     REMOVE GALLERY IMAGE (combined index — existing + new)
+  ============================================================ */
+
+  const removeGalleryImage = (index) => {
+    const existingCount = form.images.length;
+
+    if (index < existingCount) {
+      removeExistingGalleryImage(index);
+      return;
+    }
+
+    removeNewGalleryImage(index - existingCount);
+  };
+
+  /* ============================================================
+     ADD FEATURE
+  ============================================================ */
 
   const addFeature = () => {
     const value = featureInput.trim();
@@ -193,6 +370,7 @@ function EditBuilderProject() {
 
     setForm((prev) => ({
       ...prev,
+
       features: [
         ...prev.features,
         value,
@@ -202,28 +380,23 @@ function EditBuilderProject() {
     setFeatureInput("");
   };
 
-
-  /*
-  |--------------------------------------------------------------------------
-  | REMOVE FEATURE
-  |--------------------------------------------------------------------------
-  */
+  /* ============================================================
+     REMOVE FEATURE
+  ============================================================ */
 
   const removeFeature = (index) => {
     setForm((prev) => ({
       ...prev,
+
       features: prev.features.filter(
         (_, i) => i !== index
       ),
     }));
   };
 
-
-  /*
-  |--------------------------------------------------------------------------
-  | ADD AMENITY
-  |--------------------------------------------------------------------------
-  */
+  /* ============================================================
+     ADD AMENITY
+  ============================================================ */
 
   const addAmenity = () => {
     const value = amenityInput.trim();
@@ -232,6 +405,7 @@ function EditBuilderProject() {
 
     setForm((prev) => ({
       ...prev,
+
       amenities: [
         ...prev.amenities,
         value,
@@ -241,28 +415,23 @@ function EditBuilderProject() {
     setAmenityInput("");
   };
 
-
-  /*
-  |--------------------------------------------------------------------------
-  | REMOVE AMENITY
-  |--------------------------------------------------------------------------
-  */
+  /* ============================================================
+     REMOVE AMENITY
+  ============================================================ */
 
   const removeAmenity = (index) => {
     setForm((prev) => ({
       ...prev,
+
       amenities: prev.amenities.filter(
         (_, i) => i !== index
       ),
     }));
   };
 
-
-  /*
-  |--------------------------------------------------------------------------
-  | PAYMENT PLAN
-  |--------------------------------------------------------------------------
-  */
+  /* ============================================================
+     PAYMENT PLAN
+  ============================================================ */
 
   const addPaymentPlan = () => {
     setForm((prev) => ({
@@ -280,7 +449,6 @@ function EditBuilderProject() {
     }));
   };
 
-
   const updatePaymentPlan = (
     index,
     field,
@@ -295,8 +463,10 @@ function EditBuilderProject() {
             i === index
               ? {
                   ...plan,
+
                   [field]:
-                    field === "percentage"
+                    field ===
+                    "percentage"
                       ? Number(value)
                       : value,
                 }
@@ -304,7 +474,6 @@ function EditBuilderProject() {
         ),
     }));
   };
-
 
   const removePaymentPlan = (index) => {
     setForm((prev) => ({
@@ -317,57 +486,9 @@ function EditBuilderProject() {
     }));
   };
 
-
-  /*
-  |--------------------------------------------------------------------------
-  | IMAGE URL
-  |--------------------------------------------------------------------------
-  */
-
-  const addImage = () => {
-    setForm((prev) => ({
-      ...prev,
-      images: [
-        ...prev.images,
-        "",
-      ],
-    }));
-  };
-
-
-  const updateImage = (
-    index,
-    value
-  ) => {
-    setForm((prev) => ({
-      ...prev,
-
-      images: prev.images.map(
-        (image, i) =>
-          i === index
-            ? value
-            : image
-      ),
-    }));
-  };
-
-
-  const removeImage = (index) => {
-    setForm((prev) => ({
-      ...prev,
-
-      images: prev.images.filter(
-        (_, i) => i !== index
-      ),
-    }));
-  };
-
-
-  /*
-  |--------------------------------------------------------------------------
-  | DOCUMENT
-  |--------------------------------------------------------------------------
-  */
+  /* ============================================================
+     DOCUMENT
+  ============================================================ */
 
   const addDocument = () => {
     setForm((prev) => ({
@@ -384,7 +505,6 @@ function EditBuilderProject() {
       ],
     }));
   };
-
 
   const updateDocument = (
     index,
@@ -407,7 +527,6 @@ function EditBuilderProject() {
     }));
   };
 
-
   const removeDocument = (
     index
   ) => {
@@ -421,12 +540,9 @@ function EditBuilderProject() {
     }));
   };
 
-
-  /*
-  |--------------------------------------------------------------------------
-  | SUBMIT
-  |--------------------------------------------------------------------------
-  */
+  /* ============================================================
+     SUBMIT
+  ============================================================ */
 
   const handleSubmit = async (
     event
@@ -454,6 +570,7 @@ function EditBuilderProject() {
         ...form,
 
         name: form.name.trim(),
+
         developer:
           form.developer.trim(),
 
@@ -462,9 +579,25 @@ function EditBuilderProject() {
             ? 0
             : Number(form.priceFrom),
 
+        /*
+         * Existing Cloudinary images
+         */
+        image: form.image,
+
         images: form.images.filter(
           Boolean
         ),
+
+        /*
+         * New image files
+         * Your existing service can use these
+         * for Cloudinary upload.
+         */
+        mainImageFile:
+          mainImageFile,
+
+        galleryImageFiles:
+          galleryImageFiles,
 
         features:
           form.features.filter(Boolean),
@@ -475,11 +608,14 @@ function EditBuilderProject() {
         paymentPlans:
           form.paymentPlans.map(
             (plan) => ({
-              name: plan.name || "",
+              name:
+                plan.name || "",
+
               percentage:
                 Number(
                   plan.percentage
                 ) || 0,
+
               description:
                 plan.description ||
                 "",
@@ -491,8 +627,10 @@ function EditBuilderProject() {
             (document) => ({
               name:
                 document.name || "",
+
               url:
                 document.url || "",
+
               type:
                 document.type || "",
             })
@@ -527,12 +665,9 @@ function EditBuilderProject() {
     }
   };
 
-
-  /*
-  |--------------------------------------------------------------------------
-  | LOADING
-  |--------------------------------------------------------------------------
-  */
+  /* ============================================================
+     LOADING
+  ============================================================ */
 
   if (
     loading &&
@@ -547,20 +682,20 @@ function EditBuilderProject() {
     );
   }
 
+  /* Combined gallery preview list — existing (Cloudinary) + new (blob) */
+  const combinedGalleryPreviews = [
+    ...form.images,
+    ...galleryImagePreviews,
+  ];
 
-  /*
-  |--------------------------------------------------------------------------
-  | PAGE
-  |--------------------------------------------------------------------------
-  */
+  /* ============================================================
+     PAGE
+  ============================================================ */
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 pb-10">
 
-
-      {/* =====================================================
-          HEADER
-      ====================================================== */}
+      {/* HEADER */}
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
@@ -592,10 +727,7 @@ function EditBuilderProject() {
 
       </div>
 
-
-      {/* =====================================================
-          ERROR
-      ====================================================== */}
+      {/* ERROR */}
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
@@ -603,24 +735,19 @@ function EditBuilderProject() {
         </div>
       )}
 
-
-      {/* =====================================================
-          FORM
-      ====================================================== */}
+      {/* FORM */}
 
       <form
         onSubmit={handleSubmit}
         className="space-y-6"
       >
 
-
-        {/* ===================================================
-            BASIC INFORMATION
-        ==================================================== */}
+        {/* BASIC INFORMATION */}
 
         <section className="rounded-xl border border-gray-200 bg-white p-5">
 
           <div className="mb-5">
+
             <h2 className="text-lg font-semibold text-gray-900">
               Basic Information
             </h2>
@@ -628,15 +755,15 @@ function EditBuilderProject() {
             <p className="mt-1 text-sm text-gray-500">
               Basic details about the builder project.
             </p>
+
           </div>
 
-
           <div className="grid gap-5 md:grid-cols-2">
-
 
             {/* PROJECT NAME */}
 
             <div>
+
               <label className="mb-2 block text-sm font-medium text-gray-700">
                 Project Name *
               </label>
@@ -649,12 +776,13 @@ function EditBuilderProject() {
                 required
                 className="h-11 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-gray-400"
               />
-            </div>
 
+            </div>
 
             {/* DEVELOPER */}
 
             <div>
+
               <label className="mb-2 block text-sm font-medium text-gray-700">
                 Developer / Builder *
               </label>
@@ -667,12 +795,13 @@ function EditBuilderProject() {
                 required
                 className="h-11 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-gray-400"
               />
-            </div>
 
+            </div>
 
             {/* CATEGORY */}
 
             <div>
+
               <label className="mb-2 block text-sm font-medium text-gray-700">
                 Project Category
               </label>
@@ -701,12 +830,13 @@ function EditBuilderProject() {
                   Mixed
                 </option>
               </select>
-            </div>
 
+            </div>
 
             {/* STATUS */}
 
             <div>
+
               <label className="mb-2 block text-sm font-medium text-gray-700">
                 Status
               </label>
@@ -733,8 +863,8 @@ function EditBuilderProject() {
                   Inactive
                 </option>
               </select>
-            </div>
 
+            </div>
 
             {/* DESCRIPTION */}
 
@@ -759,10 +889,7 @@ function EditBuilderProject() {
 
         </section>
 
-
-        {/* ===================================================
-            LOCATION
-        ==================================================== */}
+        {/* LOCATION */}
 
         <section className="rounded-xl border border-gray-200 bg-white p-5">
 
@@ -773,6 +900,7 @@ function EditBuilderProject() {
           <div className="mt-5 grid gap-5 md:grid-cols-3">
 
             <div>
+
               <label className="mb-2 block text-sm font-medium text-gray-700">
                 Location
               </label>
@@ -784,9 +912,11 @@ function EditBuilderProject() {
                 placeholder="Sector / Area"
                 className="h-11 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none"
               />
+
             </div>
 
             <div>
+
               <label className="mb-2 block text-sm font-medium text-gray-700">
                 City
               </label>
@@ -798,9 +928,11 @@ function EditBuilderProject() {
                 placeholder="City"
                 className="h-11 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none"
               />
+
             </div>
 
             <div>
+
               <label className="mb-2 block text-sm font-medium text-gray-700">
                 State
               </label>
@@ -812,16 +944,14 @@ function EditBuilderProject() {
                 placeholder="State"
                 className="h-11 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none"
               />
+
             </div>
 
           </div>
 
         </section>
 
-
-        {/* ===================================================
-            PRICE & DETAILS
-        ==================================================== */}
+        {/* PRICE & DETAILS */}
 
         <section className="rounded-xl border border-gray-200 bg-white p-5">
 
@@ -832,6 +962,7 @@ function EditBuilderProject() {
           <div className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
 
             <div>
+
               <label className="mb-2 block text-sm font-medium text-gray-700">
                 Price
               </label>
@@ -843,9 +974,11 @@ function EditBuilderProject() {
                 placeholder="₹ 50 Lac onwards"
                 className="h-11 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none"
               />
+
             </div>
 
             <div>
+
               <label className="mb-2 block text-sm font-medium text-gray-700">
                 Price From
               </label>
@@ -858,9 +991,11 @@ function EditBuilderProject() {
                 placeholder="5000000"
                 className="h-11 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none"
               />
+
             </div>
 
             <div>
+
               <label className="mb-2 block text-sm font-medium text-gray-700">
                 Total Area
               </label>
@@ -872,9 +1007,11 @@ function EditBuilderProject() {
                 placeholder="10 Acres"
                 className="h-11 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none"
               />
+
             </div>
 
             <div>
+
               <label className="mb-2 block text-sm font-medium text-gray-700">
                 Possession
               </label>
@@ -886,16 +1023,14 @@ function EditBuilderProject() {
                 placeholder="2028"
                 className="h-11 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none"
               />
+
             </div>
 
           </div>
 
         </section>
 
-
-        {/* ===================================================
-            AUTHORITY / RERA
-        ==================================================== */}
+        {/* AUTHORITY / RERA */}
 
         <section className="rounded-xl border border-gray-200 bg-white p-5">
 
@@ -906,6 +1041,7 @@ function EditBuilderProject() {
           <div className="mt-5 grid gap-5 md:grid-cols-2">
 
             <div>
+
               <label className="mb-2 block text-sm font-medium text-gray-700">
                 Authority
               </label>
@@ -917,9 +1053,11 @@ function EditBuilderProject() {
                 placeholder="YEIDA / RERA / Other"
                 className="h-11 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none"
               />
+
             </div>
 
             <div>
+
               <label className="mb-2 block text-sm font-medium text-gray-700">
                 RERA Number
               </label>
@@ -931,20 +1069,19 @@ function EditBuilderProject() {
                 placeholder="Enter RERA number"
                 className="h-11 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none"
               />
+
             </div>
 
           </div>
 
         </section>
 
-
-        {/* ===================================================
-            WEBSITE VISIBILITY
-        ==================================================== */}
+        {/* WEBSITE VISIBILITY */}
 
         <section className="rounded-xl border border-gray-200 bg-white p-5">
 
           <div className="mb-5">
+
             <h2 className="text-lg font-semibold text-gray-900">
               Website Visibility
             </h2>
@@ -952,13 +1089,10 @@ function EditBuilderProject() {
             <p className="mt-1 text-sm text-gray-500">
               Choose where this project should appear on the website.
             </p>
+
           </div>
 
-
           <div className="grid gap-4 md:grid-cols-3">
-
-
-            {/* FEATURED */}
 
             <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-gray-200 p-4">
 
@@ -974,7 +1108,6 @@ function EditBuilderProject() {
 
                 <div className="flex items-center gap-2 text-sm font-semibold text-gray-900">
                   <Star size={16} />
-
                   Featured Project
                 </div>
 
@@ -985,9 +1118,6 @@ function EditBuilderProject() {
               </div>
 
             </label>
-
-
-            {/* NEW */}
 
             <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-gray-200 p-4">
 
@@ -1003,7 +1133,6 @@ function EditBuilderProject() {
 
                 <div className="flex items-center gap-2 text-sm font-semibold text-gray-900">
                   <Sparkles size={16} />
-
                   New Project
                 </div>
 
@@ -1014,9 +1143,6 @@ function EditBuilderProject() {
               </div>
 
             </label>
-
-
-            {/* PUBLISHED */}
 
             <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-gray-200 p-4">
 
@@ -1046,135 +1172,202 @@ function EditBuilderProject() {
 
         </section>
 
+        {/* ============================================================
+            PROJECT IMAGES (styled to match EditAuthorityProject)
+        ============================================================ */}
 
-        {/* ===================================================
-            MAIN IMAGE
-        ==================================================== */}
+        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
 
-        <section className="rounded-xl border border-gray-200 bg-white p-5">
-
-          <div className="flex items-center gap-2">
-
+          <div className="mb-5 flex items-center gap-2">
             <ImageIcon
-              size={19}
-              className="text-gray-600"
+              size={20}
+              className="text-gray-700"
             />
-
-            <h2 className="text-lg font-semibold text-gray-900">
-              Main Image
-            </h2>
-
-          </div>
-
-          <div className="mt-5">
-
-            <input
-              name="image"
-              value={form.image}
-              onChange={handleChange}
-              placeholder="Main image URL"
-              className="h-11 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none"
-            />
-
-            {form.image && (
-              <div className="mt-4 overflow-hidden rounded-lg border border-gray-200">
-
-                <img
-                  src={form.image}
-                  alt={form.name}
-                  className="h-56 w-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.style.display =
-                      "none";
-                  }}
-                />
-
-              </div>
-            )}
-
-          </div>
-
-        </section>
-
-
-        {/* ===================================================
-            PROJECT IMAGES
-        ==================================================== */}
-
-        <section className="rounded-xl border border-gray-200 bg-white p-5">
-
-          <div className="flex items-center justify-between">
 
             <div>
-
               <h2 className="text-lg font-semibold text-gray-900">
                 Project Images
               </h2>
 
-              <p className="mt-1 text-sm text-gray-500">
-                Add additional project image URLs.
+              <p className="text-sm text-gray-500">
+                Upload images directly. Images will be stored on Cloudinary.
               </p>
-
             </div>
-
-            <button
-              type="button"
-              onClick={addImage}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium hover:bg-gray-50"
-            >
-              <Plus size={16} />
-
-              Add Image
-            </button>
-
           </div>
 
+          {/* MAIN IMAGE */}
+          <div className="mb-8">
 
-          <div className="mt-5 space-y-3">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Main Image
+            </label>
 
-            {form.images.map(
-              (image, index) => (
-
-                <div
-                  key={index}
-                  className="flex gap-3"
-                >
-
-                  <input
-                    value={image}
-                    onChange={(e) =>
-                      updateImage(
-                        index,
-                        e.target.value
-                      )
-                    }
-                    placeholder="Image URL"
-                    className="h-11 flex-1 rounded-lg border border-gray-200 px-3 text-sm outline-none"
+            {!mainImagePreview ? (
+              <label
+                htmlFor="main-project-image"
+                className="flex min-h-[260px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 transition hover:border-gray-500 hover:bg-gray-100"
+              >
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-sm">
+                  <Upload
+                    size={25}
+                    className="text-gray-600"
                   />
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      removeImage(index)
-                    }
-                    className="rounded-lg border border-gray-200 px-3 text-red-600 hover:bg-red-50"
-                  >
-                    <Trash2 size={17} />
-                  </button>
-
                 </div>
 
-              )
+                <p className="text-sm font-semibold text-gray-700">
+                  Click to upload main image
+                </p>
+
+                <p className="mt-2 text-xs text-gray-500">
+                  PNG, JPG, JPEG or WEBP · Maximum 10MB
+                </p>
+
+                <input
+                  id="main-project-image"
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  onChange={handleMainImageChange}
+                  className="hidden"
+                />
+              </label>
+            ) : (
+              <div className="relative overflow-hidden rounded-2xl border border-gray-200">
+
+                <img
+                  src={mainImagePreview}
+                  alt={form.name || "Project main preview"}
+                  className="h-[320px] w-full object-cover"
+                />
+
+                {mainImageFile && (
+                  <button
+                    type="button"
+                    onClick={removeMainImage}
+                    className="absolute right-4 top-4 flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-semibold text-red-500 shadow-md hover:bg-red-50"
+                  >
+                    <X size={16} />
+                    Cancel Replace
+                  </button>
+                )}
+
+                <label
+                  htmlFor="replace-main-image"
+                  className="absolute bottom-4 left-4 flex cursor-pointer items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-md hover:bg-gray-50"
+                >
+                  <Upload size={16} />
+                  Replace Image
+
+                  <input
+                    id="replace-main-image"
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg,image/webp"
+                    onChange={handleMainImageChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            )}
+          </div>
+
+          {/* GALLERY */}
+          <div>
+
+            <div className="mb-3 flex items-center justify-between">
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Gallery Images
+                </label>
+
+                <p className="mt-1 text-xs text-gray-500">
+                  Existing images and newly selected images are shown here.
+                </p>
+              </div>
+
+              <label
+                htmlFor="gallery-project-images"
+                className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+              >
+                <Plus size={17} />
+                Add Images
+
+                <input
+                  id="gallery-project-images"
+                  type="file"
+                  multiple
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  onChange={handleGalleryImagesChange}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+            {combinedGalleryPreviews.length > 0 ? (
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+
+                {combinedGalleryPreviews.map(
+                  (image, index) => {
+                    const isNewImage =
+                      index >= form.images.length;
+
+                    return (
+                      <div
+                        key={`${image}-${index}`}
+                        className="group relative overflow-hidden rounded-xl border border-gray-200"
+                      >
+
+                        <img
+                          src={image}
+                          alt={`Project gallery ${index + 1}`}
+                          className="h-36 w-full object-cover transition group-hover:scale-105"
+                        />
+
+                        {isNewImage && (
+                          <span className="absolute bottom-2 left-2 rounded-md bg-black/70 px-2 py-1 text-[10px] font-medium text-white">
+                            New
+                          </span>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            removeGalleryImage(index)
+                          }
+                          className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white text-red-500 opacity-0 shadow-md transition group-hover:opacity-100"
+                          title="Remove image"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    );
+                  }
+                )}
+
+              </div>
+            ) : (
+              <label
+                htmlFor="gallery-project-images"
+                className="flex min-h-[180px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 hover:border-gray-500"
+              >
+                <ImageIcon
+                  size={28}
+                  className="mb-3 text-gray-400"
+                />
+
+                <p className="text-sm font-medium text-gray-600">
+                  Add gallery images
+                </p>
+
+                <p className="mt-1 text-xs text-gray-400">
+                  Select multiple images
+                </p>
+              </label>
             )}
 
           </div>
-
         </section>
 
-
-        {/* ===================================================
-            FEATURES
-        ==================================================== */}
+        {/* FEATURES */}
 
         <section className="rounded-xl border border-gray-200 bg-white p-5">
 
@@ -1211,7 +1404,6 @@ function EditBuilderProject() {
 
           </div>
 
-
           <div className="mt-4 flex flex-wrap gap-2">
 
             {form.features.map(
@@ -1245,10 +1437,7 @@ function EditBuilderProject() {
 
         </section>
 
-
-        {/* ===================================================
-            AMENITIES
-        ==================================================== */}
+        {/* AMENITIES */}
 
         <section className="rounded-xl border border-gray-200 bg-white p-5">
 
@@ -1285,7 +1474,6 @@ function EditBuilderProject() {
 
           </div>
 
-
           <div className="mt-4 flex flex-wrap gap-2">
 
             {form.amenities.map(
@@ -1319,10 +1507,7 @@ function EditBuilderProject() {
 
         </section>
 
-
-        {/* ===================================================
-            PAYMENT PLANS
-        ==================================================== */}
+        {/* PAYMENT PLANS */}
 
         <section className="rounded-xl border border-gray-200 bg-white p-5">
 
@@ -1346,12 +1531,10 @@ function EditBuilderProject() {
               className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium hover:bg-gray-50"
             >
               <Plus size={16} />
-
               Add Plan
             </button>
 
           </div>
-
 
           <div className="mt-5 space-y-4">
 
@@ -1433,10 +1616,7 @@ function EditBuilderProject() {
 
         </section>
 
-
-        {/* ===================================================
-            DOCUMENTS
-        ==================================================== */}
+        {/* DOCUMENTS */}
 
         <section className="rounded-xl border border-gray-200 bg-white p-5">
 
@@ -1469,12 +1649,10 @@ function EditBuilderProject() {
               className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium hover:bg-gray-50"
             >
               <Plus size={16} />
-
               Add Document
             </button>
 
           </div>
-
 
           <div className="mt-5 space-y-4">
 
@@ -1556,10 +1734,7 @@ function EditBuilderProject() {
 
         </section>
 
-
-        {/* ===================================================
-            SAVE BAR
-        ==================================================== */}
+        {/* SAVE BAR */}
 
         <div className="sticky bottom-4 z-10 flex items-center justify-end gap-3 rounded-xl border border-gray-200 bg-white/95 p-4 shadow-lg backdrop-blur">
 
@@ -1574,7 +1749,6 @@ function EditBuilderProject() {
           >
             Cancel
           </button>
-
 
           <button
             type="submit"
