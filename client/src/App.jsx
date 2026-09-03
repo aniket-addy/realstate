@@ -1,3 +1,4 @@
+
 import "./App.css";
 
 import {
@@ -6,98 +7,146 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+
+// =========================================================
+// COMMON
+// =========================================================
+import ScrollToTop from "./components/ScrollToTop";
+
+// =========================================================
+// ADMIN AUTH
+// =========================================================
 import Login from "./pages/admin/auth/login";
 import ForgotPassword from "./pages/admin/auth/forgot_password";
 import ResetPassword from "./pages/admin/auth/reset_password";
-import AdminProfile from "./pages/admin/AdminProfile";
-import ScrollToTop from "./components/ScrollToTop";
 
-/* =========================================================
-   PUBLIC PAGES
-========================================================= */
-
+// =========================================================
+// PUBLIC PAGES
+// =========================================================
 import Home from "./pages/Home";
 import AboutUs from "./pages/AboutUs";
 import Services from "./pages/Services";
 import Contact from "./pages/Contact";
 import Blogs from "./pages/Blogs";
+import BlogDetails from "./pages/BlogDetails";
+
 import ProjectDetails from "./pages/ProjectDetails";
 import FeaturedProjectsPage from "./pages/FeaturedProjectsPage";
 import NewProjectsPage from "./pages/NewProjectsPage";
-/* =========================================================
-   PUBLIC PROJECT PAGES
-========================================================= */
 
 import AuthorityProjects from "./pages/AuthorityProjects";
 import BuilderProjects from "./pages/BuilderProjects";
 
-/* =========================================================
-   ADMIN PAGES
-========================================================= */
-
-/* Dashboard */
+// =========================================================
+// ADMIN PAGES
+// =========================================================
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminProfile from "./pages/admin/AdminProfile";
 
-/* Authority Projects */
+// Authority Projects
 import AdminAuthorityProjects from "./pages/admin/AuthorityProjects";
 import AddAuthorityProject from "./pages/admin/AddAuthorityProject";
 import EditAuthorityProject from "./pages/admin/EditAuthorityProject";
 
-/* Builder Projects */
+// Builder Projects
 import AdminBuilderProjects from "./pages/admin/BuilderProjects";
 import AddBuilderProject from "./pages/admin/AddBuilderProject";
 import EditBuilderProject from "./pages/admin/EditBuilderProject";
 
-/* Leads */
+// Leads
 import AdminLeads from "./pages/admin/AdminLeads";
 
-/* =========================================================
-   ADMIN LAYOUT
-========================================================= */
+// Blogs
+import AdminBlogs from "./pages/admin/AdminBlogs";
+import AddBlog from "./pages/admin/AddBlog";
+import EditBlog from "./pages/admin/EditBlog";
 
+// =========================================================
+// ADMIN LAYOUT & PROTECTED ROUTE
+// =========================================================
 import AdminLayout from "./components/admin/AdminLayout";
-
+import ProtectedRoute from "./pages/admin/ProtectedRoute";
 
 function App() {
   return (
     <BrowserRouter>
-<ScrollToTop />
+      <ScrollToTop />
 
       <Routes>
-        <Route path="/admin/login" element={<Login />} />
-        <Route path="/admin/forgot-password" element={<ForgotPassword />} />
-        <Route path="/admin/reset-password/:token" element={<ResetPassword />} />
-        <Route path="/admin/profile" element={<AdminProfile />} />
-        <Route path="*" element={<Navigate to="/admin/login" replace />} />
+
+        {/* =====================================================
+            ADMIN AUTH ROUTES
+        ====================================================== */}
+
+        <Route
+          path="/admin/login"
+          element={<Login />}
+        />
+
+        <Route
+          path="/admin/forgot-password"
+          element={<ForgotPassword />}
+        />
+
+        <Route
+          path="/admin/reset-password/:token"
+          element={<ResetPassword />}
+        />
+
 
         {/* =====================================================
             PUBLIC WEBSITE
         ====================================================== */}
-
-        {/* HOME */}
 
         <Route
           path="/"
           element={<Home />}
         />
 
+        <Route
+          path="/about"
+          element={<AboutUs />}
+        />
+
+        <Route
+          path="/services"
+          element={<Services />}
+        />
+
+        <Route
+          path="/contact"
+          element={<Contact />}
+        />
+
+
+        {/* =====================================================
+            PUBLIC PROJECT LISTING
+        ====================================================== */}
+
+        <Route
+          path="/authority-projects"
+          element={<AuthorityProjects />}
+        />
+
+        <Route
+          path="/builder-projects"
+          element={<BuilderProjects />}
+        />
+
+        <Route
+          path="/projects/featured"
+          element={<FeaturedProjectsPage />}
+        />
+
+        <Route
+          path="/projects/new"
+          element={<NewProjectsPage />}
+        />
+
 
         {/* =====================================================
             PUBLIC PROJECT DETAILS
         ====================================================== */}
-
-        {/*
-          IMPORTANT:
-
-          Same ProjectDetails component handles:
-
-          /projects/:id
-          /authority-projects/:id
-          /builder-projects/:id
-
-          This fixes the View Project redirect for both
-          Authority Projects and Builder Projects.
-        */}
 
         <Route
           path="/projects/:id"
@@ -116,141 +165,126 @@ function App() {
 
 
         {/* =====================================================
-            PUBLIC PROJECT LISTING
+            PUBLIC BLOGS
         ====================================================== */}
-
-        {/* Authority Projects */}
-
-        <Route
-          path="/authority-projects"
-          element={<AuthorityProjects />}
-        />
-
-
-        {/* Builder Projects */}
-
-        <Route
-          path="/builder-projects"
-          element={<BuilderProjects />}
-        />
-<Route
-  path="/projects/featured"
-  element={<FeaturedProjectsPage />}
-/>
-<Route
-  path="/projects/new"
-  element={<NewProjectsPage />}
-/>
-        {/* =====================================================
-            COMPANY
-        ====================================================== */}
-
-        <Route
-          path="/about"
-          element={<AboutUs />}
-        />
-
-        <Route
-          path="/services"
-          element={<Services />}
-        />
-
-        <Route
-          path="/contact"
-          element={<Contact />}
-        />
 
         <Route
           path="/blogs"
           element={<Blogs />}
         />
 
+        <Route
+          path="/blog/:id"
+          element={<BlogDetails />}
+        />
+
 
         {/* =====================================================
-            ADMIN PANEL
+            PROTECTED ADMIN PANEL
         ====================================================== */}
 
-        <Route
-          path="/admin"
-          element={<AdminLayout />}
-        >
-
-          {/* =================================================
-              DASHBOARD
-
-              /admin
-              /admin/dashboard
-          ================================================== */}
+        <Route element={<ProtectedRoute />}>
 
           <Route
-            index
-            element={<AdminDashboard />}
-          />
+            path="/admin"
+            element={<AdminLayout />}
+          >
 
-          <Route
-            path="dashboard"
-            element={<AdminDashboard />}
-          />
+            {/* =================================================
+                DASHBOARD
+            ================================================== */}
 
+            <Route
+              index
+              element={<AdminDashboard />}
+            />
 
-          {/* =================================================
-              AUTHORITY PROJECTS
-
-              /admin/authority-projects
-              /admin/authority-projects/add
-              /admin/authority-projects/edit/:id
-          ================================================== */}
-
-          <Route
-            path="authority-projects"
-            element={<AdminAuthorityProjects />}
-          />
-
-          <Route
-            path="authority-projects/add"
-            element={<AddAuthorityProject />}
-          />
-
-          <Route
-            path="authority-projects/edit/:id"
-            element={<EditAuthorityProject />}
-          />
+            <Route
+              path="dashboard"
+              element={<AdminDashboard />}
+            />
 
 
-          {/* =================================================
-              BUILDER PROJECTS
+            {/* =================================================
+                ADMIN PROFILE
+            ================================================== */}
 
-              /admin/builder-projects
-              /admin/builder-projects/add
-              /admin/builder-projects/edit/:id
-          ================================================== */}
-
-          <Route
-            path="builder-projects"
-            element={<AdminBuilderProjects />}
-          />
-
-          <Route
-            path="builder-projects/add"
-            element={<AddBuilderProject />}
-          />
-
-          <Route
-            path="builder-projects/edit/:id"
-            element={<EditBuilderProject />}
-          />
+            <Route
+              path="profile"
+              element={<AdminProfile />}
+            />
 
 
-          {/* =================================================
-              LEADS
+            {/* =================================================
+                AUTHORITY PROJECTS
+            ================================================== */}
 
-              /admin/leads
-          ================================================== */}
+            <Route
+              path="authority-projects"
+              element={<AdminAuthorityProjects />}
+            />
 
-          <Route
-            path="leads"
-            element={<AdminLeads />}
-          />
+            <Route
+              path="authority-projects/add"
+              element={<AddAuthorityProject />}
+            />
+
+            <Route
+              path="authority-projects/edit/:id"
+              element={<EditAuthorityProject />}
+            />
+
+
+            {/* =================================================
+                BUILDER PROJECTS
+            ================================================== */}
+
+            <Route
+              path="builder-projects"
+              element={<AdminBuilderProjects />}
+            />
+
+            <Route
+              path="builder-projects/add"
+              element={<AddBuilderProject />}
+            />
+
+            <Route
+              path="builder-projects/edit/:id"
+              element={<EditBuilderProject />}
+            />
+
+
+            {/* =================================================
+                LEADS
+            ================================================== */}
+
+            <Route
+              path="leads"
+              element={<AdminLeads />}
+            />
+
+
+            {/* =================================================
+                ADMIN BLOGS
+            ================================================== */}
+
+            <Route
+              path="blogs"
+              element={<AdminBlogs />}
+            />
+
+            <Route
+              path="add-blog"
+              element={<AddBlog />}
+            />
+
+            <Route
+              path="blogs/edit/:id"
+              element={<EditBlog />}
+            />
+
+          </Route>
 
         </Route>
 
@@ -261,11 +295,10 @@ function App() {
 
         <Route
           path="*"
-          element={<Home />}
+          element={<Navigate to="/" replace />}
         />
 
       </Routes>
-
     </BrowserRouter>
   );
 }

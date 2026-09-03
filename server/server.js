@@ -8,6 +8,7 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const profileRoutes =
   require("./routes/profileRoutes");
+
 // =========================================================
 // ROUTES
 // =========================================================
@@ -24,12 +25,21 @@ const leadRoutes = require(
   "./routes/leadRoutes"
 );
 
+// =========================================================
+// BLOG ROUTES
+// =========================================================
+
+const blogRoutes = require(
+  "./routes/blogRoutes"
+);
+
 
 // =========================================================
 // APP
 // =========================================================
 
 const app = express();
+
 const allowedOrigins = [
   "http://localhost:5173",
   process.env.CLIENT_URL,
@@ -54,7 +64,9 @@ app.use(
         return callback(null, true);
       }
 
-      return callback(new Error("Origin not allowed by CORS"));
+      return callback(
+        new Error("Origin not allowed by CORS")
+      );
     },
     credentials: true,
   })
@@ -99,11 +111,13 @@ app.use(
   "/api/auth",
   authRoutes
 );
+
 app.use(
   "/api/auth",
   profileRoutes
 );
-// ==========================================
+
+
 // =========================================================
 // AUTHORITY PROJECT API
 // =========================================================
@@ -161,6 +175,24 @@ app.use(
 
 
 // =========================================================
+// BLOG API
+// =========================================================
+//
+// GET    /api/blogs
+// GET    /api/blogs/:id
+// POST   /api/blogs
+// PUT    /api/blogs/:id
+// DELETE /api/blogs/:id
+//
+// =========================================================
+
+app.use(
+  "/api/blogs",
+  blogRoutes
+);
+
+
+// =========================================================
 // 404 HANDLER
 // =========================================================
 
@@ -200,14 +232,6 @@ app.use(
 // SERVER
 // =========================================================
 
-
-// const PORT = process.env.PORT || 5000;
-
-// app.listen(PORT, () => {
-//   console.log(
-//     `Server running on http://localhost:${PORT}`
-//   );
-// });
 const PORT =
   process.env.PORT || 5000;
 

@@ -490,7 +490,7 @@ const AdminProfile = () => {
             HEADER
         ================================================= */}
 
-        <header className="h-[76px] bg-white border-b border-[#e6eaf0] px-8 flex items-center justify-between max-md:px-5">
+        {/* <header className="h-[76px] bg-white border-b border-[#e6eaf0] px-8 flex items-center justify-between max-md:px-5">
 
           <div>
 
@@ -504,7 +504,7 @@ const AdminProfile = () => {
 
           </div>
 
-          {/* TOP RIGHT */}
+          
 
           <div className="flex items-center gap-3">
 
@@ -540,7 +540,7 @@ const AdminProfile = () => {
 
           </div>
 
-        </header>
+        </header> */}
 
         {/* =================================================
             CONTENT
@@ -751,7 +751,7 @@ const AdminProfile = () => {
 
                 {/* PROFILE IMAGE URL */}
 
-                <div className="mt-5">
+                {/* <div className="mt-5">
 
                   <label className="block text-xs font-semibold text-[#324863] mb-2">
                     Profile Image URL
@@ -774,7 +774,7 @@ const AdminProfile = () => {
                     Enter the URL of your profile image.
                   </p>
 
-                </div>
+                </div> */}
 
                 {/* BUTTON */}
 

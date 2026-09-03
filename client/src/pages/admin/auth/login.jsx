@@ -126,7 +126,7 @@ const Login = () => {
       // ==========================================
 
       setTimeout(() => {
-        navigate("/admin/profile");
+        navigate("/admin");
       }, 800);
 
     } catch (error) {

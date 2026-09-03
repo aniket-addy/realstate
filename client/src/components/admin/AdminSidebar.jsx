@@ -6,12 +6,18 @@ import {
   LayoutDashboard,
   LogOut,
   MessageSquare,
+  Newspaper,
   X,
 } from "lucide-react";
 
-import { NavLink } from "react-router-dom";
+import {
+  NavLink,
+  useNavigate,
+} from "react-router-dom";
 
 function AdminSidebar({ open, onClose }) {
+  const navigate = useNavigate();
+
   const navigation = [
     {
       label: "Dashboard",
@@ -19,22 +25,63 @@ function AdminSidebar({ open, onClose }) {
       icon: LayoutDashboard,
       end: true,
     },
+
     {
       label: "Authority Projects",
       path: "/admin/authority-projects",
       icon: Landmark,
     },
+
     {
       label: "Builder Projects",
       path: "/admin/builder-projects",
       icon: Building2,
     },
+
+    // ==========================
+    // BLOGS
+    // ==========================
+    {
+      label: "Blogs",
+      path: "/admin/blogs",
+      icon: Newspaper,
+    },
+
+    // ==========================
+    // LEADS
+    // ==========================
     {
       label: "Leads",
       path: "/admin/leads",
       icon: MessageSquare,
     },
   ];
+
+
+  // =========================================================
+  // LOGOUT
+  // =========================================================
+
+  const handleLogout = () => {
+    // Remove authentication token
+    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
+
+    // Remove logged-in user data
+    localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
+
+    // Close mobile sidebar
+    if (onClose) {
+      onClose();
+    }
+
+    // Redirect to login
+    navigate("/admin/login", {
+      replace: true,
+    });
+  };
+
 
   return (
     <aside
@@ -62,24 +109,32 @@ function AdminSidebar({ open, onClose }) {
         }
       `}
     >
+
       {/* =====================================================
           BRAND
       ====================================================== */}
 
       <div className="flex h-[76px] items-center justify-between border-b border-slate-200 px-5">
+
         <div className="flex items-center gap-3">
 
           {/* Logo */}
+
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 shadow-sm">
+
             <Building2
               size={20}
               strokeWidth={1.8}
               className="text-[#d6a84f]"
             />
+
           </div>
 
+
           {/* Brand */}
+
           <div>
+
             <h1 className="text-[15px] font-extrabold tracking-tight text-slate-900">
               Investorise
             </h1>
@@ -87,10 +142,14 @@ function AdminSidebar({ open, onClose }) {
             <p className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.18em] text-[#b88b32]">
               Admin Panel
             </p>
+
           </div>
+
         </div>
 
+
         {/* Mobile Close */}
+
         <button
           type="button"
           onClick={onClose}
@@ -109,9 +168,13 @@ function AdminSidebar({ open, onClose }) {
           "
           aria-label="Close sidebar"
         >
+
           <X size={19} />
+
         </button>
+
       </div>
+
 
       {/* =====================================================
           NAVIGATION
@@ -120,12 +183,16 @@ function AdminSidebar({ open, onClose }) {
       <div className="flex-1 overflow-y-auto px-3 py-6">
 
         {/* Section Label */}
+
         <p className="mb-3 px-3 text-[9px] font-extrabold uppercase tracking-[0.18em] text-slate-400">
           Main Menu
         </p>
 
+
         <nav className="space-y-1">
+
           {navigation.map((item) => {
+
             const Icon = item.icon;
 
             return (
@@ -156,9 +223,12 @@ function AdminSidebar({ open, onClose }) {
                   `
                 }
               >
+
                 {({ isActive }) => (
                   <>
+
                     {/* Icon */}
+
                     <span
                       className={`
                         flex
@@ -177,18 +247,24 @@ function AdminSidebar({ open, onClose }) {
                         }
                       `}
                     >
+
                       <Icon
                         size={18}
                         strokeWidth={1.8}
                       />
+
                     </span>
 
+
                     {/* Label */}
+
                     <span className="flex-1">
                       {item.label}
                     </span>
 
+
                     {/* Arrow */}
+
                     <ChevronRight
                       size={15}
                       className={`
@@ -201,13 +277,19 @@ function AdminSidebar({ open, onClose }) {
                         }
                       `}
                     />
+
                   </>
                 )}
+
               </NavLink>
             );
+
           })}
+
         </nav>
+
       </div>
+
 
       {/* =====================================================
           BOTTOM
@@ -215,7 +297,10 @@ function AdminSidebar({ open, onClose }) {
 
       <div className="border-t border-slate-200 p-3">
 
-        {/* View Website */}
+        {/* =================================================
+            VIEW WEBSITE
+        ================================================== */}
+
         <NavLink
           to="/"
           onClick={onClose}
@@ -235,21 +320,30 @@ function AdminSidebar({ open, onClose }) {
             hover:text-slate-950
           "
         >
+
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
+
             <Home
               size={17}
               strokeWidth={1.8}
             />
+
           </span>
 
           <span>
             View Website
           </span>
+
         </NavLink>
 
-        {/* Logout */}
+
+        {/* =================================================
+            LOGOUT
+        ================================================== */}
+
         <button
           type="button"
+          onClick={handleLogout}
           className="
             flex
             min-h-[44px]
@@ -266,18 +360,24 @@ function AdminSidebar({ open, onClose }) {
             hover:text-red-600
           "
         >
+
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
+
             <LogOut
               size={17}
               strokeWidth={1.8}
             />
+
           </span>
 
           <span>
             Logout
           </span>
+
         </button>
+
       </div>
+
     </aside>
   );
 }

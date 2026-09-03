@@ -5,10 +5,14 @@ import {
   UserCircle,
 } from "lucide-react";
 
-import { useLocation } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 
 function AdminHeader({ onMenuClick }) {
   const location = useLocation();
+  const navigate = useNavigate();
 
   /* =========================================================
      PAGE TITLE
@@ -100,7 +104,6 @@ function AdminHeader({ onMenuClick }) {
         backdrop-blur-xl
       "
     >
-
       <div className="flex h-full items-center justify-between px-4 sm:px-6 lg:px-8">
 
         {/* ===================================================
@@ -191,7 +194,6 @@ function AdminHeader({ onMenuClick }) {
             "
             aria-label="Notifications"
           >
-
             <Bell
               size={18}
               strokeWidth={1.8}
@@ -200,7 +202,6 @@ function AdminHeader({ onMenuClick }) {
             {/* Notification Dot */}
 
             <span className="absolute right-[9px] top-[8px] h-1.5 w-1.5 rounded-full bg-[#d6a84f]" />
-
           </button>
 
 
@@ -213,8 +214,10 @@ function AdminHeader({ onMenuClick }) {
 
           <button
             type="button"
+            onClick={() => navigate("/admin/profile")}
             className="
               flex
+              cursor-pointer
               items-center
               gap-2
               rounded-xl
@@ -223,6 +226,7 @@ function AdminHeader({ onMenuClick }) {
               transition
               hover:bg-slate-50
             "
+            aria-label="Open admin profile"
           >
 
             {/* Avatar */}
@@ -252,6 +256,8 @@ function AdminHeader({ onMenuClick }) {
             </div>
 
 
+            {/* Dropdown Arrow */}
+
             <ChevronDown
               size={15}
               className="hidden text-slate-400 md:block"
@@ -262,7 +268,6 @@ function AdminHeader({ onMenuClick }) {
         </div>
 
       </div>
-
     </header>
   );
 }
