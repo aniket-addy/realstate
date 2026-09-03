@@ -12,15 +12,17 @@ import {
   LoaderCircle,
   AlertCircle,
   RefreshCw,
+  Phone,
 } from "lucide-react";
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import Navbar from "../components/navbar/Navbar";
 import Footer from "../components/footer/Footer";
 import FloatingActions from "../components/floating-actions/FloatingActions";
 
 import { getBuilderProjects } from "../services/builderProjectService";
+import { callClient } from "../components/config/contact";
 
 /*
 |--------------------------------------------------------------------------
@@ -30,20 +32,22 @@ import { getBuilderProjects } from "../services/builderProjectService";
 |
 | Data comes from backend.
 |
-| IMPORTANT
-| ----------
-| Every project card uses:
+| Dynamic project details route:
 |
 | /builder-projects/:projectId
 |
 | Example:
 | /builder-projects/68b123abc123
-|
-| The project details page must have the same dynamic route.
 |--------------------------------------------------------------------------
 */
 
 function BuilderProjects() {
+  // =========================================================
+  // NAVIGATION
+  // =========================================================
+
+  const navigate = useNavigate();
+
   // =========================================================
   // STATE
   // =========================================================
@@ -81,6 +85,8 @@ function BuilderProjects() {
         data = response.data;
       } else if (Array.isArray(response?.projects)) {
         data = response.projects;
+      } else if (Array.isArray(response?.data?.projects)) {
+        data = response.data.projects;
       }
 
       if (!Array.isArray(data)) {
@@ -89,10 +95,7 @@ function BuilderProjects() {
 
       setProjects(data);
     } catch (err) {
-      console.error(
-        "Failed to fetch builder projects:",
-        err
-      );
+      console.error("Failed to fetch builder projects:", err);
 
       setError(
         err?.response?.data?.message ||
@@ -113,6 +116,18 @@ function BuilderProjects() {
   useEffect(() => {
     fetchProjects();
   }, []);
+
+  // =========================================================
+  // TALK TO OUR TEAM
+  // =========================================================
+
+  const handleTalkToTeam = () => {
+    const called = callClient();
+
+    if (!called) {
+      navigate("/contact");
+    }
+  };
 
   // =========================================================
   // DEVELOPERS
@@ -218,10 +233,12 @@ function BuilderProjects() {
 
     return String(value)
       .replace(/[-_]/g, " ")
-      .replace(/\b\w/g, (char) =>
-        char.toUpperCase()
-      );
+      .replace(/\b\w/g, (char) => char.toUpperCase());
   };
+
+  // =========================================================
+  // STATUS LABEL
+  // =========================================================
 
   const getStatusLabel = (value) => {
     switch (String(value || "").toLowerCase()) {
@@ -242,6 +259,10 @@ function BuilderProjects() {
     }
   };
 
+  // =========================================================
+  // STATUS DOT
+  // =========================================================
+
   const getStatusDotClass = (value) => {
     switch (String(value || "").toLowerCase()) {
       case "active":
@@ -260,6 +281,10 @@ function BuilderProjects() {
         return "bg-slate-400";
     }
   };
+
+  // =========================================================
+  // PROJECT IMAGE
+  // =========================================================
 
   const getProjectImage = (project) => {
     if (
@@ -292,28 +317,19 @@ function BuilderProjects() {
       );
 
       if (objectImage) {
-        return objectImage.url || objectImage.src;
+        return (
+          objectImage.url ||
+          objectImage.src
+        );
       }
     }
 
     return null;
   };
 
-  /*
-  |--------------------------------------------------------------------------
-  | IMPORTANT PROJECT ID HELPER
-  |--------------------------------------------------------------------------
-  |
-  | MongoDB normally gives _id.
-  |
-  | We first use _id.
-  | Then id.
-  | Then slug.
-  |
-  | This guarantees that the card generates a usable
-  | dynamic details URL.
-  |--------------------------------------------------------------------------
-  */
+  // =========================================================
+  // PROJECT ID
+  // =========================================================
 
   const getProjectId = (project) => {
     if (!project) {
@@ -328,12 +344,20 @@ function BuilderProjects() {
       return String(project.id);
     }
 
+    if (project?.projectId) {
+      return String(project.projectId);
+    }
+
     if (project?.slug) {
       return String(project.slug);
     }
 
     return "";
   };
+
+  // =========================================================
+  // PROJECT URL
+  // =========================================================
 
   const getProjectUrl = (project) => {
     const projectId = getProjectId(project);
@@ -346,6 +370,72 @@ function BuilderProjects() {
       projectId
     )}`;
   };
+
+  // =========================================================
+  // PROJECT PRICE
+  // =========================================================
+
+  const getProjectPrice = (project) => {
+    if (project?.price) {
+      return project.price;
+    }
+
+    if (
+      project?.priceFrom !== undefined &&
+      project?.priceFrom !== null &&
+      Number(project.priceFrom) > 0
+    ) {
+      return `₹${Number(
+        project.priceFrom
+      ).toLocaleString("en-IN")}`;
+    }
+
+    if (
+      project?.startingPrice !== undefined &&
+      project?.startingPrice !== null &&
+      Number(project.startingPrice) > 0
+    ) {
+      return `₹${Number(
+        project.startingPrice
+      ).toLocaleString("en-IN")}`;
+    }
+
+    return "On Request";
+  };
+
+  // =========================================================
+  // PROJECT TYPE
+  // =========================================================
+
+  const getProjectType = (project) => {
+    return (
+      project?.propertyType ||
+      project?.projectType ||
+      project?.type ||
+      project?.projectCategory ||
+      "Property"
+    );
+  };
+
+  // =========================================================
+  // LOCATION
+  // =========================================================
+
+  const getProjectLocation = (project) => {
+    const location = [
+      project?.location,
+      project?.city,
+      project?.state,
+    ]
+      .filter(Boolean)
+      .join(", ");
+
+    return location || project?.address || "";
+  };
+
+  // =========================================================
+  // CLEAR FILTERS
+  // =========================================================
 
   const clearFilters = () => {
     setSearch("");
@@ -418,6 +508,8 @@ function BuilderProjects() {
               </p>
 
               <div className="mt-9 flex flex-wrap gap-3">
+                {/* PROJECT COUNT */}
+
                 <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur-md">
                   <Building2
                     size={18}
@@ -426,7 +518,9 @@ function BuilderProjects() {
 
                   <div>
                     <p className="text-lg font-extrabold text-white">
-                      {loading ? "—" : projects.length}
+                      {loading
+                        ? "—"
+                        : projects.length}
                     </p>
 
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
@@ -434,6 +528,8 @@ function BuilderProjects() {
                     </p>
                   </div>
                 </div>
+
+                {/* DEVELOPERS */}
 
                 <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur-md">
                   <UserRound
@@ -453,6 +549,8 @@ function BuilderProjects() {
                     </p>
                   </div>
                 </div>
+
+                {/* CATEGORIES */}
 
                 <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur-md">
                   <TrendingUp
@@ -768,17 +866,48 @@ function BuilderProjects() {
             ================================================== */}
 
             {loading && (
-              <div className="flex min-h-[320px] items-center justify-center">
-                <div className="flex flex-col items-center gap-3">
-                  <LoaderCircle
-                    size={30}
-                    className="animate-spin text-[#b88b32]"
-                  />
+              <div className="mt-9 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                {Array.from({ length: 8 }).map(
+                  (_, index) => (
+                    <div
+                      key={index}
+                      className="
+                        overflow-hidden
+                        rounded-2xl
+                        border
+                        border-slate-200
+                        bg-white
+                        shadow-sm
+                      "
+                    >
+                      <div className="aspect-[1.55/1] animate-pulse bg-slate-200" />
 
-                  <p className="text-sm font-medium text-slate-500">
-                    Loading builder projects...
-                  </p>
-                </div>
+                      <div className="space-y-4 p-4">
+                        <div className="h-3 w-24 animate-pulse rounded bg-slate-200" />
+
+                        <div className="h-5 w-4/5 animate-pulse rounded bg-slate-200" />
+
+                        <div className="h-3 w-3/5 animate-pulse rounded bg-slate-200" />
+
+                        <div className="border-t border-slate-100 pt-4">
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <div className="h-2 w-12 animate-pulse rounded bg-slate-200" />
+                              <div className="mt-2 h-3 w-20 animate-pulse rounded bg-slate-200" />
+                            </div>
+
+                            <div>
+                              <div className="h-2 w-16 animate-pulse rounded bg-slate-200" />
+                              <div className="mt-2 h-3 w-20 animate-pulse rounded bg-slate-200" />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="h-10 animate-pulse rounded-xl bg-slate-200" />
+                      </div>
+                    </div>
+                  )
+                )}
               </div>
             )}
 
@@ -837,265 +966,435 @@ function BuilderProjects() {
             {!loading &&
               !error &&
               filteredProjects.length > 0 && (
-                <div className="mt-9 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-                  {filteredProjects.map((project) => {
-                    const image =
-                      getProjectImage(project);
+                <div className="mt-9 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                  {filteredProjects.map(
+                    (project, index) => {
+                      const image =
+                        getProjectImage(project);
 
-                    const projectId =
-                      getProjectId(project);
+                      const projectId =
+                        getProjectId(project);
 
-                    const projectUrl =
-                      getProjectUrl(project);
+                      const projectUrl =
+                        getProjectUrl(project);
 
-                    return (
-                      <article
-                        key={
-                          projectId ||
-                          `builder-project-${Math.random()}`
-                        }
-                        className="
-                          group
-                          flex
-                          h-full
-                          flex-col
-                          overflow-hidden
-                          rounded-2xl
-                          border
-                          border-slate-200
-                          bg-white
-                          shadow-sm
-                          transition-all
-                          duration-300
-                          hover:-translate-y-1
-                          hover:border-[#d6a84f]/40
-                          hover:shadow-xl
-                        "
-                      >
-                        {/* =================================================
-                            IMAGE
-                        ================================================== */}
+                      const categoryLabel =
+                        project?.projectCategory
+                          ? formatLabel(
+                              project.projectCategory
+                            )
+                          : "";
 
-                        <div className="relative h-56 overflow-hidden bg-slate-100">
-                          {image ? (
-                            <img
-                              src={image}
-                              alt={
-                                project?.name ||
-                                "Builder Project"
-                              }
-                              className="
-                                h-full
-                                w-full
-                                object-cover
-                                transition-transform
-                                duration-500
-                                group-hover:scale-105
-                              "
-                              onError={(event) => {
-                                event.currentTarget.style.display =
-                                  "none";
-                              }}
-                            />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
-                              <Building2
-                                size={48}
-                                strokeWidth={1.2}
-                                className="text-slate-400"
+                      const location =
+                        getProjectLocation(project);
+
+                      const price =
+                        getProjectPrice(project);
+
+                      const propertyType =
+                        getProjectType(project);
+
+                      return (
+                        <article
+                          key={
+                            projectId ||
+                            project?.name ||
+                            `builder-project-${index}`
+                          }
+                          className="
+                            group
+                            flex
+                            h-full
+                            flex-col
+                            overflow-hidden
+                            rounded-2xl
+                            border
+                            border-slate-200
+                            bg-white
+                            shadow-sm
+                            transition-all
+                            duration-300
+                            hover:-translate-y-1
+                            hover:border-[#d6a84f]/50
+                            hover:shadow-xl
+                          "
+                        >
+                          {/* =================================================
+                              IMAGE
+                          ================================================== */}
+
+                          <div className="relative aspect-[1.55/1] overflow-hidden bg-slate-100">
+                            {image ? (
+                              <img
+                                src={image}
+                                alt={
+                                  project?.name ||
+                                  "Builder Project"
+                                }
+                                className="
+                                  h-full
+                                  w-full
+                                  object-cover
+                                  transition-transform
+                                  duration-500
+                                  group-hover:scale-105
+                                "
+                                onError={(event) => {
+                                  event.currentTarget.style.display =
+                                    "none";
+                                }}
                               />
-                            </div>
-                          )}
+                            ) : (
+                              <div
+                                className="
+                                  flex
+                                  h-full
+                                  w-full
+                                  items-center
+                                  justify-center
+                                  bg-gradient-to-br
+                                  from-slate-100
+                                  to-slate-200
+                                "
+                              >
+                                <Building2
+                                  size={44}
+                                  strokeWidth={1.2}
+                                  className="text-slate-400"
+                                />
+                              </div>
+                            )}
 
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
+                            {/* IMAGE OVERLAY */}
 
-                          {/* STATUS */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/65 via-slate-950/5 to-transparent" />
 
-                          <div className="absolute left-4 top-4">
-                            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wide text-slate-800 shadow-sm backdrop-blur">
+                            {/* STATUS */}
+
+                            <div className="absolute left-3 top-3">
                               <span
-                                className={`h-1.5 w-1.5 rounded-full ${getStatusDotClass(
+                                className="
+                                  inline-flex
+                                  items-center
+                                  gap-1.5
+                                  rounded-full
+                                  bg-white/95
+                                  px-3
+                                  py-1.5
+                                  text-[9px]
+                                  font-extrabold
+                                  uppercase
+                                  tracking-wide
+                                  text-slate-800
+                                  shadow-sm
+                                  backdrop-blur
+                                "
+                              >
+                                <span
+                                  className={`h-1.5 w-1.5 rounded-full ${getStatusDotClass(
+                                    project?.status
+                                  )}`}
+                                />
+
+                                {getStatusLabel(
                                   project?.status
-                                )}`}
-                              />
-
-                              {getStatusLabel(
-                                project?.status
-                              )}
-                            </span>
-                          </div>
-
-                          {/* CATEGORY */}
-
-                          {project?.projectCategory && (
-                            <div className="absolute bottom-4 left-4">
-                              <span className="rounded-lg bg-slate-950/80 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#e0b65c] backdrop-blur">
-                                {formatLabel(
-                                  project.projectCategory
                                 )}
                               </span>
                             </div>
-                          )}
-                        </div>
 
-                        {/* =================================================
-                            CONTENT
-                        ================================================== */}
+                            {/* CATEGORY */}
 
-                        <div className="flex flex-1 flex-col p-6">
-                          {/* DEVELOPER */}
+                            {categoryLabel && (
+                              <div className="absolute right-3 top-3">
+                                <span
+                                  className="
+                                    rounded-lg
+                                    bg-slate-950/80
+                                    px-3
+                                    py-1.5
+                                    text-[9px]
+                                    font-bold
+                                    uppercase
+                                    tracking-wider
+                                    text-[#e0b65c]
+                                    backdrop-blur
+                                  "
+                                >
+                                  {categoryLabel}
+                                </span>
+                              </div>
+                            )}
 
-                          {project?.developer && (
-                            <div className="flex items-center gap-2">
-                              <UserRound
-                                size={14}
-                                className="text-[#b88b32]"
-                              />
+                            {/* HOVER ARROW */}
 
-                              <span className="truncate text-[10px] font-extrabold uppercase tracking-[0.15em] text-[#b88b32]">
-                                {project.developer}
-                              </span>
-                            </div>
-                          )}
-
-                          {/* PROJECT NAME */}
-
-                          <h3 className="mt-3 line-clamp-2 text-xl font-extrabold leading-tight tracking-[-0.02em] text-slate-900">
-                            {project?.name ||
-                              "Untitled Project"}
-                          </h3>
-
-                          {/* LOCATION */}
-
-                          {(project?.location ||
-                            project?.city ||
-                            project?.state) && (
-                            <div className="mt-3 flex items-center gap-2">
-                              <MapPin
-                                size={15}
-                                className="shrink-0 text-slate-400"
-                              />
-
-                              <span className="truncate text-xs font-medium text-slate-500">
-                                {[
-                                  project?.location,
-                                  project?.city,
-                                  project?.state,
-                                ]
-                                  .filter(Boolean)
-                                  .join(", ")}
-                              </span>
-                            </div>
-                          )}
-
-                          {/* DESCRIPTION */}
-
-                          {project?.description && (
-                            <p className="mt-4 line-clamp-2 text-sm leading-6 text-slate-500">
-                              {project.description}
-                            </p>
-                          )}
-
-                          {/* DETAILS */}
-
-                          <div className="mt-5 grid grid-cols-2 gap-3 border-y border-slate-100 py-4">
-                            <div>
-                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                                Price
-                              </p>
-
-                              <p className="mt-1 truncate text-sm font-extrabold text-slate-900">
-                                {project?.price ||
-                                  (project?.priceFrom !==
-                                    undefined &&
-                                  project?.priceFrom !==
-                                    null &&
-                                  Number(
-                                    project.priceFrom
-                                  ) > 0
-                                    ? `₹${Number(
-                                        project.priceFrom
-                                      ).toLocaleString(
-                                        "en-IN"
-                                      )}`
-                                    : "On Request")}
-                              </p>
-                            </div>
-
-                            <div>
-                              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                                Possession
-                              </p>
-
-                              <p className="mt-1 truncate text-sm font-extrabold text-slate-900">
-                                {project?.possession ||
-                                  "On Request"}
-                              </p>
-                            </div>
+                            {projectId && (
+                              <Link
+                                to={projectUrl}
+                                aria-label={`View ${
+                                  project?.name ||
+                                  "project"
+                                }`}
+                                className="
+                                  absolute
+                                  bottom-3
+                                  right-3
+                                  flex
+                                  h-9
+                                  w-9
+                                  translate-y-2
+                                  items-center
+                                  justify-center
+                                  rounded-full
+                                  bg-white
+                                  text-slate-950
+                                  opacity-0
+                                  shadow-lg
+                                  transition-all
+                                  duration-300
+                                  group-hover:translate-y-0
+                                  group-hover:opacity-100
+                                  hover:bg-[#d6a84f]
+                                "
+                              >
+                                <ArrowRight size={16} />
+                              </Link>
+                            )}
                           </div>
 
                           {/* =================================================
-                              VIEW PROJECT
+                              CONTENT
                           ================================================== */}
 
-                          <div className="mt-auto pt-5">
-                            {projectId ? (
-                              <Link
-                                to={projectUrl}
-                                className="
-                                  group/link
-                                  inline-flex
-                                  w-full
-                                  items-center
-                                  justify-center
-                                  gap-2
-                                  rounded-xl
-                                  bg-slate-950
-                                  px-5
-                                  py-3.5
-                                  text-xs
-                                  font-extrabold
-                                  text-white
-                                  transition
-                                  hover:bg-[#d6a84f]
-                                  hover:text-slate-950
-                                "
-                              >
-                                View Project
+                          <div className="flex flex-1 flex-col p-4">
+                            {/* DEVELOPER */}
 
-                                <ArrowRight
-                                  size={15}
-                                  className="transition-transform group-hover/link:translate-x-1"
+                            {project?.developer && (
+                              <div className="mb-2 flex items-center gap-1.5">
+                                <UserRound
+                                  size={12}
+                                  className="shrink-0 text-[#b88b32]"
                                 />
-                              </Link>
-                            ) : (
-                              <button
-                                type="button"
-                                disabled
+
+                                <span
+                                  className="
+                                    truncate
+                                    text-[9px]
+                                    font-extrabold
+                                    uppercase
+                                    tracking-[0.14em]
+                                    text-[#b88b32]
+                                  "
+                                >
+                                  {project.developer}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* PROJECT NAME */}
+
+                            <h3
+                              className="
+                                line-clamp-2
+                                min-h-[42px]
+                                text-base
+                                font-extrabold
+                                leading-[1.3]
+                                tracking-[-0.02em]
+                                text-slate-900
+                                transition-colors
+                                group-hover:text-[#a77c2d]
+                              "
+                            >
+                              {project?.name ||
+                                "Untitled Project"}
+                            </h3>
+
+                            {/* LOCATION */}
+
+                            {location && (
+                              <div className="mt-2.5 flex items-center gap-1.5">
+                                <MapPin
+                                  size={13}
+                                  className="shrink-0 text-slate-400"
+                                />
+
+                                <span className="truncate text-[11px] font-medium text-slate-500">
+                                  {location}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* =================================================
+                                DIVIDER
+                            ================================================== */}
+
+                            <div className="my-4 border-t border-slate-100" />
+
+                            {/* =================================================
+                                TYPE + POSSESSION
+                            ================================================== */}
+
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="min-w-0">
+                                <p
+                                  className="
+                                    text-[9px]
+                                    font-bold
+                                    uppercase
+                                    tracking-[0.12em]
+                                    text-slate-400
+                                  "
+                                >
+                                  Type
+                                </p>
+
+                                <p
+                                  className="
+                                    mt-1
+                                    truncate
+                                    text-xs
+                                    font-extrabold
+                                    capitalize
+                                    text-slate-800
+                                  "
+                                >
+                                  {formatLabel(
+                                    propertyType
+                                  )}
+                                </p>
+                              </div>
+
+                              <div className="min-w-0">
+                                <p
+                                  className="
+                                    text-[9px]
+                                    font-bold
+                                    uppercase
+                                    tracking-[0.12em]
+                                    text-slate-400
+                                  "
+                                >
+                                  Possession
+                                </p>
+
+                                <p
+                                  className="
+                                    mt-1
+                                    truncate
+                                    text-xs
+                                    font-extrabold
+                                    text-slate-800
+                                  "
+                                >
+                                  {project?.possession ||
+                                    "On Request"}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* =================================================
+                                PRICE
+                            ================================================== */}
+
+                            <div className="mt-4">
+                              <p
                                 className="
-                                  inline-flex
-                                  w-full
-                                  cursor-not-allowed
-                                  items-center
-                                  justify-center
-                                  gap-2
-                                  rounded-xl
-                                  bg-slate-200
-                                  px-5
-                                  py-3.5
-                                  text-xs
-                                  font-extrabold
+                                  text-[9px]
+                                  font-bold
+                                  uppercase
+                                  tracking-[0.12em]
                                   text-slate-400
                                 "
                               >
-                                Project Details
-                              </button>
-                            )}
+                                Starting Price
+                              </p>
+
+                              <p
+                                className="
+                                  mt-1
+                                  truncate
+                                  text-base
+                                  font-extrabold
+                                  tracking-[-0.02em]
+                                  text-slate-900
+                                "
+                              >
+                                {price}
+                              </p>
+                            </div>
+
+                            {/* =================================================
+                                VIEW PROJECT
+                            ================================================== */}
+
+                            <div className="mt-auto pt-5">
+                              {projectId ? (
+                                <Link
+                                  to={projectUrl}
+                                  className="
+                                    group/link
+                                    inline-flex
+                                    w-full
+                                    items-center
+                                    justify-center
+                                    gap-2
+                                    rounded-xl
+                                    bg-slate-950
+                                    px-4
+                                    py-3
+                                    text-[10px]
+                                    font-extrabold
+                                    uppercase
+                                    tracking-wider
+                                    text-white
+                                    transition-all
+                                    duration-300
+                                    hover:bg-[#d6a84f]
+                                    hover:text-slate-950
+                                  "
+                                >
+                                  View Project
+
+                                  <ArrowRight
+                                    size={14}
+                                    className="
+                                      transition-transform
+                                      duration-300
+                                      group-hover/link:translate-x-1
+                                    "
+                                  />
+                                </Link>
+                              ) : (
+                                <button
+                                  type="button"
+                                  disabled
+                                  className="
+                                    inline-flex
+                                    w-full
+                                    cursor-not-allowed
+                                    items-center
+                                    justify-center
+                                    gap-2
+                                    rounded-xl
+                                    bg-slate-200
+                                    px-4
+                                    py-3
+                                    text-[10px]
+                                    font-extrabold
+                                    uppercase
+                                    tracking-wider
+                                    text-slate-400
+                                  "
+                                >
+                                  Project Details
+                                </button>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </article>
-                    );
-                  })}
+                        </article>
+                      );
+                    }
+                  )}
                 </div>
               )}
 
@@ -1188,8 +1487,11 @@ function BuilderProjects() {
                   lifestyle or investment goals.
                 </p>
 
-                <Link
-                  to="/contact"
+                {/* TALK TO OUR TEAM */}
+
+                <button
+                  type="button"
+                  onClick={handleTalkToTeam}
                   className="
                     mt-7
                     inline-flex
@@ -1208,8 +1510,8 @@ function BuilderProjects() {
                 >
                   Talk To Our Team
 
-                  <ArrowRight size={15} />
-                </Link>
+                  <Phone size={15} />
+                </button>
               </div>
             </div>
           </div>

@@ -8,9 +8,11 @@ const mongoose = require("mongoose");
 
 const leadSchema = new mongoose.Schema(
   {
-    /* =====================================================
-       CUSTOMER INFORMATION
-    ===================================================== */
+    /*
+    |--------------------------------------------------------------------------
+    | BASIC CONTACT DETAILS
+    |--------------------------------------------------------------------------
+    */
 
     name: {
       type: String,
@@ -26,38 +28,40 @@ const leadSchema = new mongoose.Schema(
 
     email: {
       type: String,
-      default: "",
       trim: true,
       lowercase: true,
+      default: "",
     },
 
-
-    /* =====================================================
-       ENQUIRY INFORMATION
-    ===================================================== */
+    /*
+    |--------------------------------------------------------------------------
+    | ENQUIRY DETAILS
+    |--------------------------------------------------------------------------
+    */
 
     requirement: {
       type: String,
-      default: "",
       trim: true,
+      default: "",
     },
 
     message: {
       type: String,
-      default: "",
       trim: true,
+      default: "",
     },
 
     subject: {
       type: String,
-      default: "",
       trim: true,
+      default: "",
     },
 
-
-    /* =====================================================
-       PROPERTY / PROJECT
-    ===================================================== */
+    /*
+    |--------------------------------------------------------------------------
+    | PROPERTY / PROJECT
+    |--------------------------------------------------------------------------
+    */
 
     propertyId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -67,8 +71,8 @@ const leadSchema = new mongoose.Schema(
 
     propertyName: {
       type: String,
-      default: "",
       trim: true,
+      default: "",
     },
 
     projectId: {
@@ -79,83 +83,93 @@ const leadSchema = new mongoose.Schema(
 
     projectName: {
       type: String,
-      default: "",
       trim: true,
+      default: "",
     },
 
-
-    /* =====================================================
-       LEAD SOURCE
-    ===================================================== */
+    /*
+    |--------------------------------------------------------------------------
+    | LEAD SOURCE
+    |--------------------------------------------------------------------------
+    */
 
     source: {
       type: String,
-      default: "website",
       trim: true,
+      default: "website",
     },
 
-
-    /* =====================================================
-       LEAD STATUS
-    ===================================================== */
+    /*
+    |--------------------------------------------------------------------------
+    | LEAD STATUS
+    |--------------------------------------------------------------------------
+    |
+    | new
+    | contacted
+    | qualified
+    | converted
+    | closed
+    |
+    */
 
     status: {
       type: String,
       enum: [
         "new",
         "contacted",
-        "follow-up",
+        "qualified",
+        "converted",
         "closed",
       ],
       default: "new",
     },
 
-
-    /* =====================================================
-       ADMIN NOTES
-    ===================================================== */
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN / CRM DETAILS
+    |--------------------------------------------------------------------------
+    */
 
     notes: {
       type: String,
-      default: "",
       trim: true,
+      default: "",
     },
 
     assignedTo: {
       type: String,
-      default: "",
       trim: true,
+      default: "",
     },
-
-
-    /* =====================================================
-       CONTACT PREFERENCES
-    ===================================================== */
 
     preferredContact: {
       type: String,
-      default: "",
       trim: true,
+      default: "",
     },
+
+    /*
+    |--------------------------------------------------------------------------
+    | BUDGET / LOCATION
+    |--------------------------------------------------------------------------
+    */
 
     budget: {
       type: Number,
-      default: 0,
       min: 0,
+      default: 0,
     },
 
     location: {
       type: String,
-      default: "",
       trim: true,
+      default: "",
     },
   },
-
   {
     timestamps: true,
   }
 );
-
 
 /*
 |--------------------------------------------------------------------------
@@ -163,6 +177,9 @@ const leadSchema = new mongoose.Schema(
 |--------------------------------------------------------------------------
 */
 
+/*
+ * Search-related index
+ */
 leadSchema.index({
   name: "text",
   email: "text",
@@ -172,16 +189,23 @@ leadSchema.index({
   projectName: "text",
 });
 
+/*
+ * Status + createdAt
+ *
+ * Useful for Admin Leads filtering/sorting.
+ */
 leadSchema.index({
   status: 1,
   createdAt: -1,
 });
 
+/*
+ * Source + createdAt
+ */
 leadSchema.index({
   source: 1,
   createdAt: -1,
 });
-
 
 /*
 |--------------------------------------------------------------------------
@@ -189,9 +213,6 @@ leadSchema.index({
 |--------------------------------------------------------------------------
 */
 
-const Lead =
-  mongoose.models.Lead ||
-  mongoose.model("Lead", leadSchema);
-
+const Lead = mongoose.model("Lead", leadSchema);
 
 module.exports = Lead;

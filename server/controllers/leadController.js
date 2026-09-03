@@ -3,27 +3,11 @@ const Lead = require("../models/Lead");
 
 /*
 |--------------------------------------------------------------------------
-| LEAD CONTROLLER
+| GET ALL LEADS
 |--------------------------------------------------------------------------
-| Handles all lead-related API operations.
+| GET /api/leads
 |--------------------------------------------------------------------------
 */
-
-
-/* =========================================================
-   GET ALL LEADS
-========================================================= */
-
-/**
- * GET /api/leads
- *
- * Optional query params:
- * ?status=new
- * ?source=website
- * ?search=rahul
- * ?page=1
- * ?limit=20
- */
 
 const getLeads = async (req, res) => {
   try {
@@ -32,116 +16,144 @@ const getLeads = async (req, res) => {
       source,
       search,
       page = 1,
-      limit = 20,
+      limit = 10,
     } = req.query;
 
-    const filter = {};
+    /*
+    |--------------------------------------------------------------------------
+    | BUILD QUERY
+    |--------------------------------------------------------------------------
+    */
 
-    /* -------------------------------------------------------
-       STATUS FILTER
-    ------------------------------------------------------- */
+    const query = {};
+
+    /*
+    |--------------------------------------------------------------------------
+    | STATUS FILTER
+    |--------------------------------------------------------------------------
+    */
 
     if (status) {
-      filter.status = status;
+      query.status = status;
     }
 
-
-    /* -------------------------------------------------------
-       SOURCE FILTER
-    ------------------------------------------------------- */
+    /*
+    |--------------------------------------------------------------------------
+    | SOURCE FILTER
+    |--------------------------------------------------------------------------
+    */
 
     if (source) {
-      filter.source = source;
+      query.source = source;
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | SEARCH
+    |--------------------------------------------------------------------------
+    */
 
-    /* -------------------------------------------------------
-       SEARCH
-    ------------------------------------------------------- */
+    if (search && search.trim()) {
+      const searchValue = search.trim();
 
-    if (search) {
-      filter.$or = [
+      query.$or = [
         {
           name: {
-            $regex: search,
+            $regex: searchValue,
             $options: "i",
           },
         },
         {
           email: {
-            $regex: search,
+            $regex: searchValue,
             $options: "i",
           },
         },
         {
           phone: {
-            $regex: search,
+            $regex: searchValue,
             $options: "i",
           },
         },
         {
           requirement: {
-            $regex: search,
+            $regex: searchValue,
             $options: "i",
           },
         },
         {
           propertyName: {
-            $regex: search,
+            $regex: searchValue,
+            $options: "i",
+          },
+        },
+        {
+          projectName: {
+            $regex: searchValue,
             $options: "i",
           },
         },
       ];
     }
 
-
-    /* -------------------------------------------------------
-       PAGINATION
-    ------------------------------------------------------- */
+    /*
+    |--------------------------------------------------------------------------
+    | PAGINATION
+    |--------------------------------------------------------------------------
+    */
 
     const currentPage = Math.max(
       Number(page) || 1,
       1
     );
 
-    const currentLimit = Math.min(
-      Math.max(Number(limit) || 20, 1),
+    const perPage = Math.min(
+      Math.max(Number(limit) || 10, 1),
       100
     );
 
     const skip =
-      (currentPage - 1) * currentLimit;
+      (currentPage - 1) * perPage;
 
+    /*
+    |--------------------------------------------------------------------------
+    | FETCH LEADS + TOTAL
+    |--------------------------------------------------------------------------
+    */
 
-    /* -------------------------------------------------------
-       DATABASE QUERY
-    ------------------------------------------------------- */
+    const [leads, total] =
+      await Promise.all([
+        Lead.find(query)
+          .sort({
+            createdAt: -1,
+          })
+          .skip(skip)
+          .limit(perPage),
 
-    const [leads, total] = await Promise.all([
-      Lead.find(filter)
-        .sort({
-          createdAt: -1,
-        })
-        .skip(skip)
-        .limit(currentLimit),
+        Lead.countDocuments(query),
+      ]);
 
-      Lead.countDocuments(filter),
-    ]);
-
-
-    /* -------------------------------------------------------
-       RESPONSE
-    ------------------------------------------------------- */
+    /*
+    |--------------------------------------------------------------------------
+    | RESPONSE
+    |--------------------------------------------------------------------------
+    */
 
     return res.status(200).json({
       success: true,
+
       count: leads.length,
+
       total,
+
       page: currentPage,
-      limit: currentLimit,
+
+      limit: perPage,
+
       totalPages: Math.ceil(
-        total / currentLimit
+        total / perPage
       ),
+
       data: leads,
     });
   } catch (error) {
@@ -158,23 +170,23 @@ const getLeads = async (req, res) => {
   }
 };
 
-
-/* =========================================================
-   GET SINGLE LEAD
-========================================================= */
-
-/**
- * GET /api/leads/:id
- */
+/*
+|--------------------------------------------------------------------------
+| GET LEAD BY ID
+|--------------------------------------------------------------------------
+| GET /api/leads/:id
+|--------------------------------------------------------------------------
+*/
 
 const getLeadById = async (req, res) => {
   try {
     const { id } = req.params;
 
-
-    /* -------------------------------------------------------
-       VALIDATE ID
-    ------------------------------------------------------- */
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDATE OBJECT ID
+    |--------------------------------------------------------------------------
+    */
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
@@ -183,14 +195,13 @@ const getLeadById = async (req, res) => {
       });
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | FIND LEAD
+    |--------------------------------------------------------------------------
+    */
 
-    /* -------------------------------------------------------
-       FIND LEAD
-    ------------------------------------------------------- */
-
-    const lead =
-      await Lead.findById(id);
-
+    const lead = await Lead.findById(id);
 
     if (!lead) {
       return res.status(404).json({
@@ -199,6 +210,11 @@ const getLeadById = async (req, res) => {
       });
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | RESPONSE
+    |--------------------------------------------------------------------------
+    */
 
     return res.status(200).json({
       success: true,
@@ -206,7 +222,7 @@ const getLeadById = async (req, res) => {
     });
   } catch (error) {
     console.error(
-      "Get Lead Error:",
+      "Get Lead By ID Error:",
       error
     );
 
@@ -218,42 +234,119 @@ const getLeadById = async (req, res) => {
   }
 };
 
-
-/* =========================================================
-   CREATE LEAD
-========================================================= */
-
-/**
- * POST /api/leads
- */
+/*
+|--------------------------------------------------------------------------
+| CREATE LEAD
+|--------------------------------------------------------------------------
+| POST /api/leads
+|--------------------------------------------------------------------------
+*/
 
 const createLead = async (req, res) => {
   try {
-    const leadData = req.body;
+    const {
+      name,
+      phone,
+      email,
+      requirement,
+      message,
+      subject,
+      propertyId,
+      propertyName,
+      projectId,
+      projectName,
+      source,
+      status,
+      notes,
+      assignedTo,
+      preferredContact,
+      budget,
+      location,
+    } = req.body;
 
+    /*
+    |--------------------------------------------------------------------------
+    | REQUIRED VALIDATION
+    |--------------------------------------------------------------------------
+    */
 
-    /* -------------------------------------------------------
-       EMPTY DATA CHECK
-    ------------------------------------------------------- */
-
-    if (
-      !leadData ||
-      Object.keys(leadData).length === 0
-    ) {
+    if (!name || !String(name).trim()) {
       return res.status(400).json({
         success: false,
-        message: "Lead data is required",
+        message: "Name is required",
       });
     }
 
+    if (!phone || !String(phone).trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone is required",
+      });
+    }
 
-    /* -------------------------------------------------------
-       CREATE
-    ------------------------------------------------------- */
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE LEAD
+    |--------------------------------------------------------------------------
+    */
 
-    const lead =
-      await Lead.create(leadData);
+    const lead = await Lead.create({
+      name: String(name).trim(),
 
+      phone: String(phone).trim(),
+
+      email: email
+        ? String(email).trim().toLowerCase()
+        : "",
+
+      requirement:
+        requirement || "",
+
+      message:
+        message || "",
+
+      subject:
+        subject || "",
+
+      propertyId:
+        propertyId || null,
+
+      propertyName:
+        propertyName || "",
+
+      projectId:
+        projectId || null,
+
+      projectName:
+        projectName || "",
+
+      source:
+        source || "website",
+
+      status:
+        status || "new",
+
+      notes:
+        notes || "",
+
+      assignedTo:
+        assignedTo || "",
+
+      preferredContact:
+        preferredContact || "",
+
+      budget:
+        Number(budget) || 0,
+
+      location:
+        location || "",
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | RESPONSE
+    |--------------------------------------------------------------------------
+    */
 
     return res.status(201).json({
       success: true,
@@ -274,23 +367,23 @@ const createLead = async (req, res) => {
   }
 };
 
-
-/* =========================================================
-   UPDATE LEAD
-========================================================= */
-
-/**
- * PUT /api/leads/:id
- */
+/*
+|--------------------------------------------------------------------------
+| UPDATE COMPLETE LEAD
+|--------------------------------------------------------------------------
+| PUT /api/leads/:id
+|--------------------------------------------------------------------------
+*/
 
 const updateLead = async (req, res) => {
   try {
     const { id } = req.params;
 
-
-    /* -------------------------------------------------------
-       VALIDATE ID
-    ------------------------------------------------------- */
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDATE ID
+    |--------------------------------------------------------------------------
+    */
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
@@ -299,10 +392,11 @@ const updateLead = async (req, res) => {
       });
     }
 
-
-    /* -------------------------------------------------------
-       UPDATE
-    ------------------------------------------------------- */
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE
+    |--------------------------------------------------------------------------
+    */
 
     const lead =
       await Lead.findByIdAndUpdate(
@@ -314,6 +408,11 @@ const updateLead = async (req, res) => {
         }
       );
 
+    /*
+    |--------------------------------------------------------------------------
+    | NOT FOUND
+    |--------------------------------------------------------------------------
+    */
 
     if (!lead) {
       return res.status(404).json({
@@ -322,6 +421,11 @@ const updateLead = async (req, res) => {
       });
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | RESPONSE
+    |--------------------------------------------------------------------------
+    */
 
     return res.status(200).json({
       success: true,
@@ -342,32 +446,24 @@ const updateLead = async (req, res) => {
   }
 };
 
+/*
+|--------------------------------------------------------------------------
+| UPDATE LEAD STATUS
+|--------------------------------------------------------------------------
+| PATCH /api/leads/:id/status
+|--------------------------------------------------------------------------
+*/
 
-/* =========================================================
-   UPDATE LEAD STATUS
-========================================================= */
-
-/**
- * PATCH /api/leads/:id/status
- *
- * Body:
- * {
- *   "status": "contacted"
- * }
- */
-
-const updateLeadStatus = async (
-  req,
-  res
-) => {
+const updateLeadStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
 
-
-    /* -------------------------------------------------------
-       VALIDATE ID
-    ------------------------------------------------------- */
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDATE ID
+    |--------------------------------------------------------------------------
+    */
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
@@ -376,28 +472,75 @@ const updateLeadStatus = async (
       });
     }
 
-
-    /* -------------------------------------------------------
-       VALIDATE STATUS
-    ------------------------------------------------------- */
+    /*
+    |--------------------------------------------------------------------------
+    | STATUS REQUIRED
+    |--------------------------------------------------------------------------
+    */
 
     if (!status) {
       return res.status(400).json({
         success: false,
-        message: "Lead status is required",
+        message: "Status is required",
       });
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | ALLOWED STATUSES
+    |--------------------------------------------------------------------------
+    */
 
-    /* -------------------------------------------------------
-       UPDATE STATUS
-    ------------------------------------------------------- */
+    const allowedStatuses = [
+      "new",
+      "contacted",
+      "qualified",
+      "converted",
+      "closed",
+    ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | NORMALIZE STATUS
+    |--------------------------------------------------------------------------
+    */
+
+    const normalizedStatus = String(
+      status
+    )
+      .trim()
+      .toLowerCase();
+
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDATE STATUS
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+      !allowedStatuses.includes(
+        normalizedStatus
+      )
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid lead status",
+      });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE STATUS
+    |--------------------------------------------------------------------------
+    */
 
     const lead =
       await Lead.findByIdAndUpdate(
         id,
         {
-          status,
+          $set: {
+            status: normalizedStatus,
+          },
         },
         {
           new: true,
@@ -405,6 +548,11 @@ const updateLeadStatus = async (
         }
       );
 
+    /*
+    |--------------------------------------------------------------------------
+    | LEAD NOT FOUND
+    |--------------------------------------------------------------------------
+    */
 
     if (!lead) {
       return res.status(404).json({
@@ -413,10 +561,16 @@ const updateLeadStatus = async (
       });
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | RESPONSE
+    |--------------------------------------------------------------------------
+    */
 
     return res.status(200).json({
       success: true,
-      message: "Lead status updated successfully",
+      message:
+        "Lead status updated successfully",
       data: lead,
     });
   } catch (error) {
@@ -427,29 +581,30 @@ const updateLeadStatus = async (
 
     return res.status(500).json({
       success: false,
-      message: "Failed to update lead status",
+      message:
+        "Failed to update lead status",
       error: error.message,
     });
   }
 };
 
-
-/* =========================================================
-   DELETE LEAD
-========================================================= */
-
-/**
- * DELETE /api/leads/:id
- */
+/*
+|--------------------------------------------------------------------------
+| DELETE LEAD
+|--------------------------------------------------------------------------
+| DELETE /api/leads/:id
+|--------------------------------------------------------------------------
+*/
 
 const deleteLead = async (req, res) => {
   try {
     const { id } = req.params;
 
-
-    /* -------------------------------------------------------
-       VALIDATE ID
-    ------------------------------------------------------- */
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDATE ID
+    |--------------------------------------------------------------------------
+    */
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
@@ -458,14 +613,14 @@ const deleteLead = async (req, res) => {
       });
     }
 
-
-    /* -------------------------------------------------------
-       DELETE
-    ------------------------------------------------------- */
+    /*
+    |--------------------------------------------------------------------------
+    | DELETE
+    |--------------------------------------------------------------------------
+    */
 
     const lead =
       await Lead.findByIdAndDelete(id);
-
 
     if (!lead) {
       return res.status(404).json({
@@ -474,6 +629,11 @@ const deleteLead = async (req, res) => {
       });
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | RESPONSE
+    |--------------------------------------------------------------------------
+    */
 
     return res.status(200).json({
       success: true,
@@ -494,22 +654,28 @@ const deleteLead = async (req, res) => {
   }
 };
 
-
-/* =========================================================
-   LEAD STATISTICS
-========================================================= */
-
-/**
- * GET /api/leads/stats
- */
+/*
+|--------------------------------------------------------------------------
+| GET LEAD STATISTICS
+|--------------------------------------------------------------------------
+| GET /api/leads/stats
+|--------------------------------------------------------------------------
+*/
 
 const getLeadStats = async (req, res) => {
   try {
+    /*
+    |--------------------------------------------------------------------------
+    | COUNT ALL STATUSES
+    |--------------------------------------------------------------------------
+    */
+
     const [
       total,
       newLeads,
       contacted,
-      followUp,
+      qualified,
+      converted,
       closed,
     ] = await Promise.all([
       Lead.countDocuments(),
@@ -523,7 +689,11 @@ const getLeadStats = async (req, res) => {
       }),
 
       Lead.countDocuments({
-        status: "follow-up",
+        status: "qualified",
+      }),
+
+      Lead.countDocuments({
+        status: "converted",
       }),
 
       Lead.countDocuments({
@@ -531,14 +701,26 @@ const getLeadStats = async (req, res) => {
       }),
     ]);
 
+    /*
+    |--------------------------------------------------------------------------
+    | RESPONSE
+    |--------------------------------------------------------------------------
+    */
 
     return res.status(200).json({
       success: true,
+
       data: {
         total,
+
         new: newLeads,
+
         contacted,
-        followUp,
+
+        qualified,
+
+        converted,
+
         closed,
       },
     });
@@ -550,16 +732,18 @@ const getLeadStats = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: "Failed to fetch lead statistics",
+      message:
+        "Failed to fetch lead statistics",
       error: error.message,
     });
   }
 };
 
-
-/* =========================================================
-   EXPORTS
-========================================================= */
+/*
+|--------------------------------------------------------------------------
+| EXPORTS
+|--------------------------------------------------------------------------
+*/
 
 module.exports = {
   getLeads,

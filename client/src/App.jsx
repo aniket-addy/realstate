@@ -10,6 +10,7 @@ import Login from "./pages/admin/auth/login";
 import ForgotPassword from "./pages/admin/auth/forgot_password";
 import ResetPassword from "./pages/admin/auth/reset_password";
 import AdminProfile from "./pages/admin/AdminProfile";
+import ScrollToTop from "./components/ScrollToTop";
 
 /* =========================================================
    PUBLIC PAGES
@@ -21,7 +22,8 @@ import Services from "./pages/Services";
 import Contact from "./pages/Contact";
 import Blogs from "./pages/Blogs";
 import ProjectDetails from "./pages/ProjectDetails";
-
+import FeaturedProjectsPage from "./pages/FeaturedProjectsPage";
+import NewProjectsPage from "./pages/NewProjectsPage";
 /* =========================================================
    PUBLIC PROJECT PAGES
 ========================================================= */
@@ -59,6 +61,7 @@ import AdminLayout from "./components/admin/AdminLayout";
 function App() {
   return (
     <BrowserRouter>
+<ScrollToTop />
 
       <Routes>
         <Route path="/admin/login" element={<Login />} />
@@ -130,8 +133,14 @@ function App() {
           path="/builder-projects"
           element={<BuilderProjects />}
         />
-
-
+<Route
+  path="/projects/featured"
+  element={<FeaturedProjectsPage />}
+/>
+<Route
+  path="/projects/new"
+  element={<NewProjectsPage />}
+/>
         {/* =====================================================
             COMPANY
         ====================================================== */}

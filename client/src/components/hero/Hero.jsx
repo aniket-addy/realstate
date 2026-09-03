@@ -76,11 +76,11 @@ const stats = [
 function Hero() {
   const [activeSlide, setActiveSlide] = useState(0);
 
-  const [searchData, setSearchData] = useState({
-    location: "",
-    propertyType: "",
-    budget: "",
-  });
+  // const [searchData, setSearchData] = useState({
+  //   location: "",
+  //   propertyType: "",
+  //   budget: "",
+  // });
 
   const currentSlide = heroSlides[activeSlide];
 
@@ -114,22 +114,22 @@ function Hero() {
      SEARCH HANDLER
   ========================================================== */
 
-  const handleSearchChange = (field, value) => {
-    setSearchData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  // const handleSearchChange = (field, value) => {
+  //   setSearchData((prev) => ({
+  //     ...prev,
+  //     [field]: value,
+  //   }));
+  // };
 
-  const handleSearch = (event) => {
-    event.preventDefault();
+  // const handleSearch = (event) => {
+  //   event.preventDefault();
 
-    console.log("Hero Search:", searchData);
+  //   console.log("Hero Search:", searchData);
 
-    // Future:
-    // Navigate to property/project listing page
-    // with searchData as query parameters.
-  };
+  //   // Future:
+  //   // Navigate to property/project listing page
+  //   // with searchData as query parameters.
+  // };
 
   return (
     <section className="relative overflow-hidden bg-slate-950">
@@ -225,7 +225,7 @@ function Hero() {
             SEARCH BOX
         ====================================================== */}
 
-        <div className="absolute bottom-[92px] left-4 right-4 z-20 sm:left-6 sm:right-6 lg:left-10 lg:right-10">
+        {/* <div className="absolute bottom-[92px] left-4 right-4 z-20 sm:left-6 sm:right-6 lg:left-10 lg:right-10">
 
           <form
             onSubmit={handleSearch}
@@ -235,7 +235,7 @@ function Hero() {
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_1fr_auto]">
 
               {/* Location */}
-              <div className="flex items-center gap-3 border-b border-slate-200 px-4 py-3 lg:border-b-0 lg:border-r">
+              {/* <div className="flex items-center gap-3 border-b border-slate-200 px-4 py-3 lg:border-b-0 lg:border-r">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#f7f0e2]">
                   <MapPin
                     size={17}
@@ -261,10 +261,10 @@ function Hero() {
                     className="mt-0.5 w-full bg-transparent text-sm font-semibold text-slate-800 outline-none placeholder:text-slate-400"
                   />
                 </div>
-              </div>
+              </div> */}
 
               {/* Property Type */}
-              <div className="flex items-center gap-3 border-b border-slate-200 px-4 py-3 lg:border-b-0 lg:border-r">
+              {/* <div className="flex items-center gap-3 border-b border-slate-200 px-4 py-3 lg:border-b-0 lg:border-r">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#f7f0e2]">
                   <Building2
                     size={17}
@@ -302,10 +302,10 @@ function Hero() {
                     </option>
                   </select>
                 </div>
-              </div>
+              </div> */}
 
               {/* Budget */}
-              <div className="flex items-center gap-3 px-4 py-3">
+              {/* <div className="flex items-center gap-3 px-4 py-3">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#f7f0e2]">
                   <span className="text-sm font-bold text-[#b88b32]">
                     ₹
@@ -345,10 +345,10 @@ function Hero() {
                     </option>
                   </select>
                 </div>
-              </div>
+              </div> */}
 
               {/* Search Button */}
-              <button
+              {/* <button
                 type="submit"
                 className="flex min-h-[52px] items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 text-sm font-bold text-white transition hover:bg-slate-800 active:scale-[0.98]"
               >
@@ -359,7 +359,8 @@ function Hero() {
 
             </div>
           </form>
-        </div>
+        </div> */} 
+        {/* } */}
 
         {/* =====================================================
             TRUST STATS

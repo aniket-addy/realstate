@@ -27,6 +27,11 @@ import {
 import Navbar from "../components/navbar/Navbar";
 import Footer from "../components/footer/Footer";
 
+// =========================================================
+// CENTRAL CONTACT
+// =========================================================
+
+import { callClient } from "../components/config/contact";
 
 /*
 |--------------------------------------------------------------------------
@@ -58,6 +63,37 @@ function ProjectDetails() {
   const [activeImage, setActiveImage] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
+  // =========================================================
+  // ENQUIRE NOW
+  // =========================================================
+  // Enquire Now hamesha Contact Page ke form par jayega.
+  // =========================================================
+
+  const goToContactForm = () => {
+    navigate("/contact#contact-form");
+  };
+
+  // =========================================================
+  // CALL ACTION
+  // =========================================================
+  //
+  // Contact Us / Request a Call:
+  //
+  // 1. Central phone number configured hai
+  //    → phone call open hoga
+  //
+  // 2. Phone number blank hai
+  //    → Contact Form par jayega
+  //
+  // =========================================================
+
+  const handleCallClick = () => {
+    const called = callClient();
+
+    if (!called) {
+      navigate("/contact#contact-form");
+    }
+  };
 
   // =========================================================
   // LOAD PROJECT
@@ -78,7 +114,6 @@ function ProjectDetails() {
         let response;
         let data;
         let projectData = null;
-
 
         // =====================================================
         // 1. TRY AUTHORITY PROJECT API
@@ -109,7 +144,6 @@ function ProjectDetails() {
           }
         }
 
-
         // =====================================================
         // 2. TRY BUILDER PROJECT API
         // =====================================================
@@ -139,12 +173,8 @@ function ProjectDetails() {
           }
         }
 
-
         // =====================================================
         // 3. FALLBACK GENERIC PROJECT API
-        //
-        // Screenshot me /api/projects/:id response bhi
-        // available hai, isliye isko fallback rakha hai.
         // =====================================================
 
         response = await fetch(
@@ -171,7 +201,6 @@ function ProjectDetails() {
             return;
           }
         }
-
 
         throw new Error("Project not found.");
       } catch (err) {
@@ -200,7 +229,6 @@ function ProjectDetails() {
     };
   }, [id]);
 
-
   // =========================================================
   // NORMALIZE DATA
   // =========================================================
@@ -224,16 +252,13 @@ function ProjectDetails() {
     return allImages.filter(Boolean);
   }, [project]);
 
-
   const features = Array.isArray(project?.features)
     ? project.features
     : [];
 
-
   const amenities = Array.isArray(project?.amenities)
     ? project.amenities
     : [];
-
 
   const paymentPlans = Array.isArray(
     project?.paymentPlans
@@ -241,13 +266,11 @@ function ProjectDetails() {
     ? project.paymentPlans
     : [];
 
-
   const documents = Array.isArray(
     project?.documents
   )
     ? project.documents
     : [];
-
 
   // =========================================================
   // IMAGE NAVIGATION
@@ -262,17 +285,14 @@ function ProjectDetails() {
     );
   };
 
-
   const previousImage = () => {
     if (!images.length) return;
 
     setActiveImage(
       (prev) =>
-        (prev - 1 + images.length) %
-        images.length
+        (prev - 1 + images.length) % images.length
     );
   };
-
 
   // =========================================================
   // LOADING
@@ -282,7 +302,6 @@ function ProjectDetails() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-white">
         <div className="text-center">
-
           <div
             className="
               mx-auto
@@ -299,12 +318,10 @@ function ProjectDetails() {
           <p className="mt-4 text-sm font-medium text-slate-500">
             Loading project...
           </p>
-
         </div>
       </div>
     );
   }
-
 
   // =========================================================
   // ERROR
@@ -313,13 +330,10 @@ function ProjectDetails() {
   if (error || !project) {
     return (
       <div className="min-h-screen bg-white">
-
         <Navbar />
 
         <div className="flex min-h-[70vh] items-center justify-center px-5">
-
           <div className="max-w-md text-center">
-
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
               <Building2 size={28} />
             </div>
@@ -355,17 +369,13 @@ function ProjectDetails() {
               <ArrowLeft size={16} />
               Go Back
             </button>
-
           </div>
-
         </div>
 
         <Footer />
-
       </div>
     );
   }
-
 
   // =========================================================
   // PROJECT VALUES
@@ -376,16 +386,13 @@ function ProjectDetails() {
     project.image ||
     "";
 
-
   const statusLabel = formatStatus(
     project.status
   );
 
-
   const categoryLabel = formatCategory(
     project.projectCategory
   );
-
 
   const locationText = [
     project.location,
@@ -394,7 +401,6 @@ function ProjectDetails() {
   ]
     .filter(Boolean)
     .join(", ");
-
 
   // =========================================================
   // MAIN UI
@@ -411,15 +417,12 @@ function ProjectDetails() {
         <Navbar />
       </div>
 
-
       {/* =====================================================
           BREADCRUMB / BACK
       ====================================================== */}
 
       <div className="border-b border-slate-200 bg-white">
-
         <div className="mx-auto max-w-7xl px-5 py-4 lg:px-8">
-
           <button
             type="button"
             onClick={() => navigate(-1)}
@@ -435,14 +438,10 @@ function ProjectDetails() {
             "
           >
             <ArrowLeft size={16} />
-
             Back to Projects
           </button>
-
         </div>
-
       </div>
-
 
       <main>
 
@@ -451,17 +450,13 @@ function ProjectDetails() {
         ==================================================== */}
 
         <section className="bg-white">
-
           <div className="mx-auto max-w-7xl px-5 py-8 lg:px-8 lg:py-10">
 
             <div className="grid gap-7 lg:grid-cols-[1.45fr_0.75fr]">
 
-              {/* ============================================
-                  IMAGE
-              ============================================= */}
+              {/* IMAGE */}
 
               <div>
-
                 <div
                   className="
                     group
@@ -472,7 +467,6 @@ function ProjectDetails() {
                     shadow-sm
                   "
                 >
-
                   {currentImage ? (
                     <img
                       src={currentImage}
@@ -497,11 +491,9 @@ function ProjectDetails() {
                     </div>
                   )}
 
-
                   {/* IMAGE OVERLAY */}
 
                   <div className="absolute inset-x-0 top-0 flex items-start justify-between p-5">
-
                     <div className="flex flex-wrap gap-2">
 
                       {project.featured && (
@@ -519,18 +511,14 @@ function ProjectDetails() {
                           New Project
                         </span>
                       )}
-
                     </div>
-
 
                     {project.status && (
                       <span className="rounded-full bg-emerald-500 px-3 py-1.5 text-xs font-extrabold capitalize text-white shadow-sm">
                         {statusLabel}
                       </span>
                     )}
-
                   </div>
-
 
                   {/* IMAGE CONTROLS */}
 
@@ -588,7 +576,6 @@ function ProjectDetails() {
                     </>
                   )}
 
-
                   {/* VIEW IMAGE */}
 
                   {currentImage && (
@@ -617,15 +604,12 @@ function ProjectDetails() {
                       View Gallery
                     </button>
                   )}
-
                 </div>
-
 
                 {/* THUMBNAILS */}
 
                 {images.length > 1 && (
                   <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-
                     {images.map(
                       (image, index) => (
                         <button
@@ -659,16 +643,11 @@ function ProjectDetails() {
                         </button>
                       )
                     )}
-
                   </div>
                 )}
-
               </div>
 
-
-              {/* ============================================
-                  PROJECT INFO
-              ============================================= */}
+              {/* PROJECT INFO */}
 
               <div className="flex flex-col justify-center">
 
@@ -686,18 +665,14 @@ function ProjectDetails() {
                       {categoryLabel}
                     </span>
                   )}
-
                 </div>
-
 
                 <h1 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
                   {project.name}
                 </h1>
 
-
                 {locationText && (
                   <div className="mt-4 flex items-start gap-2 text-sm text-slate-500">
-
                     <MapPin
                       size={18}
                       className="mt-0.5 shrink-0 text-[#b88b32]"
@@ -706,21 +681,17 @@ function ProjectDetails() {
                     <span>
                       {locationText}
                     </span>
-
                   </div>
                 )}
-
 
                 {/* PRICE */}
 
                 <div className="mt-7 rounded-2xl border border-[#ead9b5] bg-[#fffaf0] p-5">
-
                   <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
                     Starting Price
                   </p>
 
                   <div className="mt-1 flex items-center gap-1">
-
                     {project.priceFrom > 0 && (
                       <IndianRupee
                         size={23}
@@ -735,21 +706,21 @@ function ProjectDetails() {
                         ) ||
                         "Price on Request"}
                     </span>
-
                   </div>
-
                 </div>
-
 
                 {/* CTA */}
 
                 <div className="mt-6 grid gap-3 sm:grid-cols-2">
 
+                  {/* =========================================
+                      ENQUIRE NOW
+                      → CONTACT FORM
+                  ========================================== */}
+
                   <button
                     type="button"
-                    onClick={() =>
-                      scrollToInquiry()
-                    }
+                    onClick={goToContactForm}
                     className="
                       inline-flex
                       h-12
@@ -770,12 +741,14 @@ function ProjectDetails() {
                     <ArrowRight size={17} />
                   </button>
 
+                  {/* =========================================
+                      CONTACT US
+                      → PHONE CALL
+                  ========================================== */}
 
                   <button
                     type="button"
-                    onClick={() =>
-                      window.history.back()
-                    }
+                    onClick={handleCallClick}
                     className="
                       inline-flex
                       h-12
@@ -799,22 +772,16 @@ function ProjectDetails() {
                   </button>
 
                 </div>
-
               </div>
-
             </div>
-
           </div>
-
         </section>
-
 
         {/* ===================================================
             QUICK STATS
         ==================================================== */}
 
         <section className="border-y border-slate-200 bg-white">
-
           <div className="mx-auto grid max-w-7xl divide-y divide-slate-200 px-5 sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4 lg:px-8">
 
             <Stat
@@ -842,9 +809,7 @@ function ProjectDetails() {
             />
 
           </div>
-
         </section>
-
 
         {/* ===================================================
             CONTENT
@@ -854,17 +819,11 @@ function ProjectDetails() {
 
           <div className="grid gap-7 lg:grid-cols-[1fr_340px]">
 
-
-            {/* =================================================
-                LEFT CONTENT
-            ================================================= */}
+            {/* LEFT CONTENT */}
 
             <div className="space-y-7">
 
-
-              {/* ===============================================
-                  OVERVIEW
-              ================================================ */}
+              {/* OVERVIEW */}
 
               <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
 
@@ -883,10 +842,7 @@ function ProjectDetails() {
 
               </section>
 
-
-              {/* ===============================================
-                  PROJECT DETAILS
-              ================================================ */}
+              {/* PROJECT DETAILS */}
 
               <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
 
@@ -948,13 +904,9 @@ function ProjectDetails() {
                   />
 
                 </div>
-
               </section>
 
-
-              {/* ===============================================
-                  FEATURES
-              ================================================ */}
+              {/* FEATURES */}
 
               {features.length > 0 && (
                 <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
@@ -980,20 +932,15 @@ function ProjectDetails() {
                           <span className="text-sm font-semibold text-slate-700">
                             {feature}
                           </span>
-
                         </div>
                       )
                     )}
 
                   </div>
-
                 </section>
               )}
 
-
-              {/* ===============================================
-                  AMENITIES
-              ================================================ */}
+              {/* AMENITIES */}
 
               {amenities.length > 0 && (
                 <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
@@ -1018,20 +965,15 @@ function ProjectDetails() {
                           <span className="text-sm font-semibold text-slate-700">
                             {amenity}
                           </span>
-
                         </div>
                       )
                     )}
 
                   </div>
-
                 </section>
               )}
 
-
-              {/* ===============================================
-                  PAYMENT PLANS
-              ================================================ */}
+              {/* PAYMENT PLANS */}
 
               {paymentPlans.length > 0 && (
                 <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
@@ -1067,20 +1009,15 @@ function ProjectDetails() {
                             )}
 
                           </div>
-
                         </div>
                       )
                     )}
 
                   </div>
-
                 </section>
               )}
 
-
-              {/* ===============================================
-                  DOCUMENTS
-              ================================================ */}
+              {/* DOCUMENTS */}
 
               {documents.length > 0 && (
                 <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
@@ -1096,14 +1033,12 @@ function ProjectDetails() {
                       (document, index) => {
 
                         const documentUrl =
-                          typeof document ===
-                          "string"
+                          typeof document === "string"
                             ? document
                             : document?.url;
 
                         const documentName =
-                          typeof document ===
-                          "string"
+                          typeof document === "string"
                             ? document
                                 .split("/")
                                 .pop()
@@ -1134,7 +1069,6 @@ function ProjectDetails() {
                               hover:bg-[#fffaf0]
                             "
                           >
-
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition group-hover:bg-white group-hover:text-[#b88b32]">
                               <FileText size={19} />
                             </div>
@@ -1155,21 +1089,16 @@ function ProjectDetails() {
                               size={17}
                               className="shrink-0 text-slate-400 group-hover:text-[#b88b32]"
                             />
-
                           </a>
                         );
                       }
                     )}
 
                   </div>
-
                 </section>
               )}
 
-
-              {/* ===============================================
-                  GALLERY
-              ================================================ */}
+              {/* GALLERY */}
 
               {images.length > 0 && (
                 <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
@@ -1192,7 +1121,6 @@ function ProjectDetails() {
                           }}
                           className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-slate-100"
                         >
-
                           <img
                             src={image}
                             alt={`${project.name} ${index + 1}`}
@@ -1207,22 +1135,19 @@ function ProjectDetails() {
                           />
 
                           <div className="absolute inset-0 bg-black/0 transition group-hover:bg-black/15" />
-
                         </button>
                       )
                     )}
 
                   </div>
-
                 </section>
               )}
 
             </div>
 
-
             {/* =================================================
                 RIGHT SIDEBAR
-            ================================================= */}
+            ================================================== */}
 
             <aside className="lg:sticky lg:top-24 lg:h-fit">
 
@@ -1248,11 +1173,16 @@ function ProjectDetails() {
 
                 </div>
 
-
                 <div className="space-y-3 p-5">
+
+                  {/* =========================================
+                      REQUEST A CALL
+                      → PHONE CALL
+                  ========================================== */}
 
                   <button
                     type="button"
+                    onClick={handleCallClick}
                     className="
                       flex
                       h-12
@@ -1274,9 +1204,14 @@ function ProjectDetails() {
                     Request a Call
                   </button>
 
+                  {/* =========================================
+                      ENQUIRE NOW
+                      → CONTACT FORM
+                  ========================================== */}
 
                   <button
                     type="button"
+                    onClick={goToContactForm}
                     className="
                       flex
                       h-12
@@ -1301,9 +1236,7 @@ function ProjectDetails() {
                   </button>
 
                 </div>
-
               </div>
-
 
               {/* PROJECT STATUS */}
 
@@ -1326,11 +1259,8 @@ function ProjectDetails() {
                     </p>
 
                   </div>
-
                 </div>
-
               </div>
-
 
               {/* APPROVAL */}
 
@@ -1354,27 +1284,20 @@ function ProjectDetails() {
                       </p>
 
                     </div>
-
                   </div>
-
                 </div>
               )}
 
             </aside>
-
           </div>
-
         </div>
-
       </main>
-
 
       {/* =====================================================
           FOOTER
       ====================================================== */}
 
       <Footer />
-
 
       {/* =====================================================
           LIGHTBOX
@@ -1412,7 +1335,6 @@ function ProjectDetails() {
           >
             <X size={21} />
           </button>
-
 
           {images.length > 1 && (
             <>
@@ -1468,7 +1390,6 @@ function ProjectDetails() {
             </>
           )}
 
-
           <img
             src={currentImage}
             alt={project.name || "Project"}
@@ -1489,7 +1410,6 @@ function ProjectDetails() {
     </div>
   );
 }
-
 
 /*
 |--------------------------------------------------------------------------
@@ -1520,11 +1440,9 @@ function Stat({
         </p>
 
       </div>
-
     </div>
   );
 }
-
 
 /*
 |--------------------------------------------------------------------------
@@ -1551,7 +1469,6 @@ function SectionTitle({
   );
 }
 
-
 /*
 |--------------------------------------------------------------------------
 | DETAIL ITEM
@@ -1577,7 +1494,6 @@ function DetailItem({
   );
 }
 
-
 /*
 |--------------------------------------------------------------------------
 | EMPTY TEXT
@@ -1594,7 +1510,6 @@ function EmptyText({
   );
 }
 
-
 /*
 |--------------------------------------------------------------------------
 | FORMAT STATUS
@@ -1610,7 +1525,6 @@ function formatStatus(status) {
       char.toUpperCase()
     );
 }
-
 
 /*
 |--------------------------------------------------------------------------
@@ -1634,7 +1548,6 @@ function formatCategory(category) {
   );
 }
 
-
 /*
 |--------------------------------------------------------------------------
 | FORMAT PRICE
@@ -1648,27 +1561,5 @@ function formatPrice(price) {
 
   return `₹${Number(price).toLocaleString("en-IN")}`;
 }
-
-
-/*
-|--------------------------------------------------------------------------
-| SCROLL TO INQUIRY
-|--------------------------------------------------------------------------
-*/
-
-function scrollToInquiry() {
-  const element =
-    document.getElementById(
-      "project-inquiry"
-    );
-
-  if (element) {
-    element.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
-  }
-}
-
 
 export default ProjectDetails;

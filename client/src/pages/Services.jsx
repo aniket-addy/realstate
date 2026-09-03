@@ -10,11 +10,13 @@ import {
   Phone,
 } from "lucide-react";
 
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import Navbar from "../components/navbar/Navbar";
 import Footer from "../components/footer/Footer";
 import FloatingActions from "../components/floating-actions/FloatingActions";
+
+import { callClient } from "../components/config/contact";
 
 /* =========================================================
    SERVICES DATA
@@ -106,9 +108,28 @@ const services = [
 ========================================================= */
 
 function Services() {
+  // =========================================================
+  // NAVIGATION
+  // =========================================================
+
+  const navigate = useNavigate();
+
+  // =========================================================
+  // CENTRAL CALL HANDLER
+  // =========================================================
+
+  const handleCallTeam = () => {
+    const called = callClient();
+
+    // If phone number is not configured,
+    // send user to the contact page instead.
+    if (!called) {
+      navigate("/contact");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
-
       {/* =====================================================
           NAVBAR
       ====================================================== */}
@@ -116,16 +137,14 @@ function Services() {
       <Navbar />
 
       <main>
-
         {/* =====================================================
             HERO
         ====================================================== */}
 
         <section className="relative overflow-hidden bg-slate-950">
-
           {/* Background */}
-          <div className="absolute inset-0">
 
+          <div className="absolute inset-0">
             <img
               src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=2200&q=85"
               alt="Real estate services"
@@ -135,31 +154,25 @@ function Services() {
             <div className="absolute inset-0 bg-slate-950/75" />
 
             <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-slate-950/30" />
-
           </div>
 
           {/* Hero Content */}
 
           <div className="relative mx-auto max-w-[1240px] px-4 py-28 sm:px-6 sm:py-32 lg:px-8 lg:py-36">
-
             <div className="max-w-[720px]">
-
               {/* Eyebrow */}
 
               <div className="mb-5 flex items-center gap-2">
-
                 <span className="h-px w-8 bg-[#d6a84f]" />
 
                 <span className="text-[10px] font-extrabold uppercase tracking-[0.22em] text-[#e0b65c] sm:text-[11px]">
                   Our Services
                 </span>
-
               </div>
 
               {/* Heading */}
 
               <h1 className="text-4xl font-extrabold leading-[1.05] tracking-[-0.045em] text-white sm:text-5xl lg:text-7xl">
-
                 Real Estate
                 <br />
 
@@ -170,7 +183,6 @@ function Services() {
                 <br />
 
                 Built Around You.
-
               </h1>
 
               {/* Description */}
@@ -181,12 +193,16 @@ function Services() {
                 real estate support designed around your requirements.
               </p>
 
-              {/* CTA */}
+              {/* =================================================
+                  HERO CTA
+              ================================================== */}
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                {/* TALK TO OUR EXPERTS */}
 
-                <Link
-                  to="/contact"
+                <button
+                  type="button"
+                  onClick={handleCallTeam}
                   className="
                     inline-flex
                     items-center
@@ -205,11 +221,14 @@ function Services() {
                 >
                   Talk To Our Experts
 
-                  <ArrowRight size={15} />
-                </Link>
+                  <Phone size={15} />
+                </button>
 
-                <a
-                  href="tel:+919876543210"
+                {/* CALL US NOW */}
+
+                <button
+                  type="button"
+                  onClick={handleCallTeam}
                   className="
                     inline-flex
                     items-center
@@ -232,14 +251,10 @@ function Services() {
                   <Phone size={15} />
 
                   Call Us Now
-                </a>
-
+                </button>
               </div>
-
             </div>
-
           </div>
-
         </section>
 
         {/* =====================================================
@@ -247,23 +262,17 @@ function Services() {
         ====================================================== */}
 
         <section className="bg-white py-16 sm:py-20 lg:py-24">
-
           <div className="mx-auto max-w-[1240px] px-4 sm:px-6 lg:px-8">
-
             <div className="grid items-center gap-12 lg:grid-cols-[0.8fr_1.2fr]">
-
               {/* Left */}
 
               <div>
-
                 <div className="mb-3 flex items-center gap-2">
-
                   <span className="h-px w-7 bg-[#d6a84f]" />
 
                   <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#b88b32]">
                     Why Investorise
                   </span>
-
                 </div>
 
                 <h2 className="text-3xl font-extrabold leading-tight tracking-[-0.035em] text-slate-900 sm:text-4xl">
@@ -272,13 +281,11 @@ function Services() {
                     Property Listings.
                   </span>
                 </h2>
-
               </div>
 
               {/* Right */}
 
               <div>
-
                 <p className="text-sm leading-7 text-slate-500 sm:text-base">
                   Real estate decisions involve more than finding a
                   property. Our services are designed to help you
@@ -291,13 +298,9 @@ function Services() {
                   for an investment opportunity, our team is here to
                   support you throughout the journey.
                 </p>
-
               </div>
-
             </div>
-
           </div>
-
         </section>
 
         {/* =====================================================
@@ -305,21 +308,16 @@ function Services() {
         ====================================================== */}
 
         <section className="bg-slate-50 py-16 sm:py-20 lg:py-24">
-
           <div className="mx-auto max-w-[1240px] px-4 sm:px-6 lg:px-8">
-
             {/* Header */}
 
             <div className="max-w-[680px]">
-
               <div className="mb-3 flex items-center gap-2">
-
                 <span className="h-px w-7 bg-[#d6a84f]" />
 
                 <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#b88b32]">
                   What We Do
                 </span>
-
               </div>
 
               <h2 className="text-3xl font-extrabold tracking-[-0.035em] text-slate-900 sm:text-4xl">
@@ -333,15 +331,12 @@ function Services() {
                 Explore our services designed to make your property
                 journey simpler and more confident.
               </p>
-
             </div>
 
             {/* Grid */}
 
             <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-
               {services.map((service) => {
-
                 const Icon = service.icon;
 
                 return (
@@ -363,11 +358,9 @@ function Services() {
                       sm:p-7
                     "
                   >
-
                     {/* Top */}
 
                     <div className="flex items-start justify-between">
-
                       <div
                         className="
                           flex
@@ -389,7 +382,6 @@ function Services() {
                       <span className="text-sm font-extrabold text-slate-200">
                         {service.number}
                       </span>
-
                     </div>
 
                     {/* Content */}
@@ -405,35 +397,29 @@ function Services() {
                     {/* Features */}
 
                     <div className="mt-5 space-y-2.5">
+                      {service.features.map((feature) => (
+                        <div
+                          key={feature}
+                          className="flex items-center gap-2"
+                        >
+                          <CheckCircle2
+                            size={14}
+                            className="shrink-0 text-[#b88b32]"
+                          />
 
-                      {service.features.map(
-                        (feature) => (
-                          <div
-                            key={feature}
-                            className="flex items-center gap-2"
-                          >
-
-                            <CheckCircle2
-                              size={14}
-                              className="shrink-0 text-[#b88b32]"
-                            />
-
-                            <span className="text-xs font-medium text-slate-600">
-                              {feature}
-                            </span>
-
-                          </div>
-                        )
-                      )}
-
+                          <span className="text-xs font-medium text-slate-600">
+                            {feature}
+                          </span>
+                        </div>
+                      ))}
                     </div>
 
                     {/* Bottom */}
 
                     <div className="mt-7 border-t border-slate-100 pt-5">
-
-                      <Link
-                        to="/contact"
+                      <button
+                        type="button"
+                        onClick={handleCallTeam}
                         className="
                           group/link
                           inline-flex
@@ -448,25 +434,20 @@ function Services() {
                       >
                         Get Assistance
 
-                        <ArrowRight
+                        <Phone
                           size={14}
                           className="
                             transition-transform
                             group-hover/link:translate-x-1
                           "
                         />
-                      </Link>
-
+                      </button>
                     </div>
-
                   </article>
                 );
               })}
-
             </div>
-
           </div>
-
         </section>
 
         {/* =====================================================
@@ -474,11 +455,8 @@ function Services() {
         ====================================================== */}
 
         <section className="bg-white py-16 sm:py-20">
-
           <div className="mx-auto max-w-[1100px] px-4 sm:px-6 lg:px-8">
-
             <div className="relative overflow-hidden rounded-3xl bg-slate-950 px-6 py-12 text-center sm:px-10 lg:px-16">
-
               {/* Decorative */}
 
               <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-[#d6a84f]/10 blur-3xl" />
@@ -486,7 +464,6 @@ function Services() {
               <div className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-[#d6a84f]/10 blur-3xl" />
 
               <div className="relative">
-
                 <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#e0b65c]">
                   Let's Talk
                 </p>
@@ -503,8 +480,11 @@ function Services() {
                   help you explore the right opportunities.
                 </p>
 
-                <Link
-                  to="/contact"
+                {/* CONTACT OUR TEAM */}
+
+                <button
+                  type="button"
+                  onClick={handleCallTeam}
                   className="
                     mt-7
                     inline-flex
@@ -523,17 +503,12 @@ function Services() {
                 >
                   Contact Our Team
 
-                  <ArrowRight size={15} />
-                </Link>
-
+                  <Phone size={15} />
+                </button>
               </div>
-
             </div>
-
           </div>
-
         </section>
-
       </main>
 
       {/* =====================================================
@@ -547,7 +522,6 @@ function Services() {
       ====================================================== */}
 
       <Footer />
-
     </div>
   );
 }

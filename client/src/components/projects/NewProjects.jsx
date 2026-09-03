@@ -914,6 +914,7 @@ function NewProjects() {
               grid
               grid-cols-1
               gap-5
+
               sm:grid-cols-2
               lg:grid-cols-4
             "
@@ -1079,7 +1080,7 @@ function NewProjects() {
           ================================================= */}
 
           <Link
-            to="/projects"
+            to="/projects/new"
             className="
               group
 
@@ -1134,32 +1135,84 @@ function NewProjects() {
 
 
         {/* =================================================
-            PROJECT GRID
+            PROJECT CARDS
         ================================================= */}
 
         <div
           className="
+            relative
             mt-10
-
-            grid
-            grid-cols-1
-            gap-5
-
-            sm:grid-cols-2
-            lg:grid-cols-4
           "
         >
 
-          {projects
-            .slice(0, 4)
-            .map((project) => (
+          {/* =================================================
+              HORIZONTAL PROJECT SCROLL
+              
+              Desktop:
+              4 cards visible
 
-              <NewProjectCard
+              Tablet:
+              2 cards visible
+
+              Mobile:
+              1 card mostly visible
+
+              Extra projects:
+              Horizontal scrollbar / mouse wheel / swipe
+          ================================================= */}
+
+          <div
+            className="
+              flex
+              gap-5
+
+              overflow-x-auto
+              overflow-y-hidden
+
+              pb-5
+
+              scroll-smooth
+
+              snap-x
+              snap-mandatory
+
+              scrollbar-thin
+              scrollbar-thumb-slate-300
+              scrollbar-track-slate-100
+
+              [&::-webkit-scrollbar]:h-2
+              [&::-webkit-scrollbar-track]:rounded-full
+              [&::-webkit-scrollbar-track]:bg-slate-100
+              [&::-webkit-scrollbar-thumb]:rounded-full
+              [&::-webkit-scrollbar-thumb]:bg-slate-300
+              [&::-webkit-scrollbar-thumb:hover]:bg-slate-400
+            "
+          >
+
+            {projects.map((project) => (
+
+              <div
                 key={getProjectId(project)}
-                project={project}
-              />
+                className="
+                  w-[85%]
+                  shrink-0
+                  snap-start
+
+                  sm:w-[calc((100%-20px)/2)]
+
+                  lg:w-[calc((100%-60px)/4)]
+                "
+              >
+
+                <NewProjectCard
+                  project={project}
+                />
+
+              </div>
 
             ))}
+
+          </div>
 
         </div>
 
@@ -1212,6 +1265,7 @@ function NewProjects() {
                 h-9
                 w-9
                 shrink-0
+
                 items-center
                 justify-center
 
@@ -1225,7 +1279,9 @@ function NewProjects() {
 
               <Building2
                 size={16}
-                className="text-[#b88b32]"
+                className="
+                  text-[#b88b32]
+                "
               />
 
             </div>
@@ -1237,6 +1293,7 @@ function NewProjects() {
                 className="
                   text-xs
                   font-bold
+
                   text-slate-800
                 "
               >
@@ -1246,7 +1303,9 @@ function NewProjects() {
               <p
                 className="
                   mt-0.5
+
                   text-[10px]
+
                   text-slate-500
                 "
               >
@@ -1290,6 +1349,7 @@ function NewProjects() {
                 h-9
                 w-9
                 shrink-0
+
                 items-center
                 justify-center
 
@@ -1303,7 +1363,9 @@ function NewProjects() {
 
               <MapPin
                 size={16}
-                className="text-[#b88b32]"
+                className="
+                  text-[#b88b32]
+                "
               />
 
             </div>
@@ -1315,6 +1377,7 @@ function NewProjects() {
                 className="
                   text-xs
                   font-bold
+
                   text-slate-800
                 "
               >
@@ -1324,7 +1387,9 @@ function NewProjects() {
               <p
                 className="
                   mt-0.5
+
                   text-[10px]
+
                   text-slate-500
                 "
               >
@@ -1368,6 +1433,7 @@ function NewProjects() {
                 h-9
                 w-9
                 shrink-0
+
                 items-center
                 justify-center
 
@@ -1381,7 +1447,9 @@ function NewProjects() {
 
               <Ruler
                 size={16}
-                className="text-[#b88b32]"
+                className="
+                  text-[#b88b32]
+                "
               />
 
             </div>
@@ -1393,6 +1461,7 @@ function NewProjects() {
                 className="
                   text-xs
                   font-bold
+
                   text-slate-800
                 "
               >
@@ -1402,7 +1471,9 @@ function NewProjects() {
               <p
                 className="
                   mt-0.5
+
                   text-[10px]
+
                   text-slate-500
                 "
               >

@@ -4,8 +4,6 @@ import {
   ArrowRight,
   BedDouble,
   Building2,
-  ChevronLeft,
-  ChevronRight,
   MapPin,
   Ruler,
 } from "lucide-react";
@@ -211,6 +209,7 @@ function ProjectCard({ project }) {
 
         {/* =================================================
             ARROW
+            Card ke andar wala View Project arrow same rahega
         ================================================= */}
 
         <div
@@ -926,8 +925,8 @@ function FeaturedProjects() {
               VIEW ALL PROJECTS
           ================================================= */}
 
-          <Link
-            to="/projects"
+         <Link
+  to="/projects/featured"
             className="
               group
 
@@ -991,149 +990,77 @@ function FeaturedProjects() {
           "
         >
 
+          {/* 
+            Horizontal scrolling container.
+
+            lg:
+            4 cards visible at a time.
+
+            sm:
+            2 cards visible.
+
+            mobile:
+            1 card visible.
+
+            Any projects after the visible cards can be
+            accessed by horizontal scrolling.
+          */}
+
           <div
             className="
-              grid
-              grid-cols-1
+              flex
               gap-5
 
-              sm:grid-cols-2
-              lg:grid-cols-4
+              overflow-x-auto
+              overflow-y-hidden
+
+              pb-5
+
+              scroll-smooth
+
+              snap-x
+              snap-mandatory
+
+              scrollbar-thin
+              scrollbar-thumb-slate-300
+              scrollbar-track-slate-100
+
+              [&::-webkit-scrollbar]:h-2
+              [&::-webkit-scrollbar-track]:rounded-full
+              [&::-webkit-scrollbar-track]:bg-slate-100
+              [&::-webkit-scrollbar-thumb]:rounded-full
+              [&::-webkit-scrollbar-thumb]:bg-slate-300
+              [&::-webkit-scrollbar-thumb:hover]:bg-slate-400
             "
           >
 
-            {projects
-              .slice(0, 4)
-              .map((project) => (
+            {projects.map((project) => (
+
+              <div
+                key={
+                  project?._id ||
+                  project?.id
+                }
+                className="
+                  w-[85%]
+                  shrink-0
+                  snap-start
+
+                  sm:w-[calc((100%-20px)/2)]
+
+                  lg:w-[calc((100%-60px)/4)]
+                "
+              >
 
                 <ProjectCard
-                  key={
-                    project?._id ||
-                    project?.id
-                  }
                   project={project}
                 />
 
-              ))}
+              </div>
+
+            ))}
 
           </div>
-
-
-          {/* =================================================
-              ARROWS
-          ================================================= */}
-
-          {projects.length > 4 && (
-
-            <>
-
-              {/* PREVIOUS */}
-
-              <button
-                type="button"
-                aria-label="Previous projects"
-                className="
-                  absolute
-
-                  -right-5
-                  top-1/2
-
-                  hidden
-
-                  h-10
-                  w-10
-
-                  -translate-y-1/2
-                  translate-x-full
-
-                  items-center
-                  justify-center
-
-                  rounded-full
-
-                  border
-                  border-slate-200
-
-                  bg-white
-
-                  text-slate-700
-
-                  shadow-md
-
-                  transition-all
-                  duration-300
-
-                  hover:border-[#d6a84f]
-                  hover:bg-[#d6a84f]
-                  hover:text-white
-
-                  hover:shadow-[0_8px_18px_rgba(214,168,79,0.22)]
-
-                  xl:flex
-                "
-              >
-
-                <ChevronLeft
-                  size={18}
-                />
-
-              </button>
-
-
-              {/* NEXT */}
-
-              <button
-                type="button"
-                aria-label="Next projects"
-                className="
-                  absolute
-
-                  -right-5
-                  top-1/2
-
-                  hidden
-
-                  h-10
-                  w-10
-
-                  -translate-y-1/2
-
-                  items-center
-                  justify-center
-
-                  rounded-full
-
-                  border
-                  border-slate-200
-
-                  bg-white
-
-                  text-slate-700
-
-                  shadow-md
-
-                  transition-all
-                  duration-300
-
-                  hover:border-[#d6a84f]
-                  hover:bg-[#d6a84f]
-                  hover:text-white
-
-                  hover:shadow-[0_8px_18px_rgba(214,168,79,0.22)]
-
-                  xl:flex
-                "
-              >
-
-                <ChevronRight
-                  size={18}
-                />
-
-              </button>
-
-            </>
-
-          )}
 
         </div>
 

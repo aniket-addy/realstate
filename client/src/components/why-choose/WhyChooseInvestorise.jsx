@@ -7,6 +7,11 @@ import {
   UserRoundCheck,
 } from "lucide-react";
 
+import {
+  callClient,
+  CONTACT_CONFIG,
+} from "../config/contact";
+
 const trustPoints = [
   {
     id: 1,
@@ -46,9 +51,22 @@ const trustPoints = [
 ];
 
 function WhyChooseInvestorise() {
+  // =========================================================
+  // CENTRAL CALL HANDLER
+  // =========================================================
+
+  const handleExpertCall = () => {
+    const called = callClient();
+
+    // Agar phone number configured nahi hai
+    // to Contact page par redirect hoga
+    if (!called) {
+      window.location.href = "/contact";
+    }
+  };
+
   return (
     <section className="bg-slate-50 py-16 sm:py-20 lg:py-24">
-
       <div className="mx-auto max-w-[1240px] px-4 sm:px-6 lg:px-8">
 
         {/* =====================================================
@@ -127,6 +145,7 @@ function WhyChooseInvestorise() {
                   </p>
 
                   {/* Bottom hover indicator */}
+
                   <span className="absolute bottom-0 left-1/2 h-[2px] w-0 -translate-x-1/2 bg-[#d6a84f] transition-all duration-300 group-hover:w-12" />
 
                 </div>
@@ -145,13 +164,16 @@ function WhyChooseInvestorise() {
           <div className="flex items-center gap-3">
 
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
+
               <ShieldCheck
                 size={17}
                 className="text-[#b88b32]"
               />
+
             </div>
 
             <div>
+
               <p className="text-xs font-bold text-slate-800">
                 Your investment deserves clarity.
               </p>
@@ -159,16 +181,24 @@ function WhyChooseInvestorise() {
               <p className="mt-0.5 text-[10px] text-slate-500">
                 Talk to our property experts before making your decision.
               </p>
+
             </div>
 
           </div>
 
-          <a
-            href="#contact"
+          {/* =====================================================
+              TALK TO AN EXPERT
+          ====================================================== */}
+
+          <button
+            type="button"
+            onClick={handleExpertCall}
             className="inline-flex shrink-0 items-center justify-center rounded-lg bg-slate-900 px-4 py-2.5 text-[11px] font-bold text-white transition hover:bg-slate-800"
           >
-            Talk To An Expert
-          </a>
+            {CONTACT_CONFIG.phone
+              ? "Talk To An Expert"
+              : "Talk To An Expert"}
+          </button>
 
         </div>
 

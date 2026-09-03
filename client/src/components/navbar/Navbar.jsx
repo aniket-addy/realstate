@@ -8,13 +8,19 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+
+import {
+  callClient,
+  CONTACT_CONFIG,
+} from "../config/contact";
 
 function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [projectsOpen, setProjectsOpen] = useState(false);
 
   const location = useLocation();
+  const navigate = useNavigate();
 
   // =========================================================
   // ACTIVE ROUTE
@@ -31,6 +37,20 @@ function Navbar() {
   const isProjectsActive =
     location.pathname.startsWith("/authority-projects") ||
     location.pathname.startsWith("/builder-projects");
+
+  // =========================================================
+  // CENTRAL CALL HANDLER
+  // =========================================================
+
+  const handleCallClick = () => {
+    const called = callClient();
+
+    // Agar phone number configured nahi hai
+    // to Contact page par bhej do
+    if (!called) {
+      navigate("/contact");
+    }
+  };
 
   // =========================================================
   // CLOSE MOBILE MENU
@@ -237,9 +257,6 @@ function Navbar() {
 
           {/* =================================================
               PROJECTS DROPDOWN
-              
-              Authority Projects
-              Builder Projects
           ================================================== */}
 
           <div
@@ -577,8 +594,9 @@ function Navbar() {
         ====================================================== */}
 
         <div className="hidden lg:block">
-          <a
-            href="tel:+919876543210"
+          <button
+            type="button"
+            onClick={handleCallClick}
             className="
               group
               flex
@@ -607,9 +625,9 @@ function Navbar() {
                 tracking-wide
               "
             >
-              +91 98765 43210
+              {CONTACT_CONFIG.phoneDisplay || "Call Us"}
             </span>
-          </a>
+          </button>
         </div>
 
         {/* =====================================================
@@ -872,11 +890,13 @@ function Navbar() {
                 MOBILE CALL CTA
             ================================================== */}
 
-            <a
-              href="tel:+919876543210"
+            <button
+              type="button"
+              onClick={handleCallClick}
               className="
                 mt-3
                 flex
+                w-full
                 items-center
                 justify-center
                 gap-2
@@ -887,6 +907,8 @@ function Navbar() {
                 text-sm
                 font-bold
                 text-white
+                transition
+                hover:bg-slate-800
               "
             >
               <Phone
@@ -894,8 +916,8 @@ function Navbar() {
                 className="fill-current"
               />
 
-              Call +91 98765 43210
-            </a>
+              {CONTACT_CONFIG.phoneDisplay || "Call Us"}
+            </button>
           </div>
         </div>
       )}
