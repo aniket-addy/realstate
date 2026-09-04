@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -8,6 +7,7 @@ import {
   Plus,
   Trash2,
   Image as ImageIcon,
+  ImagePlus,
   FileText,
   Loader2,
   Upload,
@@ -18,6 +18,10 @@ import {
   getAuthorityProjectById,
   updateAuthorityProject,
 } from "../../services/authorityProjectService";
+
+import DynamicTable, {
+  createEmptyProjectTable,
+} from "../../components/DynamicTable/DynamicTable";
 
 function EditAuthorityProject() {
   const navigate = useNavigate();
@@ -44,152 +48,153 @@ function EditAuthorityProject() {
     featured: false,
     newProject: false,
     published: true,
-
-    // Existing Cloudinary images
     image: "",
     images: [],
-
     features: [],
     amenities: [],
     paymentPlans: [],
     documents: [],
+    customTable: createEmptyProjectTable(),
   });
 
-  /* ============================================================
-     IMAGE STATES
-  ============================================================ */
-
+  // Main image
   const [mainImageFile, setMainImageFile] = useState(null);
   const [mainImagePreview, setMainImagePreview] = useState("");
 
+  // Gallery
   const [galleryImageFiles, setGalleryImageFiles] = useState([]);
   const [galleryImagePreviews, setGalleryImagePreviews] = useState([]);
 
-  /* ============================================================
-     OTHER STATES
-  ============================================================ */
-
+  // Temporary inputs
   const [featureInput, setFeatureInput] = useState("");
   const [amenityInput, setAmenityInput] = useState("");
 
-  const [paymentPlan, setPaymentPlan] = useState({
-    name: "",
-    percentage: "",
-    description: "",
-  });
-
-  const [document, setDocument] = useState({
-    name: "",
-    url: "",
-    type: "",
-  });
-
-  /* ============================================================
-     FETCH PROJECT
-  ============================================================ */
+  // =========================================================
+  // FETCH PROJECT
+  // =========================================================
 
   useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        setLoading(true);
-        setError("");
+    fetchProject();
 
-        const response = await getAuthorityProjectById(id);
-
-        const project =
-          response?.data ||
-          response?.project ||
-          response;
-
-        const existingImages = Array.isArray(project?.images)
-          ? project.images
-          : [];
-
-        setFormData({
-          name: project?.name || "",
-          description: project?.description || "",
-          authority: project?.authority || "",
-          projectCategory: project?.projectCategory || "plot",
-          location: project?.location || "",
-          city: project?.city || "",
-          state: project?.state || "",
-          price: project?.price || "",
-          priceFrom: project?.priceFrom || "",
-          totalArea: project?.totalArea || "",
-          possession: project?.possession || "",
-          status: project?.status || "active",
-          reraNumber: project?.reraNumber || "",
-
-          featured: Boolean(project?.featured),
-          newProject: Boolean(project?.newProject),
-          published: project?.published !== false,
-
-          image: project?.image || "",
-          images: existingImages,
-
-          features: Array.isArray(project?.features)
-            ? project.features
-            : [],
-
-          amenities: Array.isArray(project?.amenities)
-            ? project.amenities
-            : [],
-
-          paymentPlans: Array.isArray(project?.paymentPlans)
-            ? project.paymentPlans
-            : [],
-
-          documents: Array.isArray(project?.documents)
-            ? project.documents
-            : [],
-        });
-
-        // Existing main Cloudinary image
-        if (project?.image) {
-          setMainImagePreview(project.image);
-        } else {
-          setMainImagePreview("");
-        }
-
-        // Existing gallery Cloudinary images
-        setGalleryImagePreviews(existingImages);
-
-        // New files reset
-        setMainImageFile(null);
-        setGalleryImageFiles([]);
-      } catch (err) {
-        console.error("Fetch authority project error:", err);
-
-        setError(
-          err?.response?.data?.message ||
-            "Failed to load project."
-        );
-      } finally {
-        setLoading(false);
+    return () => {
+      if (mainImagePreview?.startsWith("blob:")) {
+        URL.revokeObjectURL(mainImagePreview);
       }
-    };
 
-    if (id) {
-      fetchProject();
-    }
+      galleryImagePreviews.forEach((url) => {
+        if (url?.startsWith("blob:")) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    };
   }, [id]);
 
-  /* ============================================================
-     INPUT CHANGE
-  ============================================================ */
+  const fetchProject = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await getAuthorityProjectById(id);
+
+      const project =
+        response?.data ||
+        response?.project ||
+        response;
+
+      const existingImages = Array.isArray(project?.images)
+        ? project.images
+        : [];
+
+      const existingCustomTable =
+        project?.customTable &&
+        Array.isArray(project.customTable.columns) &&
+        Array.isArray(project.customTable.rows)
+          ? project.customTable
+          : createEmptyProjectTable();
+
+      setFormData({
+        name: project?.name || "",
+        description: project?.description || "",
+        authority: project?.authority || "",
+        projectCategory: project?.projectCategory || "plot",
+        location: project?.location || "",
+        city: project?.city || "",
+        state: project?.state || "",
+        price: project?.price || "",
+        priceFrom: project?.priceFrom || "",
+        totalArea: project?.totalArea || "",
+        possession: project?.possession || "",
+        status: project?.status || "active",
+        reraNumber: project?.reraNumber || "",
+        featured: Boolean(project?.featured),
+        newProject: Boolean(project?.newProject),
+        published: project?.published !== false,
+        image: project?.image || "",
+        images: existingImages,
+        features: Array.isArray(project?.features)
+          ? project.features
+          : [],
+        amenities: Array.isArray(project?.amenities)
+          ? project.amenities
+          : [],
+        paymentPlans: Array.isArray(project?.paymentPlans)
+          ? project.paymentPlans
+          : [],
+        documents: Array.isArray(project?.documents)
+          ? project.documents
+          : [],
+        customTable: existingCustomTable,
+      });
+
+      setMainImagePreview(project?.image || "");
+
+      setGalleryImagePreviews(
+        existingImages.length
+          ? existingImages
+          : project?.image
+            ? [project.image]
+            : []
+      );
+
+      setMainImageFile(null);
+      setGalleryImageFiles([]);
+    } catch (err) {
+      console.error(err);
+      setError(
+        err?.response?.data?.message ||
+          err?.message ||
+          "Failed to load project."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // =========================================================
+  // BASIC INPUT
+  // =========================================================
 
   const handleChange = (event) => {
-    const { name, value, type, checked } = event.target;
+    const { name, value } = event.target;
 
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     }));
   };
 
-  /* ============================================================
-     MAIN IMAGE UPLOAD
-  ============================================================ */
+  const handleCheckboxChange = (event) => {
+    const { name, checked } = event.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: checked,
+    }));
+  };
+
+  // =========================================================
+  // MAIN IMAGE
+  // =========================================================
 
   const handleMainImageChange = (event) => {
     const file = event.target.files?.[0];
@@ -198,54 +203,38 @@ function EditAuthorityProject() {
 
     if (!file.type.startsWith("image/")) {
       setError("Please select a valid image file.");
+      event.target.value = "";
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
       setError("Main image must be less than 10MB.");
+      event.target.value = "";
       return;
     }
 
     setError("");
 
-    // Remove old preview object URL if needed
-    if (
-      mainImagePreview &&
-      mainImagePreview.startsWith("blob:")
-    ) {
+    if (mainImagePreview?.startsWith("blob:")) {
       URL.revokeObjectURL(mainImagePreview);
     }
 
-    setMainImageFile(file);
-
     const previewUrl = URL.createObjectURL(file);
+
+    setMainImageFile(file);
     setMainImagePreview(previewUrl);
 
-    // Reset input
+    setFormData((prev) => ({
+      ...prev,
+      image: previewUrl,
+    }));
+
     event.target.value = "";
   };
 
-  /* ============================================================
-     REMOVE MAIN IMAGE
-  ============================================================ */
-
-  const removeMainImage = () => {
-    if (
-      mainImagePreview &&
-      mainImagePreview.startsWith("blob:")
-    ) {
-      URL.revokeObjectURL(mainImagePreview);
-    }
-
-    setMainImageFile(null);
-
-    // Existing Cloudinary image ko preserve rakho
-    setMainImagePreview(formData.image || "");
-  };
-
-  /* ============================================================
-     GALLERY IMAGE UPLOAD
-  ============================================================ */
+  // =========================================================
+  // GALLERY IMAGES
+  // =========================================================
 
   const handleGalleryImagesChange = (event) => {
     const files = Array.from(event.target.files || []);
@@ -267,16 +256,14 @@ function EditAuthorityProject() {
     );
 
     if (largeFile) {
-      setError(
-        "Each gallery image must be less than 10MB."
-      );
+      setError("Each gallery image must be less than 10MB.");
       event.target.value = "";
       return;
     }
 
     setError("");
 
-    const previews = files.map((file) =>
+    const newPreviews = files.map((file) =>
       URL.createObjectURL(file)
     );
 
@@ -287,61 +274,170 @@ function EditAuthorityProject() {
 
     setGalleryImagePreviews((prev) => [
       ...prev,
-      ...previews,
+      ...newPreviews,
     ]);
+
+    /*
+      If project doesn't have a main image,
+      first newly selected image becomes main image.
+    */
+    if (
+      !formData.image &&
+      !mainImageFile &&
+      galleryImagePreviews.length === 0 &&
+      files[0]
+    ) {
+      setMainImageFile(files[0]);
+      setMainImagePreview(newPreviews[0]);
+
+      setFormData((prev) => ({
+        ...prev,
+        image: newPreviews[0],
+      }));
+    }
 
     event.target.value = "";
   };
 
-  /* ============================================================
-     REMOVE GALLERY IMAGE
-  ============================================================ */
+  // =========================================================
+  // REMOVE GALLERY IMAGE
+  // =========================================================
 
   const removeGalleryImage = (index) => {
     const existingImages = formData.images || [];
 
-    // Existing Cloudinary image
+    // Existing image
     if (index < existingImages.length) {
-      setFormData((prev) => ({
-        ...prev,
-        images: prev.images.filter(
-          (_, i) => i !== index
-        ),
-      }));
+      const removedImage = existingImages[index];
 
-      setGalleryImagePreviews((prev) =>
-        prev.filter((_, i) => i !== index)
+      const updatedExistingImages = existingImages.filter(
+        (_, i) => i !== index
       );
+
+      const updatedPreviews =
+        galleryImagePreviews.filter(
+          (_, i) => i !== index
+        );
+
+      setFormData((prev) => {
+        let nextMainImage = prev.image;
+
+        if (removedImage === prev.image) {
+          nextMainImage =
+            updatedExistingImages[0] || "";
+        }
+
+        return {
+          ...prev,
+          image: nextMainImage,
+          images: updatedExistingImages,
+        };
+      });
+
+      setGalleryImagePreviews(updatedPreviews);
+
+      if (removedImage === mainImagePreview) {
+        setMainImagePreview(
+          updatedExistingImages[0] || ""
+        );
+      }
 
       return;
     }
 
-    // New uploaded file
-    const fileIndex =
+    // New image
+    const newFileIndex =
       index - existingImages.length;
 
     const previewToRemove =
       galleryImagePreviews[index];
 
-    if (
-      previewToRemove &&
-      previewToRemove.startsWith("blob:")
-    ) {
+    if (previewToRemove?.startsWith("blob:")) {
       URL.revokeObjectURL(previewToRemove);
     }
 
+    const removedFile =
+      galleryImageFiles[newFileIndex];
+
     setGalleryImageFiles((prev) =>
-      prev.filter((_, i) => i !== fileIndex)
+      prev.filter((_, i) => i !== newFileIndex)
     );
 
     setGalleryImagePreviews((prev) =>
       prev.filter((_, i) => i !== index)
     );
+
+    /*
+      If removed new image was main image,
+      select another available image.
+    */
+    if (previewToRemove === mainImagePreview) {
+      const remainingPreviews =
+        galleryImagePreviews.filter(
+          (_, i) => i !== index
+        );
+
+      const nextMain =
+        remainingPreviews[0] ||
+        formData.images?.[0] ||
+        "";
+
+      const remainingNewFiles =
+        galleryImageFiles.filter(
+          (_, i) => i !== newFileIndex
+        );
+
+      const nextNewFile =
+        remainingNewFiles[0] || null;
+
+      setMainImagePreview(nextMain);
+
+      if (nextMain?.startsWith("blob:")) {
+        setMainImageFile(nextNewFile);
+      } else {
+        setMainImageFile(null);
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        image: nextMain,
+      }));
+    }
   };
 
-  /* ============================================================
-     FEATURES
-  ============================================================ */
+  // =========================================================
+  // SET IMAGE AS MAIN
+  // =========================================================
+
+  const setAsMainImage = (index) => {
+    const preview = galleryImagePreviews[index];
+
+    if (!preview) return;
+
+    const existingImages = formData.images || [];
+
+    setMainImagePreview(preview);
+
+    setFormData((prev) => ({
+      ...prev,
+      image: preview,
+    }));
+
+    if (index < existingImages.length) {
+      setMainImageFile(null);
+    } else {
+      const newFileIndex =
+        index - existingImages.length;
+
+      setMainImageFile(
+        galleryImageFiles[newFileIndex] || null
+      );
+    }
+  };
+
+  // =========================================================
+  // FEATURES
+  // =========================================================
 
   const addFeature = () => {
     const value = featureInput.trim();
@@ -365,9 +461,16 @@ function EditAuthorityProject() {
     }));
   };
 
-  /* ============================================================
-     AMENITIES
-  ============================================================ */
+  const handleFeatureKeyDown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      addFeature();
+    }
+  };
+
+  // =========================================================
+  // AMENITIES
+  // =========================================================
 
   const addAmenity = () => {
     const value = amenityInput.trim();
@@ -391,40 +494,48 @@ function EditAuthorityProject() {
     }));
   };
 
-  /* ============================================================
-     PAYMENT PLAN
-  ============================================================ */
-
-  const handlePaymentPlanChange = (event) => {
-    const { name, value } = event.target;
-
-    setPaymentPlan((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const handleAmenityKeyDown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      addAmenity();
+    }
   };
 
-  const addPaymentPlan = () => {
-    if (!paymentPlan.name.trim()) return;
+  // =========================================================
+  // PAYMENT PLANS
+  // =========================================================
 
+  const addPaymentPlan = () => {
     setFormData((prev) => ({
       ...prev,
       paymentPlans: [
         ...prev.paymentPlans,
         {
-          name: paymentPlan.name.trim(),
-          percentage: paymentPlan.percentage,
-          description:
-            paymentPlan.description.trim(),
+          name: "",
+          percentage: "",
+          description: "",
         },
       ],
     }));
+  };
 
-    setPaymentPlan({
-      name: "",
-      percentage: "",
-      description: "",
-    });
+  const updatePaymentPlan = (
+    index,
+    field,
+    value
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      paymentPlans: prev.paymentPlans.map(
+        (plan, i) =>
+          i === index
+            ? {
+                ...plan,
+                [field]: value,
+              }
+            : plan
+      ),
+    }));
   };
 
   const removePaymentPlan = (index) => {
@@ -436,39 +547,41 @@ function EditAuthorityProject() {
     }));
   };
 
-  /* ============================================================
-     DOCUMENT
-  ============================================================ */
-
-  const handleDocumentChange = (event) => {
-    const { name, value } = event.target;
-
-    setDocument((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  // =========================================================
+  // DOCUMENTS
+  // =========================================================
 
   const addDocument = () => {
-    if (!document.name.trim()) return;
-
     setFormData((prev) => ({
       ...prev,
       documents: [
         ...prev.documents,
         {
-          name: document.name.trim(),
-          url: document.url.trim(),
-          type: document.type.trim(),
+          name: "",
+          url: "",
+          type: "",
         },
       ],
     }));
+  };
 
-    setDocument({
-      name: "",
-      url: "",
-      type: "",
-    });
+  const updateDocument = (
+    index,
+    field,
+    value
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      documents: prev.documents.map(
+        (document, i) =>
+          i === index
+            ? {
+                ...document,
+                [field]: value,
+              }
+            : document
+      ),
+    }));
   };
 
   const removeDocument = (index) => {
@@ -480,557 +593,617 @@ function EditAuthorityProject() {
     }));
   };
 
-  /* ============================================================
-     SUBMIT
-  ============================================================ */
+  // =========================================================
+  // DYNAMIC TABLE
+  // =========================================================
+
+  const handleCustomTableChange = (updatedTable) => {
+    setFormData((prev) => ({
+      ...prev,
+      customTable: updatedTable,
+    }));
+  };
+
+  // =========================================================
+  // SUBMIT
+  // =========================================================
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
-    if (!formData.name.trim()) {
-      setError("Project name is required.");
-      return;
-    }
-
-    if (!formData.authority.trim()) {
-      setError("Authority name is required.");
-      return;
-    }
 
     try {
       setSaving(true);
       setError("");
 
-      /*
-       * IMPORTANT
-       *
-       * Existing Cloudinary URLs are kept in:
-       * formData.image
-       * formData.images
-       *
-       * New files are sent separately:
-       * mainImageFile
-       * galleryImageFiles
-       *
-       * authorityProjectService.js should convert
-       * these files into FormData and send multipart/form-data
-       * to your backend.
-       */
-
       const payload = {
         ...formData,
-
-        // Existing images
         image: formData.image,
         images: formData.images,
-
-        // New image files
-        mainImageFile: mainImageFile,
-        galleryImageFiles: galleryImageFiles,
+        customTable: formData.customTable,
+        mainImageFile,
+        galleryImageFiles,
       };
 
       await updateAuthorityProject(id, payload);
 
       navigate("/admin/authority-projects");
     } catch (err) {
-      console.error(
-        "Update authority project error:",
-        err
-      );
+      console.error(err);
 
       setError(
         err?.response?.data?.message ||
           err?.message ||
-          "Failed to update authority project."
+          "Failed to update project."
       );
     } finally {
       setSaving(false);
     }
   };
 
-  /* ============================================================
-     LOADING
-  ============================================================ */
+  // =========================================================
+  // LOADING
+  // =========================================================
 
   if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="flex items-center gap-3 text-gray-600">
-          <Loader2
-            size={24}
-            className="animate-spin"
-          />
-          Loading project...
+      <div className="flex min-h-[500px] items-center justify-center">
+        <div className="flex items-center gap-3 text-slate-600">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          <span>Loading project...</span>
         </div>
       </div>
     );
   }
 
-  /* ============================================================
-     UI
-  ============================================================ */
+  // =========================================================
+  // UI
+  // =========================================================
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-6 md:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl">
+    <div className="min-h-screen bg-slate-50">
+      <form
+        onSubmit={handleSubmit}
+        className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8"
+      >
+        {/* =====================================================
+            HEADER
+        ===================================================== */}
 
-        {/* HEADER */}
-        <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-          <div>
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() =>
-                navigate(
-                  "/admin/authority-projects"
-                )
+                navigate("/admin/authority-projects")
               }
-              className="mb-3 flex items-center gap-2 text-sm font-medium text-gray-500 transition hover:text-gray-900"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-100"
             >
-              <ArrowLeft size={17} />
-              Back to Authority Projects
+              <ArrowLeft className="h-5 w-5" />
             </button>
 
-            <h1 className="text-2xl font-bold text-gray-900">
-              Edit Authority Project
-            </h1>
+            <div>
+              <h1 className="text-xl font-bold text-slate-900">
+                Edit Authority Project
+              </h1>
 
-            <p className="mt-1 text-sm text-gray-500">
-              Update project information and images
-            </p>
+              <p className="text-sm text-slate-500">
+                Update project information and images.
+              </p>
+            </div>
           </div>
 
           <button
             type="submit"
-            form="authority-project-form"
             disabled={saving}
-            className="flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving ? (
-              <>
-                <Loader2
-                  size={18}
-                  className="animate-spin"
-                />
-                Saving...
-              </>
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <>
-                <Save size={18} />
-                Save Changes
-              </>
+              <Save className="h-4 w-4" />
             )}
+
+            {saving ? "Saving..." : "Save Changes"}
           </button>
         </div>
 
-        {/* ERROR */}
+        {/* =====================================================
+            ERROR
+        ===================================================== */}
+
         {error && (
-          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
-            {error}
+          <div className="mb-6 flex items-start justify-between gap-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <span>{error}</span>
+
+            <button
+              type="button"
+              onClick={() => setError("")}
+              className="text-red-500 hover:text-red-700"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
         )}
 
-        <form
-          id="authority-project-form"
-          onSubmit={handleSubmit}
-          className="space-y-6"
-        >
+        {/* =====================================================
+            BASIC INFORMATION
+        ===================================================== */}
 
-          {/* BASIC INFORMATION */}
-          <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="mb-5 text-lg font-semibold text-gray-900">
+        <section className="mb-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-200 px-5 py-4">
+            <h2 className="text-base font-semibold text-slate-900">
               Basic Information
             </h2>
 
-            <div className="grid gap-5 md:grid-cols-2">
+            <p className="mt-1 text-xs text-slate-500">
+              Enter the basic project information.
+            </p>
+          </div>
 
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Project Name *
-                </label>
+          <div className="grid gap-5 p-5 md:grid-cols-2">
+            <div className="md:col-span-2">
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                Project Name
+              </label>
 
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-gray-900"
-                  placeholder="Enter project name"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Authority *
-                </label>
-
-                <input
-                  type="text"
-                  name="authority"
-                  value={formData.authority}
-                  onChange={handleChange}
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-gray-900"
-                  placeholder="Enter authority"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Project Category
-                </label>
-
-                <select
-                  name="projectCategory"
-                  value={
-                    formData.projectCategory
-                  }
-                  onChange={handleChange}
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-gray-900"
-                >
-                  <option value="plot">
-                    Plot
-                  </option>
-                  <option value="residential">
-                    Residential
-                  </option>
-                  <option value="commercial">
-                    Commercial
-                  </option>
-                  <option value="infrastructure">
-                    Infrastructure
-                  </option>
-                  <option value="industrial">
-                    Industrial
-                  </option>
-                </select>
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Status
-                </label>
-
-                <select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-gray-900"
-                >
-                  <option value="active">
-                    Active
-                  </option>
-                  <option value="inactive">
-                    Inactive
-                  </option>
-                  <option value="completed">
-                    Completed
-                  </option>
-                  <option value="upcoming">
-                    Upcoming
-                  </option>
-                </select>
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Description
-                </label>
-
-                <textarea
-                  name="description"
-                  value={
-                    formData.description
-                  }
-                  onChange={handleChange}
-                  rows={5}
-                  className="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-gray-900"
-                  placeholder="Enter project description"
-                />
-              </div>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Enter project name"
+                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+                required
+              />
             </div>
-          </section>
 
-          {/* LOCATION & PRICING */}
-          <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="mb-5 text-lg font-semibold text-gray-900">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                Authority
+              </label>
+
+              <input
+                type="text"
+                name="authority"
+                value={formData.authority}
+                onChange={handleChange}
+                placeholder="Enter authority"
+                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                Project Category
+              </label>
+
+              <select
+                name="projectCategory"
+                value={formData.projectCategory}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              >
+                <option value="plot">Plot</option>
+                <option value="residential">
+                  Residential
+                </option>
+                <option value="commercial">
+                  Commercial
+                </option>
+                <option value="infrastructure">
+                  Infrastructure
+                </option>
+                <option value="industrial">
+                  Industrial
+                </option>
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                Status
+              </label>
+
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="completed">
+                  Completed
+                </option>
+                <option value="upcoming">Upcoming</option>
+              </select>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                Description
+              </label>
+
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={5}
+                placeholder="Enter project description"
+                className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* =====================================================
+            LOCATION & PRICING
+        ===================================================== */}
+
+        <section className="mb-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-200 px-5 py-4">
+            <h2 className="text-base font-semibold text-slate-900">
               Location & Pricing
             </h2>
 
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            <p className="mt-1 text-xs text-slate-500">
+              Add project location, pricing and possession details.
+            </p>
+          </div>
 
-              {[
-                ["location", "Location"],
-                ["city", "City"],
-                ["state", "State"],
-                ["price", "Price"],
-                ["priceFrom", "Price From"],
-                ["totalArea", "Total Area"],
-                ["possession", "Possession"],
-                ["reraNumber", "RERA Number"],
-              ].map(([name, label]) => (
-                <div key={name}>
-                  <label className="mb-2 block text-sm font-medium text-gray-700">
-                    {label}
-                  </label>
-
-                  <input
-                    type={
-                      name === "priceFrom"
-                        ? "number"
-                        : "text"
-                    }
-                    name={name}
-                    value={formData[name]}
-                    onChange={handleChange}
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-gray-900"
-                    placeholder={
-                      name === "price"
-                        ? "₹50 Lakh onwards"
-                        : ""
-                    }
-                  />
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* PROJECT IMAGES */}
-          <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-
-            <div className="mb-5 flex items-center gap-2">
-              <ImageIcon
-                size={20}
-                className="text-gray-700"
-              />
-
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Project Images
-                </h2>
-
-                <p className="text-sm text-gray-500">
-                  Upload images directly. Images will be stored on Cloudinary.
-                </p>
-              </div>
-            </div>
-
-            {/* MAIN IMAGE */}
-            <div className="mb-8">
-
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                Main Image
+          <div className="grid gap-5 p-5 md:grid-cols-2 lg:grid-cols-3">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                Location
               </label>
 
-              {!mainImagePreview ? (
-                <label
-                  htmlFor="main-project-image"
-                  className="flex min-h-[260px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 transition hover:border-gray-500 hover:bg-gray-100"
-                >
-                  <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-sm">
-                    <Upload
-                      size={25}
-                      className="text-gray-600"
-                    />
-                  </div>
+              <input
+                type="text"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                placeholder="Sector / Location"
+                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              />
+            </div>
 
-                  <p className="text-sm font-semibold text-gray-700">
-                    Click to upload main image
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                City
+              </label>
+
+              <input
+                type="text"
+                name="city"
+                value={formData.city}
+                onChange={handleChange}
+                placeholder="City"
+                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                State
+              </label>
+
+              <input
+                type="text"
+                name="state"
+                value={formData.state}
+                onChange={handleChange}
+                placeholder="State"
+                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                Price
+              </label>
+
+              <input
+                type="text"
+                name="price"
+                value={formData.price}
+                onChange={handleChange}
+                placeholder="₹ 50 Lac onwards"
+                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                Price From
+              </label>
+
+              <input
+                type="number"
+                name="priceFrom"
+                value={formData.priceFrom}
+                onChange={handleChange}
+                placeholder="5000000"
+                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                Total Area
+              </label>
+
+              <input
+                type="text"
+                name="totalArea"
+                value={formData.totalArea}
+                onChange={handleChange}
+                placeholder="100 Acres"
+                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                Possession
+              </label>
+
+              <input
+                type="text"
+                name="possession"
+                value={formData.possession}
+                onChange={handleChange}
+                placeholder="2027"
+                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                RERA Number
+              </label>
+
+              <input
+                type="text"
+                name="reraNumber"
+                value={formData.reraNumber}
+                onChange={handleChange}
+                placeholder="RERA Number"
+                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* =====================================================
+            PROJECT IMAGES - SCREENSHOT STYLE
+        ===================================================== */}
+
+        <section className="mb-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-200 px-5 py-4">
+            <h2 className="text-base font-semibold text-slate-900">
+              Project Images
+            </h2>
+
+            <p className="mt-1 text-xs text-slate-500">
+              Upload project images. The first image will be used as the main image.
+            </p>
+          </div>
+
+          <div className="p-5">
+            {/* ================= MAIN IMAGE ================= */}
+
+            <div>
+              <div className="mb-2 flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-slate-800">
+                    Main Image
                   </p>
+                </div>
+              </div>
 
-                  <p className="mt-2 text-xs text-gray-500">
-                    PNG, JPG, JPEG or WEBP · Maximum 10MB
-                  </p>
-
-                  <input
-                    id="main-project-image"
-                    type="file"
-                    accept="image/png,image/jpeg,image/jpg,image/webp"
-                    onChange={
-                      handleMainImageChange
-                    }
-                    className="hidden"
-                  />
-                </label>
-              ) : (
-                <div className="relative overflow-hidden rounded-2xl border border-gray-200">
-
+              {mainImagePreview ? (
+                <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
                   <img
                     src={mainImagePreview}
-                    alt="Project main preview"
-                    className="h-[320px] w-full object-cover"
+                    alt="Main project"
+                    className="h-[320px] w-full object-cover sm:h-[380px] lg:h-[430px]"
                   />
 
-                  {mainImageFile && (
-                    <button
-                      type="button"
-                      onClick={removeMainImage}
-                      className="absolute right-4 top-4 flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-semibold text-red-500 shadow-md hover:bg-red-50"
-                    >
-                      <X size={16} />
-                      Cancel Replace
-                    </button>
-                  )}
-
-                  <label
-                    htmlFor="replace-main-image"
-                    className="absolute bottom-4 left-4 flex cursor-pointer items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-md hover:bg-gray-50"
-                  >
-                    <Upload size={16} />
+                  <label className="absolute bottom-3 left-3 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+                    <Upload className="h-3.5 w-3.5" />
                     Replace Image
 
                     <input
-                      id="replace-main-image"
                       type="file"
-                      accept="image/png,image/jpeg,image/jpg,image/webp"
-                      onChange={
-                        handleMainImageChange
-                      }
+                      accept="image/*"
                       className="hidden"
+                      onChange={handleMainImageChange}
                     />
                   </label>
+
+                  <div className="absolute right-3 top-3 rounded-md bg-slate-900/80 px-2.5 py-1 text-[10px] font-semibold text-white">
+                    Main Image
+                  </div>
                 </div>
+              ) : (
+                <label className="flex h-[320px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 transition hover:border-slate-400 hover:bg-slate-100 sm:h-[380px]">
+                  <ImagePlus className="mb-3 h-8 w-8 text-slate-400" />
+
+                  <span className="text-sm font-semibold text-slate-700">
+                    Choose main image
+                  </span>
+
+                  <span className="mt-1 text-xs text-slate-500">
+                    PNG, JPG, WEBP up to 10MB
+                  </span>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleMainImageChange}
+                  />
+                </label>
               )}
             </div>
 
-            {/* GALLERY */}
-            <div>
+            {/* ================= GALLERY HEADER ================= */}
 
-              <div className="mb-3 flex items-center justify-between">
+            <div className="mt-6 flex items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold text-slate-800">
+                  Gallery Images
+                </p>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Gallery Images
-                  </label>
-
-                  <p className="mt-1 text-xs text-gray-500">
-                    Existing images and newly selected images are shown here.
-                  </p>
-                </div>
-
-                <label
-                  htmlFor="gallery-project-images"
-                  className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
-                >
-                  <Plus size={17} />
-                  Add Images
-
-                  <input
-                    id="gallery-project-images"
-                    type="file"
-                    multiple
-                    accept="image/png,image/jpeg,image/jpg,image/webp"
-                    onChange={
-                      handleGalleryImagesChange
-                    }
-                    className="hidden"
-                  />
-                </label>
+                <p className="mt-1 text-[11px] text-slate-500">
+                  {galleryImagePreviews.length} image
+                  {galleryImagePreviews.length !== 1
+                    ? "s"
+                    : ""}{" "}
+                  selected
+                </p>
               </div>
 
-              {galleryImagePreviews.length > 0 ? (
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+              <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+                <Plus className="h-3.5 w-3.5" />
+                Add Image
 
-                  {galleryImagePreviews.map(
-                    (image, index) => {
-                      const isNewImage =
-                        index >=
-                        formData.images.length;
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={handleGalleryImagesChange}
+                />
+              </label>
+            </div>
 
-                      return (
-                        <div
-                          key={`${image}-${index}`}
-                          className="group relative overflow-hidden rounded-xl border border-gray-200"
+            {/* ================= GALLERY ================= */}
+
+            {galleryImagePreviews.length > 0 ? (
+              <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                {galleryImagePreviews.map(
+                  (image, index) => {
+                    const isMain =
+                      image === mainImagePreview;
+
+                    return (
+                      <div
+                        key={`${image}-${index}`}
+                        className={`group relative overflow-hidden rounded-lg border bg-slate-100 ${
+                          isMain
+                            ? "border-slate-900 ring-2 ring-slate-200"
+                            : "border-slate-200"
+                        }`}
+                      >
+                        <img
+                          src={image}
+                          alt={`Gallery ${index + 1}`}
+                          className="h-24 w-full object-cover sm:h-28"
+                        />
+
+                        {/* Main badge */}
+                        {isMain && (
+                          <span className="absolute left-1.5 top-1.5 rounded bg-slate-900 px-1.5 py-0.5 text-[8px] font-bold text-white">
+                            MAIN
+                          </span>
+                        )}
+
+                        {/* New badge */}
+                        {index >=
+                          (formData.images?.length || 0) && (
+                          <span className="absolute bottom-1.5 left-1.5 rounded bg-white/90 px-1.5 py-0.5 text-[8px] font-semibold text-slate-700 shadow-sm">
+                            New
+                          </span>
+                        )}
+
+                        {/* Delete */}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            removeGalleryImage(index)
+                          }
+                          className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-md bg-white/95 text-slate-600 opacity-100 shadow-sm transition hover:bg-red-50 hover:text-red-600"
+                          title="Remove image"
                         >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
 
-                          <img
-                            src={image}
-                            alt={`Project gallery ${
-                              index + 1
-                            }`}
-                            className="h-36 w-full object-cover transition group-hover:scale-105"
-                          />
-
-                          {isNewImage && (
-                            <span className="absolute bottom-2 left-2 rounded-md bg-black/70 px-2 py-1 text-[10px] font-medium text-white">
-                              New
-                            </span>
-                          )}
-
+                        {/* Set main */}
+                        {!isMain && (
                           <button
                             type="button"
                             onClick={() =>
-                              removeGalleryImage(
-                                index
-                              )
+                              setAsMainImage(index)
                             }
-                            className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white text-red-500 opacity-0 shadow-md transition group-hover:opacity-100"
-                            title="Remove image"
+                            className="absolute bottom-1.5 right-1.5 rounded bg-white/95 px-1.5 py-1 text-[8px] font-semibold text-slate-700 opacity-0 shadow-sm transition group-hover:opacity-100 hover:bg-white"
                           >
-                            <Trash2
-                              size={15}
-                            />
+                            Set Main
                           </button>
-                        </div>
-                      );
-                    }
-                  )}
+                        )}
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+            ) : (
+              <div className="mt-3 flex min-h-[120px] items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50">
+                <div className="text-center">
+                  <ImageIcon className="mx-auto mb-2 h-6 w-6 text-slate-400" />
 
+                  <p className="text-xs font-medium text-slate-600">
+                    No gallery images
+                  </p>
+
+                  <p className="mt-1 text-[10px] text-slate-400">
+                    Click "Add Image" to upload images.
+                  </p>
                 </div>
-              ) : (
-                <label
-                  htmlFor="gallery-project-images"
-                  className="flex min-h-[180px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 hover:border-gray-500"
-                >
-                  <ImageIcon
-                    size={28}
-                    className="mb-3 text-gray-400"
-                  />
+              </div>
+            )}
 
-                  <p className="text-sm font-medium text-gray-600">
-                    Add gallery images
-                  </p>
+            <p className="mt-3 text-[10px] text-slate-400">
+              Supported formats: JPG, JPEG, PNG, WEBP. Maximum
+              size: 10MB per image.
+            </p>
+          </div>
+        </section>
 
-                  <p className="mt-1 text-xs text-gray-400">
-                    Select multiple images
-                  </p>
-                </label>
-              )}
+        {/* =====================================================
+            FEATURES
+        ===================================================== */}
 
-            </div>
-          </section>
-
-          {/* FEATURES */}
-          <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-
-            <h2 className="mb-5 text-lg font-semibold text-gray-900">
+        <section className="mb-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-200 px-5 py-4">
+            <h2 className="text-base font-semibold text-slate-900">
               Features
             </h2>
 
-            <div className="flex gap-3">
+            <p className="mt-1 text-xs text-slate-500">
+              Add important project features.
+            </p>
+          </div>
 
+          <div className="p-5">
+            <div className="flex gap-2">
               <input
                 type="text"
                 value={featureInput}
                 onChange={(e) =>
-                  setFeatureInput(
-                    e.target.value
-                  )
+                  setFeatureInput(e.target.value)
                 }
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addFeature();
-                  }
-                }}
-                placeholder="Add project feature"
-                className="flex-1 rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-gray-900"
+                onKeyDown={handleFeatureKeyDown}
+                placeholder="Enter feature"
+                className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
               />
 
               <button
                 type="button"
                 onClick={addFeature}
-                className="rounded-xl bg-gray-900 px-5 py-3 text-white"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
               >
-                <Plus size={18} />
+                <Plus className="h-4 w-4" />
+                Add
               </button>
             </div>
 
@@ -1039,62 +1212,63 @@ function EditAuthorityProject() {
                 {formData.features.map(
                   (feature, index) => (
                     <div
-                      key={`${feature}-${index}`}
-                      className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-700"
+                      key={index}
+                      className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700"
                     >
                       {feature}
 
                       <button
                         type="button"
                         onClick={() =>
-                          removeFeature(
-                            index
-                          )
+                          removeFeature(index)
                         }
-                        className="text-red-500"
+                        className="text-slate-400 hover:text-red-500"
                       >
-                        <X size={14} />
+                        <X className="h-3 w-3" />
                       </button>
                     </div>
                   )
                 )}
               </div>
             )}
-          </section>
+          </div>
+        </section>
 
-          {/* AMENITIES */}
-          <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        {/* =====================================================
+            AMENITIES
+        ===================================================== */}
 
-            <h2 className="mb-5 text-lg font-semibold text-gray-900">
+        <section className="mb-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-200 px-5 py-4">
+            <h2 className="text-base font-semibold text-slate-900">
               Amenities
             </h2>
 
-            <div className="flex gap-3">
+            <p className="mt-1 text-xs text-slate-500">
+              Add project amenities.
+            </p>
+          </div>
 
+          <div className="p-5">
+            <div className="flex gap-2">
               <input
                 type="text"
                 value={amenityInput}
                 onChange={(e) =>
-                  setAmenityInput(
-                    e.target.value
-                  )
+                  setAmenityInput(e.target.value)
                 }
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addAmenity();
-                  }
-                }}
-                placeholder="Add amenity"
-                className="flex-1 rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-gray-900"
+                onKeyDown={handleAmenityKeyDown}
+                placeholder="Enter amenity"
+                className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100"
               />
 
               <button
                 type="button"
                 onClick={addAmenity}
-                className="rounded-xl bg-gray-900 px-5 py-3 text-white"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
               >
-                <Plus size={18} />
+                <Plus className="h-4 w-4" />
+                Add
               </button>
             </div>
 
@@ -1103,329 +1277,391 @@ function EditAuthorityProject() {
                 {formData.amenities.map(
                   (amenity, index) => (
                     <div
-                      key={`${amenity}-${index}`}
-                      className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-700"
+                      key={index}
+                      className="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700"
                     >
                       {amenity}
 
                       <button
                         type="button"
                         onClick={() =>
-                          removeAmenity(
-                            index
-                          )
+                          removeAmenity(index)
                         }
-                        className="text-red-500"
+                        className="text-slate-400 hover:text-red-500"
                       >
-                        <X size={14} />
+                        <X className="h-3 w-3" />
                       </button>
                     </div>
                   )
                 )}
               </div>
             )}
-          </section>
+          </div>
+        </section>
 
-          {/* PAYMENT PLANS */}
-          <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        {/* =====================================================
+            PAYMENT PLANS
+        ===================================================== */}
 
-            <h2 className="mb-5 text-lg font-semibold text-gray-900">
-              Payment Plans
-            </h2>
+        <section className="mb-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+            <div>
+              <h2 className="text-base font-semibold text-slate-900">
+                Payment Plans
+              </h2>
 
-            <div className="grid gap-4 md:grid-cols-3">
-
-              <input
-                type="text"
-                name="name"
-                value={paymentPlan.name}
-                onChange={
-                  handlePaymentPlanChange
-                }
-                placeholder="Plan name"
-                className="rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-gray-900"
-              />
-
-              <input
-                type="text"
-                name="percentage"
-                value={
-                  paymentPlan.percentage
-                }
-                onChange={
-                  handlePaymentPlanChange
-                }
-                placeholder="Percentage"
-                className="rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-gray-900"
-              />
-
-              <input
-                type="text"
-                name="description"
-                value={
-                  paymentPlan.description
-                }
-                onChange={
-                  handlePaymentPlanChange
-                }
-                placeholder="Description"
-                className="rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-gray-900"
-              />
+              <p className="mt-1 text-xs text-slate-500">
+                Add project payment plan details.
+              </p>
             </div>
 
             <button
               type="button"
               onClick={addPaymentPlan}
-              className="mt-4 flex items-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
             >
-              <Plus size={17} />
-              Add Payment Plan
+              <Plus className="h-3.5 w-3.5" />
+              Add Plan
             </button>
+          </div>
 
-            {formData.paymentPlans.length > 0 && (
-              <div className="mt-5 space-y-3">
-
-                {formData.paymentPlans.map(
-                  (plan, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between rounded-xl border border-gray-200 p-4"
-                    >
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          {plan.name}
-                        </p>
-
-                        <p className="text-sm text-gray-500">
-                          {plan.percentage}
-                        </p>
-
-                        <p className="text-sm text-gray-500">
-                          {plan.description}
-                        </p>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          removePaymentPlan(
-                            index
-                          )
-                        }
-                        className="text-red-500"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  )
-                )}
-
+          <div className="space-y-4 p-5">
+            {formData.paymentPlans.length === 0 && (
+              <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 py-8 text-center text-xs text-slate-500">
+                No payment plans added.
               </div>
             )}
-          </section>
 
-          {/* DOCUMENTS */}
-          <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            {formData.paymentPlans.map(
+              (plan, index) => (
+                <div
+                  key={index}
+                  className="relative rounded-xl border border-slate-200 bg-slate-50 p-4"
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      removePaymentPlan(index)
+                    }
+                    className="absolute right-3 top-3 text-slate-400 hover:text-red-500"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
 
-            <div className="mb-5 flex items-center gap-2">
-              <FileText size={19} />
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                        Plan Name
+                      </label>
 
-              <h2 className="text-lg font-semibold text-gray-900">
+                      <input
+                        type="text"
+                        value={plan.name || ""}
+                        onChange={(e) =>
+                          updatePaymentPlan(
+                            index,
+                            "name",
+                            e.target.value
+                          )
+                        }
+                        placeholder="Booking"
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-slate-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                        Percentage
+                      </label>
+
+                      <input
+                        type="text"
+                        value={plan.percentage || ""}
+                        onChange={(e) =>
+                          updatePaymentPlan(
+                            index,
+                            "percentage",
+                            e.target.value
+                          )
+                        }
+                        placeholder="10%"
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-slate-400"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                        Description
+                      </label>
+
+                      <textarea
+                        value={plan.description || ""}
+                        onChange={(e) =>
+                          updatePaymentPlan(
+                            index,
+                            "description",
+                            e.target.value
+                          )
+                        }
+                        rows={2}
+                        placeholder="Payment description"
+                        className="w-full resize-none rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-slate-400"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+        </section>
+
+        {/* =====================================================
+            DOCUMENTS
+        ===================================================== */}
+
+        <section className="mb-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+            <div>
+              <h2 className="text-base font-semibold text-slate-900">
                 Documents
               </h2>
-            </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
-
-              <input
-                type="text"
-                name="name"
-                value={document.name}
-                onChange={
-                  handleDocumentChange
-                }
-                placeholder="Document name"
-                className="rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-gray-900"
-              />
-
-              <input
-                type="text"
-                name="url"
-                value={document.url}
-                onChange={
-                  handleDocumentChange
-                }
-                placeholder="Document URL"
-                className="rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-gray-900"
-              />
-
-              <input
-                type="text"
-                name="type"
-                value={document.type}
-                onChange={
-                  handleDocumentChange
-                }
-                placeholder="Document type"
-                className="rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-gray-900"
-              />
+              <p className="mt-1 text-xs text-slate-500">
+                Add project related documents.
+              </p>
             </div>
 
             <button
               type="button"
               onClick={addDocument}
-              className="mt-4 flex items-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
             >
-              <Plus size={17} />
+              <Plus className="h-3.5 w-3.5" />
               Add Document
             </button>
+          </div>
 
-            {formData.documents.length > 0 && (
-              <div className="mt-5 space-y-3">
-
-                {formData.documents.map(
-                  (doc, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between rounded-xl border border-gray-200 p-4"
-                    >
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          {doc.name}
-                        </p>
-
-                        <p className="break-all text-sm text-gray-500">
-                          {doc.url}
-                        </p>
-
-                        <p className="text-xs text-gray-400">
-                          {doc.type}
-                        </p>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          removeDocument(
-                            index
-                          )
-                        }
-                        className="text-red-500"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  )
-                )}
-
+          <div className="space-y-4 p-5">
+            {formData.documents.length === 0 && (
+              <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 py-8 text-center text-xs text-slate-500">
+                No documents added.
               </div>
             )}
-          </section>
 
-          {/* SETTINGS */}
-          <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            {formData.documents.map(
+              (document, index) => (
+                <div
+                  key={index}
+                  className="relative rounded-xl border border-slate-200 bg-slate-50 p-4"
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      removeDocument(index)
+                    }
+                    className="absolute right-3 top-3 text-slate-400 hover:text-red-500"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
 
-            <h2 className="mb-5 text-lg font-semibold text-gray-900">
+                  <div className="mb-4 flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
+                      <FileText className="h-4 w-4 text-slate-500" />
+                    </div>
+
+                    <span className="text-xs font-semibold text-slate-700">
+                      Document {index + 1}
+                    </span>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                        Name
+                      </label>
+
+                      <input
+                        type="text"
+                        value={document.name || ""}
+                        onChange={(e) =>
+                          updateDocument(
+                            index,
+                            "name",
+                            e.target.value
+                          )
+                        }
+                        placeholder="Brochure"
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-slate-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                        URL
+                      </label>
+
+                      <input
+                        type="text"
+                        value={document.url || ""}
+                        onChange={(e) =>
+                          updateDocument(
+                            index,
+                            "url",
+                            e.target.value
+                          )
+                        }
+                        placeholder="https://..."
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-slate-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-slate-700">
+                        Type
+                      </label>
+
+                      <input
+                        type="text"
+                        value={document.type || ""}
+                        onChange={(e) =>
+                          updateDocument(
+                            index,
+                            "type",
+                            e.target.value
+                          )
+                        }
+                        placeholder="PDF"
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-slate-400"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+        </section>
+
+        {/* =====================================================
+            PROJECT SETTINGS
+        ===================================================== */}
+
+        <section className="mb-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-200 px-5 py-4">
+            <h2 className="text-base font-semibold text-slate-900">
               Project Settings
             </h2>
 
-            <div className="grid gap-4 sm:grid-cols-3">
-
-              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-200 p-4">
-                <input
-                  type="checkbox"
-                  name="featured"
-                  checked={
-                    formData.featured
-                  }
-                  onChange={handleChange}
-                  className="h-4 w-4"
-                />
-
-                <span className="text-sm font-medium text-gray-700">
-                  Featured Project
-                </span>
-              </label>
-
-              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-200 p-4">
-                <input
-                  type="checkbox"
-                  name="newProject"
-                  checked={
-                    formData.newProject
-                  }
-                  onChange={handleChange}
-                  className="h-4 w-4"
-                />
-
-                <span className="text-sm font-medium text-gray-700">
-                  New Project
-                </span>
-              </label>
-
-              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-200 p-4">
-                <input
-                  type="checkbox"
-                  name="published"
-                  checked={
-                    formData.published
-                  }
-                  onChange={handleChange}
-                  className="h-4 w-4"
-                />
-
-                <span className="text-sm font-medium text-gray-700">
-                  Published
-                </span>
-              </label>
-
-            </div>
-          </section>
-
-          {/* BOTTOM ACTIONS */}
-          <div className="flex flex-col-reverse justify-end gap-3 sm:flex-row">
-
-            <button
-              type="button"
-              onClick={() =>
-                navigate(
-                  "/admin/authority-projects"
-                )
-              }
-              disabled={saving}
-              className="rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-
-            <button
-              type="submit"
-              disabled={saving}
-              className="flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-6 py-3 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60"
-            >
-              {saving ? (
-                <>
-                  <Loader2
-                    size={18}
-                    className="animate-spin"
-                  />
-                  Updating...
-                </>
-              ) : (
-                <>
-                  <Save size={18} />
-                  Update Project
-                </>
-              )}
-            </button>
-
+            <p className="mt-1 text-xs text-slate-500">
+              Manage project visibility and highlights.
+            </p>
           </div>
 
-        </form>
-      </div>
+          <div className="grid gap-4 p-5 md:grid-cols-3">
+            <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 p-4 transition hover:bg-slate-50">
+              <input
+                type="checkbox"
+                name="featured"
+                checked={formData.featured}
+                onChange={handleCheckboxChange}
+                className="h-4 w-4 rounded border-slate-300"
+              />
+
+              <div>
+                <p className="text-sm font-semibold text-slate-800">
+                  Featured Project
+                </p>
+
+                <p className="mt-0.5 text-xs text-slate-500">
+                  Show this project as featured.
+                </p>
+              </div>
+            </label>
+
+            <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 p-4 transition hover:bg-slate-50">
+              <input
+                type="checkbox"
+                name="newProject"
+                checked={formData.newProject}
+                onChange={handleCheckboxChange}
+                className="h-4 w-4 rounded border-slate-300"
+              />
+
+              <div>
+                <p className="text-sm font-semibold text-slate-800">
+                  New Project
+                </p>
+
+                <p className="mt-0.5 text-xs text-slate-500">
+                  Mark this project as new.
+                </p>
+              </div>
+            </label>
+
+            <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 p-4 transition hover:bg-slate-50">
+              <input
+                type="checkbox"
+                name="published"
+                checked={formData.published}
+                onChange={handleCheckboxChange}
+                className="h-4 w-4 rounded border-slate-300"
+              />
+
+              <div>
+                <p className="text-sm font-semibold text-slate-800">
+                  Published
+                </p>
+
+                <p className="mt-0.5 text-xs text-slate-500">
+                  Make project visible on website.
+                </p>
+              </div>
+            </label>
+          </div>
+        </section>
+
+        {/* =====================================================
+            PROJECT INFORMATION TABLE
+        ===================================================== */}
+
+        <DynamicTable
+          value={formData.customTable}
+          onChange={handleCustomTableChange}
+          title="Project Information Table"
+          description="Edit project-specific information using rows and columns."
+        />
+
+        {/* =====================================================
+            BOTTOM ACTIONS
+        ===================================================== */}
+
+        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:justify-end">
+          <button
+            type="button"
+            onClick={() =>
+              navigate("/admin/authority-projects")
+            }
+            className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {saving ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4" />
+            )}
+
+            {saving ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
 
 export default EditAuthorityProject;
-

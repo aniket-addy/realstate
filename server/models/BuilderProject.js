@@ -65,6 +65,81 @@ const documentSchema = new mongoose.Schema(
 
 /*
 |--------------------------------------------------------------------------
+| CUSTOM TABLE COLUMN SCHEMA
+|--------------------------------------------------------------------------
+*/
+
+const tableColumnSchema = new mongoose.Schema(
+  {
+    id: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    label: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+  },
+  {
+    _id: false,
+  }
+);
+
+
+/*
+|--------------------------------------------------------------------------
+| CUSTOM TABLE ROW SCHEMA
+|--------------------------------------------------------------------------
+*/
+
+const tableRowSchema = new mongoose.Schema(
+  {
+    id: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    cells: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
+  },
+  {
+    _id: false,
+  }
+);
+
+
+/*
+|--------------------------------------------------------------------------
+| CUSTOM TABLE SCHEMA
+|--------------------------------------------------------------------------
+*/
+
+const customTableSchema = new mongoose.Schema(
+  {
+    columns: {
+      type: [tableColumnSchema],
+      default: [],
+    },
+
+    rows: {
+      type: [tableRowSchema],
+      default: [],
+    },
+  },
+  {
+    _id: false,
+  }
+);
+
+
+/*
+|--------------------------------------------------------------------------
 | BUILDER PROJECT SCHEMA
 |--------------------------------------------------------------------------
 */
@@ -134,7 +209,6 @@ const builderProjectSchema = new mongoose.Schema(
       trim: true,
       default: "",
     },
-
 
     reraNumber: {
       type: String,
@@ -306,6 +380,20 @@ const builderProjectSchema = new mongoose.Schema(
     documents: {
       type: [documentSchema],
       default: [],
+    },
+
+
+    // =====================================================
+    // CUSTOM PROJECT TABLE
+    // =====================================================
+
+    customTable: {
+      type: customTableSchema,
+
+      default: () => ({
+        columns: [],
+        rows: [],
+      }),
     },
   },
 

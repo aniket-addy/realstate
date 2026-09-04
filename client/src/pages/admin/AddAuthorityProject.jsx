@@ -19,6 +19,9 @@ import {
   uploadAuthorityProjectDocuments,
 } from "../../services/authorityProjectService";
 
+import DynamicTable, {
+  createEmptyProjectTable,
+} from "../../components/DynamicTable/DynamicTable";
 
 /*
 |--------------------------------------------------------------------------
@@ -28,7 +31,6 @@ import {
 
 function AddAuthorityProject() {
   const navigate = useNavigate();
-
 
   // =========================================================
   // FORM STATE
@@ -66,8 +68,13 @@ function AddAuthorityProject() {
 
     paymentPlans: [],
     documents: [],
-  });
 
+    // =======================================================
+    // DYNAMIC TABLE
+    // =======================================================
+
+    customTable: createEmptyProjectTable(),
+  });
 
   // =========================================================
   // UI STATE
@@ -93,7 +100,6 @@ function AddAuthorityProject() {
 
   const [success, setSuccess] = useState("");
 
-
   // =========================================================
   // INPUT CHANGE
   // =========================================================
@@ -116,7 +122,6 @@ function AddAuthorityProject() {
     }));
   };
 
-
   // =========================================================
   // FEATURES
   // =========================================================
@@ -138,7 +143,6 @@ function AddAuthorityProject() {
     setFeatureInput("");
   };
 
-
   const removeFeature = (index) => {
     setFormData((prev) => ({
       ...prev,
@@ -149,7 +153,6 @@ function AddAuthorityProject() {
         ),
     }));
   };
-
 
   // =========================================================
   // AMENITIES
@@ -172,7 +175,6 @@ function AddAuthorityProject() {
     setAmenityInput("");
   };
 
-
   const removeAmenity = (index) => {
     setFormData((prev) => ({
       ...prev,
@@ -183,7 +185,6 @@ function AddAuthorityProject() {
         ),
     }));
   };
-
 
   // =========================================================
   // PAYMENT PLAN
@@ -201,7 +202,6 @@ function AddAuthorityProject() {
       [name]: value,
     }));
   };
-
 
   const addPaymentPlan = () => {
     if (!paymentPlan.name.trim()) {
@@ -236,7 +236,6 @@ function AddAuthorityProject() {
     });
   };
 
-
   const removePaymentPlan = (index) => {
     setFormData((prev) => ({
       ...prev,
@@ -247,7 +246,6 @@ function AddAuthorityProject() {
         ),
     }));
   };
-
 
   // =========================================================
   // IMAGE SELECT
@@ -260,10 +258,8 @@ function AddAuthorityProject() {
 
     setSelectedImages(files);
 
-    // Clear previous upload error
     setError("");
   };
-
 
   // =========================================================
   // DOCUMENT SELECT
@@ -277,27 +273,11 @@ function AddAuthorityProject() {
     setSelectedDocuments(files);
   };
 
-
   // =========================================================
   // EXTRACT IMAGE URLS
   // =========================================================
 
   const extractUploadedImages = (response) => {
-    /*
-    |--------------------------------------------------------------------------
-    | Possible API response structures:
-    |
-    | 1. { images: [...] }
-    |
-    | 2. { data: { images: [...] } }
-    |
-    | 3. Axios response:
-    |    { data: { images: [...] } }
-    |
-    | 4. { data: { data: { images: [...] } } }
-    |--------------------------------------------------------------------------
-    */
-
     const possibleImages = [
       response?.images,
 
@@ -310,7 +290,6 @@ function AddAuthorityProject() {
       response?.result?.data?.images,
     ];
 
-
     let images = [];
 
     for (const value of possibleImages) {
@@ -319,13 +298,6 @@ function AddAuthorityProject() {
         break;
       }
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Normalize image objects into URLs
-    |--------------------------------------------------------------------------
-    */
 
     return images
       .map((item) => {
@@ -354,7 +326,6 @@ function AddAuthorityProject() {
       .filter(Boolean);
   };
 
-
   // =========================================================
   // EXTRACT DOCUMENTS
   // =========================================================
@@ -372,7 +343,6 @@ function AddAuthorityProject() {
       response?.result?.data?.documents,
     ];
 
-
     let documents = [];
 
     for (const value of possibleDocuments) {
@@ -382,13 +352,16 @@ function AddAuthorityProject() {
       }
     }
 
-
     return documents
       .map((item) => {
         if (typeof item === "string") {
           return {
-            name: item.split("/").pop() || "Document",
+            name:
+              item.split("/").pop() ||
+              "Document",
+
             url: item,
+
             type: "",
           };
         }
@@ -415,7 +388,6 @@ function AddAuthorityProject() {
       .filter((item) => item.url);
   };
 
-
   // =========================================================
   // VALIDATION
   // =========================================================
@@ -429,12 +401,6 @@ function AddAuthorityProject() {
       return "Authority name is required.";
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Authority project requires at least one image
-    |--------------------------------------------------------------------------
-    */
-
     if (
       selectedImages.length === 0 &&
       formData.images.length === 0
@@ -444,7 +410,6 @@ function AddAuthorityProject() {
 
     return "";
   };
-
 
   // =========================================================
   // SUBMIT
@@ -456,11 +421,6 @@ function AddAuthorityProject() {
     setError("");
     setSuccess("");
 
-
-    // =======================================================
-    // VALIDATE
-    // =======================================================
-
     const validationError =
       validateForm();
 
@@ -469,15 +429,11 @@ function AddAuthorityProject() {
       return;
     }
 
-
     try {
       setSaving(true);
 
-
       let uploadedImages = [];
-
       let uploadedDocuments = [];
-
 
       // =====================================================
       // UPLOAD IMAGES
@@ -486,14 +442,12 @@ function AddAuthorityProject() {
       if (selectedImages.length > 0) {
         const imageFormData = new FormData();
 
-
         selectedImages.forEach((file) => {
           imageFormData.append(
             "images",
             file
           );
         });
-
 
         let imageResponse;
 
@@ -515,24 +469,15 @@ function AddAuthorityProject() {
           );
         }
 
-
         console.log(
           "Authority image upload response:",
           imageResponse
         );
 
-
         uploadedImages =
           extractUploadedImages(
             imageResponse
           );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | IMPORTANT
-        |--------------------------------------------------------------------------
-        */
 
         if (uploadedImages.length === 0) {
           console.error(
@@ -546,7 +491,6 @@ function AddAuthorityProject() {
         }
       }
 
-
       // =====================================================
       // UPLOAD DOCUMENTS
       // =====================================================
@@ -554,7 +498,6 @@ function AddAuthorityProject() {
       if (selectedDocuments.length > 0) {
         const documentFormData =
           new FormData();
-
 
         selectedDocuments.forEach(
           (file) => {
@@ -564,7 +507,6 @@ function AddAuthorityProject() {
             );
           }
         );
-
 
         let documentResponse;
 
@@ -586,19 +528,16 @@ function AddAuthorityProject() {
           );
         }
 
-
         console.log(
           "Authority document upload response:",
           documentResponse
         );
-
 
         uploadedDocuments =
           extractUploadedDocuments(
             documentResponse
           );
       }
-
 
       // =====================================================
       // FINAL IMAGE ARRAY
@@ -609,13 +548,6 @@ function AddAuthorityProject() {
           ? uploadedImages
           : formData.images;
 
-
-      /*
-      |--------------------------------------------------------------------------
-      | BACKEND REQUIRES AT LEAST ONE IMAGE
-      |--------------------------------------------------------------------------
-      */
-
       if (
         !Array.isArray(finalImages) ||
         finalImages.length === 0
@@ -625,14 +557,12 @@ function AddAuthorityProject() {
         );
       }
 
-
       // =====================================================
       // MAIN IMAGE
       // =====================================================
 
       const mainImage =
         finalImages[0];
-
 
       // =====================================================
       // FINAL DOCUMENT ARRAY
@@ -642,7 +572,6 @@ function AddAuthorityProject() {
         uploadedDocuments.length > 0
           ? uploadedDocuments
           : formData.documents;
-
 
       // =====================================================
       // FINAL PROJECT DATA
@@ -705,67 +634,60 @@ function AddAuthorityProject() {
             formData.published
           ),
 
-        /*
-        |--------------------------------------------------------------------------
-        | MAIN IMAGE
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // MAIN IMAGE
+        // ===================================================
 
         image:
           mainImage,
 
-        /*
-        |--------------------------------------------------------------------------
-        | ALL IMAGES
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // ALL IMAGES
+        // ===================================================
 
         images:
           finalImages,
 
-        /*
-        |--------------------------------------------------------------------------
-        | FEATURES
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // FEATURES
+        // ===================================================
 
         features:
           formData.features,
 
-        /*
-        |--------------------------------------------------------------------------
-        | AMENITIES
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // AMENITIES
+        // ===================================================
 
         amenities:
           formData.amenities,
 
-        /*
-        |--------------------------------------------------------------------------
-        | PAYMENT PLANS
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // PAYMENT PLANS
+        // ===================================================
 
         paymentPlans:
           formData.paymentPlans,
 
-        /*
-        |--------------------------------------------------------------------------
-        | DOCUMENTS
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // DOCUMENTS
+        // ===================================================
 
         documents:
           finalDocuments,
-      };
 
+        // ===================================================
+        // DYNAMIC TABLE
+        // ===================================================
+
+        customTable:
+          formData.customTable,
+      };
 
       console.log(
         "Final Authority Project Payload:",
         projectData
       );
-
 
       // =====================================================
       // CREATE PROJECT
@@ -776,12 +698,10 @@ function AddAuthorityProject() {
           projectData
         );
 
-
       console.log(
         "Authority project created:",
         createResponse
       );
-
 
       // =====================================================
       // SUCCESS
@@ -790,7 +710,6 @@ function AddAuthorityProject() {
       setSuccess(
         "Authority project created successfully."
       );
-
 
       // =====================================================
       // REDIRECT
@@ -808,10 +727,8 @@ function AddAuthorityProject() {
         err
       );
 
-
       const backendMessage =
         err?.response?.data?.message;
-
 
       setError(
         backendMessage ||
@@ -824,7 +741,6 @@ function AddAuthorityProject() {
     }
   };
 
-
   // =========================================================
   // CANCEL
   // =========================================================
@@ -834,7 +750,6 @@ function AddAuthorityProject() {
       "/admin/authority-projects"
     );
   };
-
 
   // =========================================================
   // UI
@@ -871,15 +786,11 @@ function AddAuthorityProject() {
             Back to Authority Projects
           </button>
 
-
           <div className="flex items-center gap-3">
 
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#f8f0df] text-[#b88b32]">
-
               <Building2 size={21} />
-
             </div>
-
 
             <div>
 
@@ -899,7 +810,6 @@ function AddAuthorityProject() {
 
       </div>
 
-
       {/* =====================================================
           FORM
       ====================================================== */}
@@ -911,7 +821,6 @@ function AddAuthorityProject() {
 
         <div className="mx-auto max-w-6xl space-y-5">
 
-
           {/* =================================================
               ERROR
           ================================================== */}
@@ -922,7 +831,6 @@ function AddAuthorityProject() {
             </div>
           )}
 
-
           {/* =================================================
               SUCCESS
           ================================================== */}
@@ -932,7 +840,6 @@ function AddAuthorityProject() {
               {success}
             </div>
           )}
-
 
           {/* =================================================
               BASIC INFORMATION
@@ -952,9 +859,7 @@ function AddAuthorityProject() {
 
             </div>
 
-
             <div className="grid gap-5 px-6 py-6 md:grid-cols-2">
-
 
               {/* PROJECT NAME */}
 
@@ -971,7 +876,6 @@ function AddAuthorityProject() {
                 />
               </Field>
 
-
               {/* AUTHORITY */}
 
               <Field
@@ -986,7 +890,6 @@ function AddAuthorityProject() {
                   className={inputClass}
                 />
               </Field>
-
 
               {/* CATEGORY */}
 
@@ -1021,7 +924,6 @@ function AddAuthorityProject() {
 
               </Field>
 
-
               {/* STATUS */}
 
               <Field label="Project Status">
@@ -1053,7 +955,6 @@ function AddAuthorityProject() {
 
               </Field>
 
-
               {/* DESCRIPTION */}
 
               <div className="md:col-span-2">
@@ -1079,7 +980,6 @@ function AddAuthorityProject() {
 
           </section>
 
-
           {/* =================================================
               LOCATION
           ================================================== */}
@@ -1093,7 +993,6 @@ function AddAuthorityProject() {
               </h2>
 
             </div>
-
 
             <div className="grid gap-5 px-6 py-6 md:grid-cols-3">
 
@@ -1109,7 +1008,6 @@ function AddAuthorityProject() {
 
               </Field>
 
-
               <Field label="City">
 
                 <input
@@ -1121,7 +1019,6 @@ function AddAuthorityProject() {
                 />
 
               </Field>
-
 
               <Field label="State">
 
@@ -1139,7 +1036,6 @@ function AddAuthorityProject() {
 
           </section>
 
-
           {/* =================================================
               PROJECT DETAILS
           ================================================== */}
@@ -1153,7 +1049,6 @@ function AddAuthorityProject() {
               </h2>
 
             </div>
-
 
             <div className="grid gap-5 px-6 py-6 md:grid-cols-2">
 
@@ -1169,7 +1064,6 @@ function AddAuthorityProject() {
 
               </Field>
 
-
               <Field label="Price From">
 
                 <input
@@ -1184,7 +1078,6 @@ function AddAuthorityProject() {
 
               </Field>
 
-
               <Field label="Total Area">
 
                 <input
@@ -1197,7 +1090,6 @@ function AddAuthorityProject() {
 
               </Field>
 
-
               <Field label="Possession">
 
                 <input
@@ -1209,7 +1101,6 @@ function AddAuthorityProject() {
                 />
 
               </Field>
-
 
               <Field label="RERA / Approval Number">
 
@@ -1226,7 +1117,6 @@ function AddAuthorityProject() {
             </div>
 
           </section>
-
 
           {/* =================================================
               WEBSITE VISIBILITY
@@ -1246,7 +1136,6 @@ function AddAuthorityProject() {
 
             </div>
 
-
             <div className="grid gap-3 px-6 py-6 md:grid-cols-3">
 
               <CheckboxCard
@@ -1259,7 +1148,6 @@ function AddAuthorityProject() {
                 description="Show inside Featured Projects."
               />
 
-
               <CheckboxCard
                 name="newProject"
                 checked={
@@ -1269,7 +1157,6 @@ function AddAuthorityProject() {
                 title="New Project"
                 description="Show inside New Projects."
               />
-
 
               <CheckboxCard
                 name="published"
@@ -1284,7 +1171,6 @@ function AddAuthorityProject() {
             </div>
 
           </section>
-
 
           {/* =================================================
               PROJECT IMAGES
@@ -1303,7 +1189,6 @@ function AddAuthorityProject() {
               </p>
 
             </div>
-
 
             <div className="px-6 py-6">
 
@@ -1341,7 +1226,6 @@ function AddAuthorityProject() {
                   You can select multiple images.
                 </p>
 
-
                 <input
                   type="file"
                   accept="image/*"
@@ -1353,7 +1237,6 @@ function AddAuthorityProject() {
                 />
 
               </label>
-
 
               {selectedImages.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2">
@@ -1376,13 +1259,11 @@ function AddAuthorityProject() {
 
           </section>
 
-
           {/* =================================================
               FEATURES & AMENITIES
           ================================================== */}
 
           <section className="grid gap-5 lg:grid-cols-2">
-
 
             {/* FEATURES */}
 
@@ -1395,7 +1276,6 @@ function AddAuthorityProject() {
                 </h2>
 
               </div>
-
 
               <div className="px-6 py-6">
 
@@ -1430,7 +1310,6 @@ function AddAuthorityProject() {
 
                 </div>
 
-
                 <div className="mt-4 space-y-2">
 
                   {formData.features.map(
@@ -1453,7 +1332,6 @@ function AddAuthorityProject() {
 
             </div>
 
-
             {/* AMENITIES */}
 
             <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -1465,7 +1343,6 @@ function AddAuthorityProject() {
                 </h2>
 
               </div>
-
 
               <div className="px-6 py-6">
 
@@ -1500,7 +1377,6 @@ function AddAuthorityProject() {
 
                 </div>
 
-
                 <div className="mt-4 space-y-2">
 
                   {formData.amenities.map(
@@ -1525,7 +1401,6 @@ function AddAuthorityProject() {
 
           </section>
 
-
           {/* =================================================
               PAYMENT PLANS
           ================================================== */}
@@ -1539,7 +1414,6 @@ function AddAuthorityProject() {
               </h2>
 
             </div>
-
 
             <div className="px-6 py-6">
 
@@ -1557,7 +1431,6 @@ function AddAuthorityProject() {
                   className={inputClass}
                 />
 
-
                 <input
                   type="number"
                   name="percentage"
@@ -1573,7 +1446,6 @@ function AddAuthorityProject() {
                   className={inputClass}
                 />
 
-
                 <div className="flex gap-2">
 
                   <input
@@ -1588,7 +1460,6 @@ function AddAuthorityProject() {
                     className={inputClass}
                   />
 
-
                   <button
                     type="button"
                     onClick={
@@ -1602,7 +1473,6 @@ function AddAuthorityProject() {
                 </div>
 
               </div>
-
 
               {formData.paymentPlans.length > 0 && (
                 <div className="mt-5 space-y-2">
@@ -1639,7 +1509,6 @@ function AddAuthorityProject() {
 
                         </div>
 
-
                         <button
                           type="button"
                           onClick={() =>
@@ -1649,9 +1518,7 @@ function AddAuthorityProject() {
                           }
                           className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600"
                         >
-
                           <Trash2 size={15} />
-
                         </button>
 
                       </div>
@@ -1664,7 +1531,6 @@ function AddAuthorityProject() {
             </div>
 
           </section>
-
 
           {/* =================================================
               DOCUMENTS
@@ -1679,7 +1545,6 @@ function AddAuthorityProject() {
               </h2>
 
             </div>
-
 
             <div className="px-6 py-6">
 
@@ -1701,11 +1566,8 @@ function AddAuthorityProject() {
               >
 
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-slate-400">
-
                   <FileText size={20} />
-
                 </div>
-
 
                 <div>
 
@@ -1719,12 +1581,10 @@ function AddAuthorityProject() {
 
                 </div>
 
-
                 <Upload
                   size={17}
                   className="ml-auto text-slate-400"
                 />
-
 
                 <input
                   type="file"
@@ -1736,7 +1596,6 @@ function AddAuthorityProject() {
                 />
 
               </label>
-
 
               {selectedDocuments.length > 0 && (
                 <div className="mt-4 space-y-2">
@@ -1768,6 +1627,21 @@ function AddAuthorityProject() {
 
           </section>
 
+          {/* =================================================
+              DYNAMIC TABLE
+          ================================================== */}
+
+          <DynamicTable
+            value={formData.customTable}
+            onChange={(customTable) =>
+              setFormData((prev) => ({
+                ...prev,
+                customTable,
+              }))
+            }
+            title="Project Information Table"
+            description="Add custom project details using rows and columns."
+          />
 
           {/* =================================================
               ACTIONS
@@ -1796,7 +1670,6 @@ function AddAuthorityProject() {
             >
               Cancel
             </button>
-
 
             <button
               type="submit"
@@ -1847,7 +1720,6 @@ function AddAuthorityProject() {
   );
 }
 
-
 /*
 |--------------------------------------------------------------------------
 | REUSABLE FIELD
@@ -1879,7 +1751,6 @@ function Field({
     </label>
   );
 }
-
 
 /*
 |--------------------------------------------------------------------------
@@ -1921,7 +1792,6 @@ function CheckboxCard({
         className="peer sr-only"
       />
 
-
       <span
         className={`
           mt-0.5
@@ -1948,7 +1818,6 @@ function CheckboxCard({
 
       </span>
 
-
       <span>
 
         <span className="block text-sm font-extrabold text-slate-800">
@@ -1964,7 +1833,6 @@ function CheckboxCard({
     </label>
   );
 }
-
 
 /*
 |--------------------------------------------------------------------------
@@ -1995,7 +1863,6 @@ function TagRow({
   );
 }
 
-
 /*
 |--------------------------------------------------------------------------
 | INPUT STYLES
@@ -2021,6 +1888,11 @@ const inputClass = `
   focus:ring-[#d6a84f]/10
 `;
 
+/*
+|--------------------------------------------------------------------------
+| SMALL BUTTON
+|--------------------------------------------------------------------------
+*/
 
 const smallButtonClass = `
   flex
@@ -2035,6 +1907,5 @@ const smallButtonClass = `
   transition
   hover:bg-slate-800
 `;
-
 
 export default AddAuthorityProject;

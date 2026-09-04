@@ -8,53 +8,37 @@ import api from "./api";
 |--------------------------------------------------------------------------
 */
 
-
 // =========================================================
 // GET ALL BUILDER PROJECTS
 // =========================================================
 
-export const getBuilderProjects = async (
-  params = {}
-) => {
-  const response = await api.get(
-    "/builder-projects",
-    {
-      params,
-    }
-  );
+export const getBuilderProjects = async (params = {}) => {
+  const response = await api.get("/builder-projects", {
+    params,
+  });
 
   return response.data;
 };
-
 
 // =========================================================
 // GET SINGLE BUILDER PROJECT
 // =========================================================
 
-export const getBuilderProjectById = async (
-  id
-) => {
+export const getBuilderProjectById = async (id) => {
   if (!id) {
-    throw new Error(
-      "Builder Project ID is required"
-    );
+    throw new Error("Builder Project ID is required");
   }
 
-  const response = await api.get(
-    `/builder-projects/${id}`
-  );
+  const response = await api.get(`/builder-projects/${id}`);
 
   return response.data;
 };
-
 
 // =========================================================
 // CREATE BUILDER PROJECT
 // =========================================================
 
-export const createBuilderProject = async (
-  projectData
-) => {
+export const createBuilderProject = async (projectData) => {
   const response = await api.post(
     "/builder-projects",
     projectData
@@ -62,7 +46,6 @@ export const createBuilderProject = async (
 
   return response.data;
 };
-
 
 // =========================================================
 // UPDATE BUILDER PROJECT
@@ -73,9 +56,7 @@ export const updateBuilderProject = async (
   projectData
 ) => {
   if (!id) {
-    throw new Error(
-      "Builder Project ID is required"
-    );
+    throw new Error("Builder Project ID is required");
   }
 
   const response = await api.put(
@@ -86,18 +67,13 @@ export const updateBuilderProject = async (
   return response.data;
 };
 
-
 // =========================================================
 // DELETE BUILDER PROJECT
 // =========================================================
 
-export const deleteBuilderProject = async (
-  id
-) => {
+export const deleteBuilderProject = async (id) => {
   if (!id) {
-    throw new Error(
-      "Builder Project ID is required"
-    );
+    throw new Error("Builder Project ID is required");
   }
 
   const response = await api.delete(
@@ -107,44 +83,42 @@ export const deleteBuilderProject = async (
   return response.data;
 };
 
-
 // =========================================================
 // UPLOAD BUILDER PROJECT IMAGES
 // =========================================================
 
-export const uploadBuilderProjectImages =
-  async (formData) => {
-    const response = await api.post(
-      "/builder-projects/upload-images",
-      formData,
-      {
-        headers: {
-          "Content-Type":
-            "multipart/form-data",
-        },
-      }
-    );
+export const uploadBuilderProjectImages = async (
+  formData
+) => {
+  const response = await api.post(
+    "/builder-projects/upload-images",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
 
-    return response.data;
-  };
-
+  return response.data;
+};
 
 // =========================================================
 // UPLOAD BUILDER PROJECT DOCUMENTS
 // =========================================================
 
-export const uploadBuilderProjectDocuments =
-  async (formData) => {
-    const response = await api.post(
-      "/builder-projects/upload-documents",
-      formData,
-      {
-        headers: {
-          "Content-Type":
-            "multipart/form-data",
-        },
-      }
-    );
+export const uploadBuilderProjectDocuments = async (
+  formData
+) => {
+  const response = await api.post(
+    "/builder-projects/upload-documents",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
 
-    return response.data;
-  };
+  return response.data;
+};

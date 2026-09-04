@@ -13,6 +13,10 @@ import {
   Upload,
 } from "lucide-react";
 
+import DynamicTable, {
+  createEmptyProjectTable,
+} from "../../components/DynamicTable/DynamicTable";
+
 import {
   createBuilderProject,
   uploadBuilderProjectImages,
@@ -26,11 +30,18 @@ import {
 |--------------------------------------------------------------------------
 | Creates a new Builder / Developer project.
 |
-| Important:
-| - No image URL field
-| - No document URL field
-| - Images are uploaded directly
-| - Documents are uploaded directly
+| Includes:
+| - Basic project information
+| - Authority & RERA
+| - Location
+| - Project details
+| - Website visibility
+| - Project images
+| - Features
+| - Amenities
+| - Payment plans
+| - Documents
+| - Reusable Dynamic Table
 |--------------------------------------------------------------------------
 */
 
@@ -76,6 +87,12 @@ function AddBuilderProject() {
 
     paymentPlans: [],
     documents: [],
+
+    // =====================================================
+    // REUSABLE DYNAMIC TABLE
+    // =====================================================
+
+    customTable: createEmptyProjectTable(),
   });
 
 
@@ -590,6 +607,13 @@ function AddBuilderProject() {
 
         documents:
           uploadedDocuments,
+
+        // =================================================
+        // DYNAMIC TABLE DATA
+        // =================================================
+
+        customTable:
+          formData.customTable,
       };
 
 
@@ -1880,6 +1904,23 @@ function AddBuilderProject() {
             </div>
 
           </section>
+
+
+          {/* =================================================
+              REUSABLE DYNAMIC PROJECT TABLE
+          ================================================== */}
+
+          <DynamicTable
+            value={formData.customTable}
+            onChange={(customTable) =>
+              setFormData((prev) => ({
+                ...prev,
+                customTable,
+              }))
+            }
+            title="Project Information Table"
+            description="Add custom project details using rows and columns."
+          />
 
 
           {/* =================================================

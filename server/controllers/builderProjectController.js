@@ -31,6 +31,7 @@ const createBuilderProject = async (req, res) => {
       amenities,
       paymentPlans,
       documents,
+      customTable,
     } = req.body;
 
 
@@ -136,6 +137,21 @@ const createBuilderProject = async (req, res) => {
         Array.isArray(documents)
           ? documents
           : [],
+
+      // ---------------------------------------------------
+      // CUSTOM DYNAMIC TABLE
+      // ---------------------------------------------------
+
+      customTable:
+        customTable &&
+        typeof customTable === "object" &&
+        Array.isArray(customTable.columns) &&
+        Array.isArray(customTable.rows)
+          ? customTable
+          : {
+              columns: [],
+              rows: [],
+            },
     });
 
 
@@ -409,6 +425,7 @@ const updateBuilderProject = async (
       amenities,
       paymentPlans,
       documents,
+      customTable,
     } = req.body;
 
 
@@ -592,6 +609,25 @@ const updateBuilderProject = async (
         Array.isArray(documents)
           ? documents
           : [];
+    }
+
+
+    // -----------------------------------------------------
+    // CUSTOM DYNAMIC TABLE
+    // -----------------------------------------------------
+
+    if (customTable !== undefined) {
+
+      updateData.customTable =
+        customTable &&
+        typeof customTable === "object" &&
+        Array.isArray(customTable.columns) &&
+        Array.isArray(customTable.rows)
+          ? customTable
+          : {
+              columns: [],
+              rows: [],
+            };
     }
 
 
